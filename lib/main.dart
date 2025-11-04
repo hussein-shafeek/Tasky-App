@@ -1,0 +1,32 @@
+import 'package:flutter/material.dart';
+import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/theme/app_theme.dart';
+import 'package:tasky_app/features/auth/ui/login_screen.dart';
+import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
+
+void main() {
+  runApp(TaskyApp());
+}
+
+class TaskyApp extends StatefulWidget {
+  const TaskyApp({super.key});
+
+  @override
+  State<TaskyApp> createState() => _TaskyAppState();
+}
+
+class _TaskyAppState extends State<TaskyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: AppRoutes.onboardingScreen,
+      theme: AppTheme.CustomeLightTheme,
+      themeMode: ThemeMode.light,
+      routes: {
+        AppRoutes.onboardingScreen: (_) => OnboardingScreen(),
+        AppRoutes.loginScreen: (_) => LoginScreen(),
+      },
+    );
+  }
+}
