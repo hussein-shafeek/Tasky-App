@@ -12,4 +12,8 @@ class AppColors {
   static const Color pinkLace = Color(0xffFFE4F2);
   static const Color azureBlue = Color(0xff0087FF);
   static const Color textSecondary = Color(0xff6E6A7C);
+  static const Color hintGray = Color(0xffBABABA);
+  static const Color grayMedium = Color(0xff7F7F7F);
+  static const Color lightBlueCustom = Color(0xFFE3F2FF);
+  static const Color lightPurple = Color(0xFFEBE5FF);
 }

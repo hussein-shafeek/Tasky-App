@@ -23,20 +23,20 @@ class AppTheme {
 
     inputDecorationTheme: InputDecorationTheme(
       hintStyle: TextStyle(
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: AppColors.grayViolet,
+        color: AppColors.hintGray,
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: AppColors.primary),
-        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: AppColors.grayMedium),
+        borderRadius: BorderRadius.circular(10),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: AppColors.primary),
-        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        borderRadius: BorderRadius.circular(10),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: AppColors.coral),
       ),
     ),
@@ -44,7 +44,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     ),
 
@@ -62,7 +62,7 @@ class AppTheme {
       titleMedium: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.black,
+        color: AppColors.white,
       ),
       titleSmall: TextStyle(
         fontSize: 14,
@@ -74,6 +74,7 @@ class AppTheme {
         fontWeight: FontWeight.bold,
         color: AppColors.white,
       ),
+      labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
     ),
 
     textButtonTheme: TextButtonThemeData(

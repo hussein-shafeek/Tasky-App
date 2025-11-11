@@ -10,6 +10,7 @@ class DefaultElevatedButton extends StatelessWidget {
   Color? foregroundColor;
   String? prefixSvgPath;
   final String? suffixSvgPath;
+  final TextStyle? textStyle;
 
   DefaultElevatedButton({
     super.key,
@@ -19,6 +20,7 @@ class DefaultElevatedButton extends StatelessWidget {
     this.foregroundColor,
     this.prefixSvgPath,
     this.suffixSvgPath,
+    this.textStyle,
   });
 
   @override
@@ -44,7 +46,7 @@ class DefaultElevatedButton extends StatelessWidget {
 
             SizedBox(width: width * 0.020),
           ],
-          Text(label, style: text.titleLarge),
+          Text(label, style: textStyle ?? text.titleLarge),
           if (suffixSvgPath != null) ...[
             SizedBox(width: width * 0.0293),
             SvgPicture.asset(

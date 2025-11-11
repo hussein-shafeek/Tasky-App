@@ -5,16 +5,20 @@ import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController experienceLevelController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+
   final TextEditingController phoneController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -34,9 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 Image.asset(
-                  'assets/images/art.png',
-                  fit: BoxFit.fill,
-                  height: height * 0.5394,
+                  'assets/images/register.png',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: height * 0.2315,
                 ),
                 SizedBox(height: height * 0.005),
                 Padding(
@@ -44,8 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Login', style: text.headlineSmall),
+                      Text('Register', style: text.headlineSmall),
                       SizedBox(height: height * 0.02955),
+                      DefaultTextFormField(
+                        hintText: "Name...",
+                        controller: nameController,
+                      ),
+                      SizedBox(height: height * 0.024630),
                       DefaultTextFormField(
                         hintText: "123 456-7890",
                         controller: phoneController,
@@ -98,6 +108,74 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       SizedBox(height: height * 0.024630),
+
+                      DefaultTextFormField(
+                        hintText: "Choose experience level",
+                        controller: experienceLevelController,
+                        prefixWidget: null,
+                        isPassword: false,
+                        readOnly: true,
+                        onTap: () async {
+                          final level = await showModalBottomSheet<String>(
+                            context: context,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (context) => Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    "Choose experience level",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ListTile(
+                                    title: const Text("Junior"),
+                                    onTap: () =>
+                                        Navigator.pop(context, "Junior"),
+                                  ),
+                                  ListTile(
+                                    title: const Text("Mid Level"),
+                                    onTap: () =>
+                                        Navigator.pop(context, "Mid Level"),
+                                  ),
+                                  ListTile(
+                                    title: const Text("Senior"),
+                                    onTap: () =>
+                                        Navigator.pop(context, "Senior"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+
+                          if (level != null) {
+                            setState(() {
+                              experienceLevelController.text = level;
+                            });
+                          }
+                        },
+                        suffixIcon: const Icon(
+                          Icons.expand_more,
+                          color: AppColors.grayMedium,
+                        ),
+                      ),
+
+                      SizedBox(height: height * 0.024630),
+
+                      DefaultTextFormField(
+                        hintText: "Address...",
+                        controller: addressController,
+                      ),
+                      SizedBox(height: height * 0.024630),
+
                       DefaultTextFormField(
                         hintText: "Password...",
                         controller: passwordController,
@@ -121,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Didn’t have any account?',
+                            'Already have any account?',
                             style: text.titleMedium!.copyWith(
                               color: AppColors.grayMedium,
                             ),
@@ -130,8 +208,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextButton(
                             onPressed: () => Navigator.of(
                               context,
-                            ).pushReplacementNamed(AppRoutes.registerScreen),
-                            child: Text('Sign Up here'),
+                            ).pushReplacementNamed(AppRoutes.loginScreen),
+                            child: Text('Sign in'),
                           ),
                         ],
                       ),

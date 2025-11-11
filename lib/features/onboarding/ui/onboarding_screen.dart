@@ -32,42 +32,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       body: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Column(
-            children: [
-              Image.asset(
-                'assets/images/${page.image}.png',
-                height: height * 0.5394,
-              ),
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/images/${page.image}.png',
+              height: height * 0.5394,
+            ),
 
-              // SizedBox(height: height * 0.02955),
-              Text(
-                page.title,
-                textAlign: TextAlign.center,
-                style: text.headlineSmall,
-              ),
-              SizedBox(height: height * 0.0197),
+            // SizedBox(height: height * 0.02955),
+            Text(
+              page.title,
+              textAlign: TextAlign.center,
+              style: text.headlineSmall,
+            ),
+            SizedBox(height: height * 0.0197),
 
-              Text(
-                page.description,
-                textAlign: TextAlign.center,
-                style: text.titleSmall,
-              ),
-              SizedBox(height: height * 0.04002),
+            Text(
+              page.description,
+              textAlign: TextAlign.center,
+              style: text.titleSmall,
+            ),
+            SizedBox(height: height * 0.04002),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 22),
-                child: DefaultElevatedButton(
-                  label: 'Let’s Start',
-                  suffixSvgPath: 'assets/icons/ArrowRight.svg',
-                  backgroundColor: AppColors.primary,
-                  onPressed: () => _finishOnboarding(context),
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: DefaultElevatedButton(
+                label: 'Let’s Start',
+                suffixSvgPath: 'assets/icons/ArrowRight.svg',
+                backgroundColor: AppColors.primary,
+                onPressed: () => _finishOnboarding(context),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_theme.dart';
 import 'package:tasky_app/features/auth/ui/login_screen.dart';
+import 'package:tasky_app/features/auth/ui/register_screen.dart';
+import 'package:tasky_app/features/home/ui/home_screen.dart';
 import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
 
 void main() {
@@ -26,6 +28,8 @@ class _TaskyAppState extends State<TaskyApp> {
       routes: {
         AppRoutes.onboardingScreen: (_) => OnboardingScreen(),
         AppRoutes.loginScreen: (_) => LoginScreen(),
+        AppRoutes.registerScreen: (_) => RegisterScreen(),
+        AppRoutes.homeScreen: (_) => HomeScreen(),
       },
     );
   }
