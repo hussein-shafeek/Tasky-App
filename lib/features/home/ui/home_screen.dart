@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
+import 'package:tasky_app/features/tasks/data/models/task_model.dart';
+import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,33 +14,41 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // مؤقتًا دي بيانات ثابتة لحد ما نربطها بقاعدة بيانات أو API
-  List<Map<String, dynamic>> tasks = [
-    {
-      "title": "Grocery Shopping App",
-      "desc":
+  List<TaskModel> tasks = [
+    TaskModel(
+      id: "1",
+      title: "Grocery Shopping App",
+      description:
           "This application is designed for super shops. By using this application they can enlist all their products in one place and can deliver. Customers will get a one-stop solution for their daily shopping.",
-      "status": "Waiting",
-      "priority": "Low",
-      "date": "30/12/2022",
-    },
-    {
-      "title": "Grocery Shopping App",
-      "desc":
-          "This application is designed for super shops. By using this application they can enlist all their products in one place and can deliver. Customers will get a one-stop solution for their daily shopping.",
-      "status": "Inprogress",
-      "priority": "High",
-      "date": "30/12/2022",
-    },
-    {
-      "title": "Grocery Shopping App",
-      "desc":
-          "This application is designed for super shops. By using this application they can enlist all their products in one place and can deliver. Customers will get a one-stop solution for their daily shopping.",
-      "status": "Finished",
-      "priority": "Medium",
-      "date": "30/12/2022",
-    },
+      endDate: "30/12/2022",
+      status: "Waiting",
+      priority: "Low",
+      progress: 0.2,
+      qrImage: "assets/images/qrcode.png",
+    ),
+    TaskModel(
+      id: "2",
+      title: "Grocery Shopping App",
+      description:
+          "This application is designed for super shops. Customers will get a one-stop solution for daily shopping.",
+      endDate: "30/12/2022",
+      status: "Inprogress",
+      priority: "High",
+      progress: 0.6,
+      qrImage: "assets/images/qrcode.png",
+    ),
+    TaskModel(
+      id: "3",
+      title: "Grocery Shopping App",
+      description:
+          "This application is designed for super shops. By using it they can deliver efficiently.",
+      endDate: "30/12/2022",
+      status: "Finished",
+      priority: "Medium",
+      progress: 1.0,
+      qrImage: "assets/images/qrcode.png",
+    ),
   ];
-
   String selectedCategory = 'All';
 
   @override
@@ -45,9 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
     TextTheme text = Theme.of(context).textTheme;
 
     // فلترة التاسكات حسب التبويب
-    List<Map<String, dynamic>> filteredTasks = selectedCategory == 'All'
+    List<TaskModel> filteredTasks = selectedCategory == 'All'
         ? tasks
-        : tasks.where((task) => task['status'] == selectedCategory).toList();
+        : tasks.where((t) => t.status == selectedCategory).toList();
 
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
@@ -119,108 +130,94 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: filteredTasks.length,
               itemBuilder: (context, index) {
                 final task = filteredTasks[index];
-                return Container(
-                  decoration: BoxDecoration(color: AppColors.backgroundWhite),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Image.asset(
-                      'assets/images/grocery.png',
-                      width: 64,
-                      height: 64,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // الصف الأول: العنوان + الحالة + النقاط
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                task['title'],
-                                style: text.titleMedium!.copyWith(
-                                  color: AppColors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.taskDetailsScreen,
+                      arguments: task.id, // تمرير الـ taskId فقط
+                    );
+                  },
 
-                            // حالة التاسك (Waiting, Inprogress...)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _getStatusColor(task['status']),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text(
-                                task['status'],
-                                style: text.labelSmall!.copyWith(
-                                  color: _getStatusTextColor(task['status']),
+                  child: Container(
+                    decoration: BoxDecoration(color: AppColors.backgroundWhite),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Image.asset(
+                        'assets/images/grocery.png',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  task.title,
+                                  style: text.titleMedium!.copyWith(
+                                    color: AppColors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            // أيقونة 3 نقط
-                            GestureDetector(
-                              onTap: () {
-                                // ممكن تفتح bottom sheet أو popup menu هنا
-                              },
-                              child: const Icon(
-                                Icons.more_vert,
-                                color: AppColors.black,
-                                size: 24,
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(task.status),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  task.status,
+                                  style: text.labelSmall!.copyWith(
+                                    color: _getStatusTextColor(task.status),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        // الوصف
-                        Text(
-                          task['desc'],
-                          style: text.titleSmall!.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.6),
+                            ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        // الصف الأخير: الأولوية والتاريخ
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.flag_outlined,
-                              size: 16,
-                              color: getPriorityColor(task['priority']),
+                          const SizedBox(height: 4),
+                          Text(
+                            task.description,
+                            style: text.bodySmall!.copyWith(
+                              color: AppColors.black.withValues(alpha: 0.6),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              task['priority'],
-                              style: text.titleSmall!.copyWith(
-                                color: getPriorityColor(task['priority']),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.flag_outlined,
+                                size: 16,
+                                color: getPriorityColor(task.priority),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              task['date'],
-                              style: text.titleSmall!.copyWith(
-                                color: AppColors.textSecondary,
+                              const SizedBox(width: 6),
+                              Text(
+                                task.priority,
+                                style: text.bodySmall!.copyWith(
+                                  color: getPriorityColor(task.priority),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              const Spacer(),
+                              Text(
+                                task.endDate,
+                                style: text.bodySmall!.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

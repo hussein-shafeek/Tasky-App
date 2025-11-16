@@ -5,6 +5,7 @@ import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
 import 'package:tasky_app/features/home/ui/home_screen.dart';
 import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
+import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 void main() {
   runApp(TaskyApp());
@@ -30,6 +31,10 @@ class _TaskyAppState extends State<TaskyApp> {
         AppRoutes.loginScreen: (_) => LoginScreen(),
         AppRoutes.registerScreen: (_) => RegisterScreen(),
         AppRoutes.homeScreen: (_) => HomeScreen(),
+        AppRoutes.taskDetailsScreen: (context) {
+          final taskId = ModalRoute.of(context)!.settings.arguments as String;
+          return TaskDetailsScreen(taskId: taskId);
+        },
       },
     );
   }
