@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_theme.dart';
@@ -10,7 +11,7 @@ import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
 import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 void main() {
-  runApp(TaskyApp());
+  runApp(DevicePreview(enabled: true, builder: (context) => const TaskyApp()));
 }
 
 class TaskyApp extends StatefulWidget {
