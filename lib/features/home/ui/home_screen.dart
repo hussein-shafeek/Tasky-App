@@ -3,7 +3,6 @@ import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
 import 'package:tasky_app/features/tasks/data/models/task_model.dart';
-import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

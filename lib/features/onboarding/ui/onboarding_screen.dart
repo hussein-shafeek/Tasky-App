@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -27,7 +26,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
     final page = OnboardingModel.getPages(context).first;
 
     return Scaffold(
