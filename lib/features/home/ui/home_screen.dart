@@ -92,9 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             // الفاب الأساسي +
             RawMaterialButton(
-              onPressed: () {
-                print("الفاب الأساسي اتضغط");
-              },
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.addTask),
               fillColor: AppColors.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(32),

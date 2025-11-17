@@ -54,7 +54,7 @@ class CustomDropdownFlexible extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.lightLavender,
         borderRadius: BorderRadius.circular(10),

@@ -4,6 +4,7 @@ class AppRoutes {
   static const String registerScreen = '/registerScreen';
   static const String createEvent = '/createEvent';
   static const String taskDetailsScreen = '/detailsScreen';
-  static const String onboardingScreen = '/ onboardingScreen';
+  static const String onboardingScreen = '/onboardingScreen';
+  static const String addTask = '/addTask';
   static const String locationPicker = '/LocationPicker';
 } // TODO Implement this library.

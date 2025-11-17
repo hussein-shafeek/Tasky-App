@@ -12,10 +12,12 @@ class DefaultTextFormField extends StatefulWidget {
   bool isPassword;
   Widget? prefixWidget;
   Widget? suffixIcon;
-
-  /// 👇 الإضافات الجديدة
   bool readOnly;
   VoidCallback? onTap;
+  TextStyle? hintStyle;
+
+  final int? minLines;
+  final int? maxLines;
 
   DefaultTextFormField({
     super.key,
@@ -27,8 +29,12 @@ class DefaultTextFormField extends StatefulWidget {
     this.isPassword = false,
     this.prefixWidget,
     this.suffixIcon,
-    this.readOnly = false, // 👈 القيمة الافتراضية false
-    this.onTap, // 👈 الحدث عند الضغط
+    this.readOnly = false,
+    this.onTap,
+    this.hintStyle,
+
+    this.minLines,
+    this.maxLines,
   });
 
   @override
@@ -47,12 +53,18 @@ class _DefaultTextFormFieldState extends State<DefaultTextFormField> {
         context,
       ).textTheme.titleMedium!.copyWith(color: AppColors.black),
 
-      /// 👇 نضيف دعم للـ onTap و readOnly
       onTap: widget.onTap,
       readOnly: widget.readOnly,
+      minLines: widget.minLines ?? 1,
+      maxLines: widget.maxLines ?? 1,
 
       decoration: InputDecoration(
         hintText: widget.hintText,
+        hintStyle:
+            widget.hintStyle ??
+            Theme.of(
+              context,
+            ).textTheme.titleSmall!.copyWith(color: AppColors.grayMedium),
         prefixIcon:
             widget.prefixWidget ??
             (widget.prefixIconImageName == null
