@@ -17,4 +17,6 @@ class AppColors {
   static const Color lightBlueCustom = Color(0xFFE3F2FF);
   static const Color lightPurple = Color(0xFFEBE5FF);
   static const Color darkBlueBlack = Color(0xFF00060D);
+  static const Color ultraLightGray = Color(0xFFF5F5F5);
+  static const Color darkCharcoal = Color(0xFF2F2F2F);
 }

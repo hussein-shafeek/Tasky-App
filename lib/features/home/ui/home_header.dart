@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tasky_app/core/models/category_model.dart';
+import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/tab_item.dart';
 
@@ -38,7 +39,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          // Navigator.pushNamed(context, AppRoutes.profile);
+                          Navigator.pushNamed(context, AppRoutes.profileScreen);
                         },
                         child: SvgPicture.asset(
                           'assets/icons/profile.svg',

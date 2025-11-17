@@ -64,6 +64,11 @@ class AppTheme {
         fontWeight: FontWeight.bold,
         color: AppColors.white,
       ),
+      bodyMedium: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: AppColors.darkCharcoal.withValues(alpha: 0.6),
+      ),
 
       titleMedium: TextStyle(
         fontSize: 16,

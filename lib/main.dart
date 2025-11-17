@@ -5,6 +5,7 @@ import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
 import 'package:tasky_app/features/home/ui/home_screen.dart';
 import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
+import 'package:tasky_app/features/profile/ui/profile_screen.dart';
 import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
 import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
@@ -37,6 +38,7 @@ class _TaskyAppState extends State<TaskyApp> {
           return TaskDetailsScreen(taskId: taskId);
         },
         AppRoutes.addTask: (_) => AddNewTaskScreen(),
+        AppRoutes.profileScreen: (_) => ProfileScreen(),
       },
     );
   }
