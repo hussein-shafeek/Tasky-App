@@ -4,6 +4,7 @@ import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_theme.dart';
 import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
+import 'package:tasky_app/features/home/data/qr_scanner_screen.dart';
 import 'package:tasky_app/features/home/ui/home_screen.dart';
 import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
 import 'package:tasky_app/features/profile/ui/profile_screen.dart';
@@ -11,7 +12,7 @@ import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
 import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 void main() {
-  runApp(DevicePreview(enabled: true, builder: (context) => const TaskyApp()));
+  runApp(DevicePreview(enabled: false, builder: (context) => const TaskyApp()));
 }
 
 class TaskyApp extends StatefulWidget {
@@ -40,6 +41,7 @@ class _TaskyAppState extends State<TaskyApp> {
         },
         AppRoutes.addTask: (_) => AddNewTaskScreen(),
         AppRoutes.profileScreen: (_) => ProfileScreen(),
+        AppRoutes.qrScanner: (_) => QRScannerScreen(),
       },
     );
   }

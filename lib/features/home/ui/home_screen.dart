@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
@@ -72,9 +73,17 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 80,
               right: 7,
               child: RawMaterialButton(
-                onPressed: () {
-                  print("زرار QR Code اتضغط");
+                onPressed: () async {
+                  final qrResult = await Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.qrScanner);
+
+                  if (qrResult != null) {
+                    print("Scanned: $qrResult");
+                    // هنا تعمل GET /todos/:id
+                  }
                 },
+
                 fillColor: AppColors.lightPurple, // لون الخلفية
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
