@@ -1,6 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/services/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
@@ -18,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController experienceLevelController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController experienceYearsController = TextEditingController();
 
   final TextEditingController phoneController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -110,6 +112,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       SizedBox(height: height * 0.024630),
 
                       DefaultTextFormField(
+                        hintText: "Years of experience...",
+                        controller: experienceYearsController,
+                      ),
+                      SizedBox(height: height * 0.024630),
+
+                      DefaultTextFormField(
                         hintText: "Choose experience level",
                         controller: experienceLevelController,
                         prefixWidget: null,
@@ -183,17 +191,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: height * 0.02955),
                       DefaultElevatedButton(
-                        label: 'Sign In',
+                        label: 'Sign Up',
                         textStyle: text.titleMedium,
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacementNamed(AppRoutes.homeScreen);
-                        },
+                        onPressed: () async {
+                          if (nameController.text.isEmpty ||
+                              phoneController.text.isEmpty ||
+                              passwordController.text.isEmpty ||
+                              experienceLevelController.text.isEmpty ||
+                              addressController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Please fill all fields"),
+                              ),
+                            );
+                            return;
+                          }
 
+                          final authService = AuthService();
+                          bool success = await authService.register(
+                            phone: countryCode + phoneController.text,
+                            password: passwordController.text,
+                            displayName: nameController.text,
+                            experienceYears: 1, // ممكن تغير حسب اختيارك
+                            address: addressController.text,
+                            level: experienceLevelController.text.toLowerCase(),
+                          );
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Register successful"),
+                              ),
+                            );
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed(AppRoutes.loginScreen);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Register failed")),
+                            );
+                          }
+                        },
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.white,
                       ),
+
                       SizedBox(height: height * 0.02955),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/services/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
@@ -107,15 +108,39 @@ class _LoginScreenState extends State<LoginScreen> {
                       DefaultElevatedButton(
                         label: 'Sign In',
                         textStyle: text.titleMedium,
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacementNamed(AppRoutes.homeScreen);
-                        },
+                        onPressed: () async {
+                          if (phoneController.text.isEmpty ||
+                              passwordController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Phone and password are required",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
 
+                          final authService = AuthService();
+                          final token = await authService.login(
+                            phone: countryCode + phoneController.text,
+                            password: passwordController.text,
+                          );
+
+                          if (token != null) {
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed(AppRoutes.homeScreen);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Login failed")),
+                            );
+                          }
+                        },
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.white,
                       ),
+
                       SizedBox(height: height * 0.02955),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
