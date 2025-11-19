@@ -1,7 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:tasky_app/core/routes/routes.dart';
-import 'package:tasky_app/core/services/auth_service.dart';
+import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
@@ -144,6 +144,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+
+                                  ListTile(
+                                    title: const Text("Fresh"),
+                                    onTap: () =>
+                                        Navigator.pop(context, "Fresh"),
+                                  ),
                                   ListTile(
                                     title: const Text("Junior"),
                                     onTap: () =>

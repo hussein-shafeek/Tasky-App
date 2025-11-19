@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tasky_app/core/models/category_model.dart';
 import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/tab_item.dart';
 
@@ -50,7 +51,26 @@ class _HomeHeaderState extends State<HomeHeader> {
                       const SizedBox(width: 16),
 
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () async {
+                          final authService = AuthService();
+                          final success = await authService.logout();
+
+                          if (success) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              AppRoutes.loginScreen,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Logged out successfully"),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Logout failed")),
+                            );
+                          }
+                        },
                         child: SvgPicture.asset(
                           'assets/icons/logout.svg',
                           height: 26,

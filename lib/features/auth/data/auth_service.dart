@@ -83,4 +83,38 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
+  Future<bool> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) return false; // مفيش توكن
+
+    final url = Uri.parse('$baseUrl/logout');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'token': token}),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      // لو Logout ناجح، نمسح كل البيانات المخزنة
+      await prefs.remove('token');
+      await prefs.remove('refresh_token');
+      await prefs.remove('user_id');
+      return true;
+    } else {
+      print('Logout failed: ${response.body}');
+      return false;
+    }
+  }
 }
