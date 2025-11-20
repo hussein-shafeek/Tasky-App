@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tasky_app/core/services/upload_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
@@ -26,9 +28,24 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   String priority = "Medium";
   bool isPriorityFavourite = false;
 
+  /// 🔍 دالة تتحقق من أن الصورة jpg أو png فقط
+  bool isValidImage(String path) {
+    path = path.toLowerCase();
+    return path.endsWith(".jpg") ||
+        path.endsWith(".jpeg") ||
+        path.endsWith(".png");
+  }
+
+  /// 📸 اختيار صورة من المعرض
   Future pickImage() async {
     final picked = await picker.pickImage(source: ImageSource.gallery);
+
     if (picked != null) {
+      if (!isValidImage(picked.path)) {
+        print("❌ Only JPG/PNG images allowed");
+        return;
+      }
+
       setState(() {
         selectedImage = File(picked.path);
       });
@@ -46,7 +63,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.backgroundWhite,
         elevation: 0,
-
         leading: IconButton(
           icon: SvgPicture.asset(
             'assets/icons/ArrowLeft.svg',
@@ -60,7 +76,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           style: text.titleMedium!.copyWith(color: AppColors.black),
         ),
         centerTitle: false,
-        titleSpacing: 0,
       ),
 
       body: SingleChildScrollView(
@@ -69,7 +84,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Add Img Button (+ SVG)
+            // ▪▪ Add Image Button ▪▪
             GestureDetector(
               onTap: pickImage,
               child: DottedBorder(
@@ -79,7 +94,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   radius: Radius.circular(12),
                   color: AppColors.primary,
                 ),
-
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Row(
@@ -105,6 +119,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
             SizedBox(height: height * 0.0197),
 
+            // ▪▪ Preview Selected Image ▪▪
             if (selectedImage != null)
               Container(
                 height: 180,
@@ -120,7 +135,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
             SizedBox(height: height * 0.0197),
 
-            // Task Title
+            // ▪▪ Task Title ▪▪
             Text(
               'Task title',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -133,7 +148,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
             SizedBox(height: height * 0.022167),
 
-            // Task Description
+            // ▪▪ Description ▪▪
             Text(
               'Task Description',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -148,7 +163,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
             SizedBox(height: height * 0.0197),
 
-            // Priority Dropdown
+            // ▪▪ Priority ▪▪
             Text(
               'Priority',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -166,25 +181,19 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
               suffixText: "Priority",
               trailingWidget: Icon(
                 isPriorityFavourite ? Icons.favorite : Icons.favorite_border,
-                color: isPriorityFavourite
-                    ? AppColors.primary
-                    : AppColors.primary,
-                size: 22,
+                color: AppColors.primary,
               ),
               onTrailingTap: () {
-                setState(() {
-                  isPriorityFavourite = !isPriorityFavourite;
-                });
+                setState(() => isPriorityFavourite = !isPriorityFavourite);
               },
               onChanged: (value) {
-                setState(() {
-                  priority = value!;
-                });
+                setState(() => priority = value!);
               },
             ),
 
             SizedBox(height: height * 0.0197),
-            // Due Date
+
+            // ▪▪ Due Date ▪▪
             Text(
               'Due date',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -206,7 +215,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   firstDate: DateTime.now(),
                   lastDate: DateTime(2050),
                 );
-
                 if (picked != null) {
                   dateController.text =
                       "${picked.year}-${picked.month}-${picked.day}";
@@ -216,11 +224,45 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
             SizedBox(height: height * 0.0431),
 
-            // Add Task Button
+            // ▪▪ Add Task Button ▪▪
             DefaultElevatedButton(
               label: "Add Task",
               textStyle: text.bodyLarge,
-              onPressed: () {
+              onPressed: () async {
+                //  التأكد إن فيه صورة مختارة
+                if (selectedImage == null) {
+                  print("No image selected");
+                  return;
+                }
+
+                //  التأكد إن امتداد الصورة مسموح
+                if (!isValidImage(selectedImage!.path)) {
+                  print("Only JPG/PNG images allowed");
+                  return;
+                }
+
+                //  رفع الصورة API
+                final uploadService = UploadService();
+
+                print("Uploading image...");
+                final uploadedData = await uploadService.uploadImage(
+                  selectedImage!,
+                );
+
+                if (uploadedData != null) {
+                  print("Image Uploaded Successfully");
+
+                  // الرابط اللي رجع من السيرفر
+                  final decoded = jsonDecode(uploadedData["body"]);
+                  String uploadedImageUrl = decoded["image"];
+
+                  print("📸 Uploaded Image = $uploadedImageUrl");
+                } else {
+                  print("❌ Upload failed");
+                  return;
+                }
+
+                // بعد النجاح نرجع
                 Navigator.of(context).pop();
               },
             ),
