@@ -1,9 +1,14 @@
+// Import existing packages
 import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:tasky_app/core/models/add_task_model.dart';
+import 'package:tasky_app/core/models/task_model.dart';
+import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
@@ -20,6 +25,7 @@ class AddNewTaskScreen extends StatefulWidget {
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   File? selectedImage;
   final picker = ImagePicker();
+  bool isPicking = false; // لمنع فتح Picker أكتر من مرة
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -28,7 +34,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   String priority = "Medium";
   bool isPriorityFavourite = false;
 
-  /// 🔍 دالة تتحقق من أن الصورة jpg أو png فقط
   bool isValidImage(String path) {
     path = path.toLowerCase();
     return path.endsWith(".jpg") ||
@@ -36,19 +41,26 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         path.endsWith(".png");
   }
 
-  /// 📸 اختيار صورة من المعرض
   Future pickImage() async {
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (isPicking) return;
+    isPicking = true;
 
-    if (picked != null) {
-      if (!isValidImage(picked.path)) {
-        print("❌ Only JPG/PNG images allowed");
-        return;
+    try {
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        if (!isValidImage(picked.path)) {
+          print("❌ Only JPG/PNG images allowed");
+          return;
+        }
+
+        setState(() {
+          selectedImage = File(picked.path);
+        });
       }
-
-      setState(() {
-        selectedImage = File(picked.path);
-      });
+    } catch (e) {
+      print("Error picking image: $e");
+    } finally {
+      isPicking = false;
     }
   }
 
@@ -77,10 +89,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         ),
         centerTitle: false,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -119,7 +129,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
             SizedBox(height: height * 0.0197),
 
-            // ▪▪ Preview Selected Image ▪▪
             if (selectedImage != null)
               Container(
                 height: 180,
@@ -134,8 +143,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
               ),
 
             SizedBox(height: height * 0.0197),
-
-            // ▪▪ Task Title ▪▪
             Text(
               'Task title',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -147,8 +154,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
 
             SizedBox(height: height * 0.022167),
-
-            // ▪▪ Description ▪▪
             Text(
               'Task Description',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -162,8 +167,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
 
             SizedBox(height: height * 0.0197),
-
-            // ▪▪ Priority ▪▪
             Text(
               'Priority',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -192,8 +195,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
 
             SizedBox(height: height * 0.0197),
-
-            // ▪▪ Due Date ▪▪
             Text(
               'Due date',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -223,50 +224,61 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             ),
 
             SizedBox(height: height * 0.0431),
-
-            // ▪▪ Add Task Button ▪▪
             DefaultElevatedButton(
               label: "Add Task",
               textStyle: text.bodyLarge,
               onPressed: () async {
-                //  التأكد إن فيه صورة مختارة
+                // 1) Validate Image
                 if (selectedImage == null) {
-                  print("No image selected");
+                  print("❌ No image selected");
                   return;
                 }
 
-                //  التأكد إن امتداد الصورة مسموح
                 if (!isValidImage(selectedImage!.path)) {
-                  print("Only JPG/PNG images allowed");
+                  print("❌ Only JPG/PNG images allowed");
                   return;
                 }
 
-                //  رفع الصورة API
+                //  Upload Image
                 final uploadService = UploadService();
 
-                print("Uploading image...");
-                final uploadedData = await uploadService.uploadImage(
+                final uploadedImageFilename = await uploadService.uploadImage(
                   selectedImage!,
                 );
 
-                if (uploadedData != null) {
-                  print("Image Uploaded Successfully");
-
-                  // الرابط اللي رجع من السيرفر
-                  final decoded = jsonDecode(uploadedData["body"]);
-                  String uploadedImageUrl = decoded["image"];
-
-                  print("📸 Uploaded Image = $uploadedImageUrl");
-                } else {
-                  print("❌ Upload failed");
+                if (uploadedImageFilename == null) {
+                  print("Upload failed");
                   return;
                 }
 
-                // بعد النجاح نرجع
-                Navigator.of(context).pop();
+                //Build CreateTodoModel
+                final createModel = CreateTodoModel(
+                  image: uploadedImageFilename,
+                  title: titleController.text.trim(),
+                  desc: descriptionController.text.trim(),
+                  priority: priority.toLowerCase(),
+                  dueDate: dateController.text.trim(),
+                );
+
+                final taskProvider = Provider.of<TaskProvider>(
+                  context,
+                  listen: false,
+                );
+                print("CREATE MODEL: ${createModel.toJson()}");
+
+                try {
+                  await taskProvider.addTask(createModel);
+
+                  final addedTask = taskProvider.tasks.isNotEmpty
+                      ? taskProvider.tasks.last
+                      : null;
+
+                  Navigator.pop(context, addedTask);
+                } catch (e) {
+                  print("Failed to add task: $e");
+                }
               },
             ),
-
             SizedBox(height: height * 0.02463),
           ],
         ),

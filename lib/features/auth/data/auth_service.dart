@@ -5,9 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   final String baseUrl = "https://todo.iraqsapp.com/auth";
 
-  // =======================
-  // تسجيل مستخدم جديد (Register)
-  // =======================
   Future<bool> register({
     required String phone,
     required String password,
@@ -31,16 +28,13 @@ class AuthService {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return true; // تم التسجيل بنجاح
+      return true;
     } else {
       print('Register failed: ${response.body}');
       return false;
     }
   }
 
-  // =======================
-  // تسجيل دخول (Login)
-  // =======================
   Future<String?> login({
     required String phone,
     required String password,
@@ -56,7 +50,6 @@ class AuthService {
     print("STATUS: ${response.statusCode}");
     print("BODY: ${response.body}");
 
-    // السيرفر بيرجع 201 مش 200
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = jsonDecode(response.body);
 
@@ -76,9 +69,6 @@ class AuthService {
     }
   }
 
-  // =======================
-  // جلب التوكن المخزن
-  // =======================
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -93,7 +83,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
-    if (token == null) return false; // مفيش توكن
+    if (token == null) return false;
 
     final url = Uri.parse('$baseUrl/logout');
 
@@ -107,7 +97,6 @@ class AuthService {
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      // لو Logout ناجح، نمسح كل البيانات المخزنة
       await prefs.remove('token');
       await prefs.remove('refresh_token');
       await prefs.remove('user_id');

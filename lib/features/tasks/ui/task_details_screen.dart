@@ -1,89 +1,106 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:tasky_app/core/models/task_model.dart';
+import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
-import 'package:tasky_app/features/tasks/data/models/task_model.dart';
-import 'package:tasky_app/features/tasks/logic/task_details_controller.dart';
+import 'package:tasky_app/features/home/data/task_qr_widget.dart';
 import 'package:tasky_app/features/tasks/data/date_utils.dart' as myDateUtils;
 
 class TaskDetailsScreen extends StatefulWidget {
   final String taskId;
 
-  TaskDetailsScreen({super.key, required this.taskId});
+  const TaskDetailsScreen({super.key, required this.taskId});
 
   @override
   State<TaskDetailsScreen> createState() => _TaskDetailsScreenState();
 }
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
-  bool isStatusFavourite = false; // Status Favourite
-  bool isPriorityFavourite = false; // Priority Favourite
+  bool isStatusFavourite = false;
+  bool isPriorityFavourite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<TaskProvider>().fetchTasks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final controller = TaskDetailsController();
-    final TaskModel task = controller.getTaskById(widget.taskId);
+    final taskProvider = Provider.of<TaskProvider>(context);
+
+    if (taskProvider.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final TaskModel? task = taskProvider.getTaskById(widget.taskId);
+    if (task == null) {
+      return const Scaffold(body: Center(child: Text("Task not found")));
+    }
+
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
-      appBar: const CustomTaskAppBar(),
+      appBar: CustomTaskAppBar(taskId: task.id),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Logo & Title
+            // Logo
             Center(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/images/grocery_logo.png',
-                    height: height * 0.277,
-                    width: double.infinity,
-                  ),
-                ],
+              child: Image.network(
+                task.image!,
+                height: height * 0.277,
+                width: double.infinity,
+                fit: BoxFit.fill,
               ),
             ),
             SizedBox(height: height * 0.0197),
-
-            // Task Title
-            Text(task.title, style: text.headlineSmall),
-            SizedBox(height: height * 0.00985),
-
-            // Task Description
+            // Title
             Text(
-              task.description,
+              task.title,
+              style: text.headlineSmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: height * 0.00985),
+            // Description
+            Text(
+              task.desc,
               style: text.titleSmall!.copyWith(
                 color: AppColors.black.withValues(alpha: 0.6),
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: height * 0.02955),
-
-            // END DATE DROPDOWN
+            // End Date
             CustomDropdownFlexible(
-              value: myDateUtils.DateUtils.formatDate(task.endDate),
-              items: [myDateUtils.DateUtils.formatDate(task.endDate)],
+              value: myDateUtils.DateUtils.formatDate(task.createdAt),
+              items: [myDateUtils.DateUtils.formatDate(task.createdAt)],
               textColor: AppColors.black,
               labelInside: "End Date",
               svgTrailingAsset: "assets/icons/calendar.svg",
               onChanged: (v) {},
             ),
-
             SizedBox(height: height * 0.00985),
-
-            // STATUS DROPDOWN + LOVE ICON
+            // Status
             CustomDropdownFlexible(
               value: task.status,
-              items: const ["Waiting", "Inprogress", "Finished"],
+              items: const ["waiting", "inprogress", "finished"],
               textColor: AppColors.primary,
               trailingWidget: Icon(
                 isStatusFavourite ? Icons.favorite : Icons.favorite_border,
-                color: isStatusFavourite
-                    ? AppColors.primary
-                    : AppColors.primary,
+                color: AppColors.primary,
                 size: 22,
               ),
               onTrailingTap: () {
@@ -92,11 +109,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               onChanged: (value) {},
             ),
             SizedBox(height: height * 0.00985),
-
-            // PRIORITY DROPDOWN + FLAG
+            // Priority
             CustomDropdownFlexible(
               value: task.priority,
-              items: const ["Low", "Medium", "High"],
+              items: const ["low", "medium", "high"],
               textColor: AppColors.primary,
               prefixWidget: const Icon(
                 Icons.flag_outlined,
@@ -106,28 +122,26 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               suffixText: "Priority",
               trailingWidget: Icon(
                 isPriorityFavourite ? Icons.favorite : Icons.favorite_border,
-                color: isPriorityFavourite
-                    ? AppColors.primary
-                    : AppColors.primary,
+                color: AppColors.primary,
                 size: 22,
               ),
               onTrailingTap: () {
-                setState(() {
-                  isPriorityFavourite = !isPriorityFavourite;
-                });
+                setState(() => isPriorityFavourite = !isPriorityFavourite);
               },
               onChanged: (value) {},
             ),
             SizedBox(height: height * 0.0197),
-
-            // QR Code
+            // QR Image from API
             Center(
-              child: Image.asset(
-                task.qrImage,
-                height: height * 0.40147,
-                width: width * 0.8693,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: (task.id != null && task.id.isNotEmpty)
+                    ? TaskQrWidget(taskId: task.id)
+                    : const Text("No QR Image"),
               ),
             ),
+
+            SizedBox(height: height * 0.036),
           ],
         ),
       ),
@@ -136,7 +150,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 }
 
 class CustomTaskAppBar extends StatefulWidget implements PreferredSizeWidget {
-  const CustomTaskAppBar({super.key});
+  final String taskId;
+
+  const CustomTaskAppBar({super.key, required this.taskId});
 
   @override
   State<CustomTaskAppBar> createState() => _CustomTaskAppBarState();
@@ -154,12 +170,12 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: topPadding + 8, // يظهر تحت AppBar مباشرة
+        top: topPadding + 8,
         right: 12,
         child: Material(
           color: Colors.transparent,
           elevation: 3,
-          borderRadius: BorderRadius.circular(12), // الظل هنا
+          borderRadius: BorderRadius.circular(12),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
@@ -171,8 +187,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                 children: [
                   InkWell(
                     onTap: () {
-                      _hideMenu();
-                      // TODO: Navigate to Edit screen
+                      // Edit Task logic later
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -189,16 +204,44 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                    ), // أقل من عرض الـ Container
-                    child: Container(height: 1, color: AppColors.white),
-                  ),
+                  const Divider(height: 1, color: AppColors.white),
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
                       _hideMenu();
-                      // TODO: Handle Delete
+                      final bool? confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Delete Task"),
+                          content: const Text(
+                            "Are you sure you want to delete this task?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        Navigator.of(
+                          context,
+                        ).pop(); // أولًا ارجع للصفحة السابقة
+                        final provider = Provider.of<TaskProvider>(
+                          context,
+                          listen: false,
+                        );
+                        await provider.deleteTask(
+                          widget.taskId,
+                        ); // بعد كده احذف
+                      }
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -238,7 +281,6 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
     return AppBar(
       backgroundColor: AppColors.backgroundWhite,
       elevation: 0,
-
       leading: IconButton(
         icon: SvgPicture.asset(
           'assets/icons/ArrowLeft.svg',

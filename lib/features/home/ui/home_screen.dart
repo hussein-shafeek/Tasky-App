@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:tasky_app/core/models/task_model.dart';
+import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
-import 'package:tasky_app/features/tasks/data/models/task_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,62 +14,51 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // مؤقتًا دي بيانات ثابتة لحد ما نربطها بقاعدة بيانات أو API
-  List<TaskModel> tasks = [
-    TaskModel(
-      id: "1",
-      title: "Grocery Shopping App",
-      description:
-          "This application is designed for super shops. By using this application they can enlist all their products in one place and can deliver. Customers will get a one-stop solution for their daily shopping.",
-      endDate: "30/12/2022",
-      status: "Waiting",
-      priority: "Low",
-      progress: 0.2,
-      qrImage: "assets/images/qrcode.png",
-    ),
-    TaskModel(
-      id: "2",
-      title: "Grocery Shopping App",
-      description:
-          "This application is designed for super shops. Customers will get a one-stop solution for daily shopping.",
-      endDate: "30/12/2022",
-      status: "Inprogress",
-      priority: "High",
-      progress: 0.6,
-      qrImage: "assets/images/qrcode.png",
-    ),
-    TaskModel(
-      id: "3",
-      title: "Grocery Shopping App",
-      description:
-          "This application is designed for super shops. By using it they can deliver efficiently.",
-      endDate: "30/12/2022",
-      status: "Finished",
-      priority: "Medium",
-      progress: 1.0,
-      qrImage: "assets/images/qrcode.png",
-    ),
-  ];
   String selectedCategory = 'All';
+  late ScrollController _scrollController;
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController = ScrollController();
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+
+    // استدعاء fetchTasks بعد انتهاء بناء الواجهة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      taskProvider.fetchTasks();
+    });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          !taskProvider.isLoading) {
+        taskProvider.fetchTasks(); // Load next page
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refreshTasks() async {
+    await Provider.of<TaskProvider>(context, listen: false).refreshTasks();
+  }
 
   @override
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    // فلترة التاسكات حسب التبويب
-    List<TaskModel> filteredTasks = selectedCategory == 'All'
-        ? tasks
-        : tasks.where((t) => t.status == selectedCategory).toList();
-
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
       floatingActionButton: SizedBox(
         width: 70,
-        height: 140, // مساحة كافية للفاب الأساسي والزِرار العلوي
+        height: 140,
         child: Stack(
           alignment: Alignment.bottomRight,
           children: [
-            // زرار QR Code فوق الفاب الأساسي
             Positioned(
               bottom: 80,
               right: 7,
@@ -79,12 +69,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   ).pushNamed(AppRoutes.qrScanner);
 
                   if (qrResult != null) {
-                    print("Scanned: $qrResult");
-                    // هنا تعمل GET /todos/:id
+                    final taskId = qrResult.toString();
+                    print("Scanned Task ID: $taskId");
+
+                    final taskProvider = Provider.of<TaskProvider>(
+                      context,
+                      listen: false,
+                    );
+                    final task = taskProvider.getTaskById(taskId);
+
+                    if (task != null) {
+                      await Navigator.of(context).pushNamed(
+                        AppRoutes.taskDetailsScreen,
+                        arguments: task.id,
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Task not found for ID: $taskId"),
+                        ),
+                      );
+                    }
                   }
                 },
-
-                fillColor: AppColors.lightPurple, // لون الخلفية
+                fillColor: AppColors.lightPurple,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -94,14 +102,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   maxWidth: 50,
                   maxHeight: 50,
                 ),
-                padding: const EdgeInsets.all(13), // padding داخلي حول الأيقونة
+                padding: const EdgeInsets.all(13),
                 child: Icon(Icons.qr_code, size: 24, color: AppColors.primary),
               ),
             ),
-            // الفاب الأساسي +
             RawMaterialButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.addTask),
+              onPressed: () async {
+                final result = await Navigator.of(
+                  context,
+                ).pushNamed(AppRoutes.addTask);
+                if (result == true) _refreshTasks();
+              },
               fillColor: AppColors.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(32),
@@ -112,137 +123,206 @@ class _HomeScreenState extends State<HomeScreen> {
                 maxWidth: 64,
                 maxHeight: 64,
               ),
-              padding: const EdgeInsets.all(16), // padding داخلي حول الأيقونة
+              padding: const EdgeInsets.all(16),
               child: const Icon(Icons.add, size: 32, color: AppColors.white),
             ),
           ],
         ),
       ),
+      body: Consumer<TaskProvider>(
+        builder: (context, taskProvider, child) {
+          if (taskProvider.isLoading && taskProvider.tasks.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-      body: Column(
-        children: [
-          HomeHeader(
-            onCategoryChanged: (selected) {
-              setState(() {
-                selectedCategory = selected == 'Inpogress'
-                    ? 'Inprogress'
-                    : selected;
-              });
-            },
-          ),
+          if (taskProvider.error != null && taskProvider.tasks.isEmpty) {
+            return Center(child: Text("Error: ${taskProvider.error}"));
+          }
 
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              itemCount: filteredTasks.length,
-              itemBuilder: (context, index) {
-                final task = filteredTasks[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushNamed(
-                      AppRoutes.taskDetailsScreen,
-                      arguments: task.id, // تمرير الـ taskId فقط
-                    );
+          List<TaskModel> filteredTasks = taskProvider.tasks.where((task) {
+            if (selectedCategory == 'all') return true;
+
+            return task.status.toLowerCase() == selectedCategory.toLowerCase();
+          }).toList();
+
+          return RefreshIndicator(
+            onRefresh: _refreshTasks,
+            child: Column(
+              children: [
+                HomeHeader(
+                  onCategoryChanged: (selected) {
+                    setState(() {
+                      selectedCategory = selected == 'Inpogress'
+                          ? 'Inprogress'
+                          : selected;
+                    });
                   },
-
-                  child: Container(
-                    decoration: BoxDecoration(color: AppColors.backgroundWhite),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Image.asset(
-                        'assets/images/grocery.png',
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                      ),
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  task.title,
-                                  style: text.titleMedium!.copyWith(
-                                    color: AppColors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(task.status),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  task.status,
-                                  style: text.labelSmall!.copyWith(
-                                    color: _getStatusTextColor(task.status),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            task.description,
-                            style: text.bodySmall!.copyWith(
-                              color: AppColors.black.withValues(alpha: 0.6),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 22),
+                    itemCount:
+                        filteredTasks.length +
+                        (taskProvider.isLoading ? 1 : 0), // Spinner
+                    itemBuilder: (context, index) {
+                      if (index < filteredTasks.length) {
+                        final task = filteredTasks[index];
+                        // print("Task ${index + 1} ID: ${task.id}");
+                        return GestureDetector(
+                          onTap: () async {
+                            final updated = await Navigator.of(context)
+                                .pushNamed(
+                                  AppRoutes.taskDetailsScreen,
+                                  arguments: task.id,
+                                );
+                            if (updated == true) _refreshTasks();
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundWhite,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child:
+                                    (task.image != null &&
+                                        task.image!.isNotEmpty)
+                                    ? Image.network(
+                                        task.image!,
+                                        width: 64,
+                                        height: 64,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              print("URL: ${task.image}");
+                                              print("Error: $error");
+                                              print("StackTrace: $stackTrace");
+
+                                              return Image.asset(
+                                                'assets/images/grocery.png',
+                                                width: 64,
+                                                height: 64,
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                      )
+                                    : Image.asset(
+                                        'assets/images/grocery.png',
+                                        width: 64,
+                                        height: 64,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          task.title,
+                                          style: text.titleMedium!.copyWith(
+                                            color: AppColors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(task.status),
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          task.status,
+                                          style: text.labelSmall!.copyWith(
+                                            color: _getStatusTextColor(
+                                              task.status,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    task.desc,
+                                    style: text.bodySmall!.copyWith(
+                                      color: AppColors.black.withOpacity(0.6),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.flag_outlined,
+                                        size: 16,
+                                        color: getPriorityColor(task.priority),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        task.priority,
+                                        style: text.bodySmall!.copyWith(
+                                          color: getPriorityColor(
+                                            task.priority,
+                                          ),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        task.createdAt
+                                            .toLocal()
+                                            .toString()
+                                            .split(' ')[0],
+                                        style: text.bodySmall!.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.flag_outlined,
-                                size: 16,
-                                color: getPriorityColor(task.priority),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                task.priority,
-                                style: text.bodySmall!.copyWith(
-                                  color: getPriorityColor(task.priority),
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                task.endDate,
-                                style: text.bodySmall!.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                        );
+                      } else {
+                        // Spinner for Pagination
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Inprogress':
+      case 'inprogress':
         return AppColors.lightLavender;
-      case 'Waiting':
+      case 'waiting':
         return AppColors.pinkLace;
-      case 'Finished':
+      case 'finished':
         return AppColors.lightBlueCustom;
       default:
         return AppColors.primary;
@@ -251,12 +331,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Color _getStatusTextColor(String status) {
     switch (status) {
-      case 'Inprogress':
-        return AppColors.primary; // لأن الخلفية زرقاء
-      case 'Waiting':
-        return AppColors.coral; // لأن الخلفية فاتحة
-      case 'Finished':
-        return AppColors.azureBlue; // أخضر غامق، النص أبيض
+      case 'inprogress':
+        return AppColors.primary;
+      case 'waiting':
+        return AppColors.coral;
+      case 'finished':
+        return AppColors.azureBlue;
       default:
         return Colors.white;
     }
@@ -264,14 +344,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Color getPriorityColor(String priority) {
     switch (priority) {
-      case 'High':
+      case 'high':
         return AppColors.coral;
-      case 'Medium':
+      case 'medium':
         return AppColors.primary;
-      case 'Low':
+      case 'low':
         return AppColors.azureBlue;
       default:
-        return Colors.blue; // لأي قيمة غير متوقعة
+        return Colors.blue;
     }
   }
 }

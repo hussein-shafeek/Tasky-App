@@ -1,13 +1,14 @@
 class CategoryModel {
   int id;
-  String name;
+  String label;
+  String value;
 
-  CategoryModel({required this.id, required this.name});
+  CategoryModel({required this.id, required this.label, required this.value});
 
   static List<CategoryModel> categories = [
-    CategoryModel(id: 1, name: 'All'),
-    CategoryModel(id: 2, name: 'Inprogress'),
-    CategoryModel(id: 3, name: 'Waiting'),
-    CategoryModel(id: 4, name: 'Finished'),
+    CategoryModel(id: 1, label: 'All', value: 'all'),
+    CategoryModel(id: 2, label: 'Inprogress', value: 'inprogress'),
+    CategoryModel(id: 3, label: 'Waiting', value: 'waiting'),
+    CategoryModel(id: 4, label: 'Finished', value: 'finished'),
   ];
 }

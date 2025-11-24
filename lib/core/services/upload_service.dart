@@ -2,11 +2,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class UploadService {
   final String baseUrl = "https://todo.iraqsapp.com";
 
-  Future<Map<String, dynamic>?> uploadImage(File file) async {
+  Future<String?> uploadImage(File file) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
 
@@ -20,9 +21,7 @@ class UploadService {
     var request = http.MultipartRequest("POST", url);
 
     request.headers['Authorization'] = "Bearer $token";
-    request.headers['Content-Type'] = "multipart/form-data";
 
-    /// نوع الصورة
     final ext = file.path.split(".").last.toLowerCase();
     final mediaType = ext == "png"
         ? MediaType("image", "png")
@@ -37,16 +36,17 @@ class UploadService {
     );
 
     var response = await request.send();
-    var body = await response.stream.bytesToString();
+    var responseBody = await response.stream.bytesToString();
 
     print("UPLOAD STATUS = ${response.statusCode}");
-    print("UPLOAD BODY = $body");
+    print("UPLOAD BODY = $responseBody");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return {"status": true, "body": body};
-    } else {
-      print("Upload failed: ${response.statusCode} - $body");
-      return null;
+      final decoded = json.decode(responseBody);
+      print("UPLOAD -> image filename: ${decoded["image"]}");
+      return decoded["image"]; //  يرجّع اسم الصورة فقط
     }
+
+    return null;
   }
 }

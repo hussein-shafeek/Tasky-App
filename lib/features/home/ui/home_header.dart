@@ -103,23 +103,23 @@ class _HomeHeaderState extends State<HomeHeader> {
                 onTap: (index) {
                   if (currentIndex != index) {
                     setState(() => currentIndex = index);
-                    final selectedName = CategoryModel.categories[index].name;
-                    widget.onCategoryChanged(selectedName);
+                    widget.onCategoryChanged(
+                      CategoryModel.categories[index].value,
+                    );
                   }
                 },
-                tabs: CategoryModel.categories
-                    .map(
-                      (category) => TabItem(
-                        label: category.name,
-                        isSelected:
-                            currentIndex ==
-                            CategoryModel.categories.indexOf(category),
-                        selectedBackgroundColor: AppColors.primary,
-                        unSelectedForgroundColor: AppColors.grayViolet,
-                        selectedForgroundColor: AppColors.white,
-                      ),
-                    )
-                    .toList(),
+
+                tabs: List.generate(CategoryModel.categories.length, (index) {
+                  final category = CategoryModel.categories[index];
+
+                  return TabItem(
+                    label: category.label,
+                    isSelected: currentIndex == index,
+                    selectedBackgroundColor: AppColors.primary,
+                    unSelectedForgroundColor: AppColors.grayViolet,
+                    selectedForgroundColor: AppColors.white,
+                  );
+                }),
               ),
             ),
           ],
