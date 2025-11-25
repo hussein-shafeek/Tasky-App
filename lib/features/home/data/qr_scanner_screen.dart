@@ -16,14 +16,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     return Scaffold(
       body: MobileScanner(
         onDetect: (capture) {
-          if (isScanned) return; // علشان ما يرجعش نفس النتيجة مرتين
+          if (isScanned) return;
 
           final List<Barcode> barcodes = capture.barcodes;
           final Barcode barcode = barcodes.first;
 
           isScanned = true;
 
-          Navigator.pop(context, barcode.rawValue); // ← رجّع نتيجة المسح
+          Navigator.pop(context, barcode.rawValue);
         },
       ),
     );

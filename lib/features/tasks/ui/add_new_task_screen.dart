@@ -1,5 +1,4 @@
 // Import existing packages
-import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky_app/core/models/add_task_model.dart';
-import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -25,7 +23,7 @@ class AddNewTaskScreen extends StatefulWidget {
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   File? selectedImage;
   final picker = ImagePicker();
-  bool isPicking = false; // لمنع فتح Picker أكتر من مرة
+  bool isPicking = false;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -49,7 +47,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       final picked = await picker.pickImage(source: ImageSource.gallery);
       if (picked != null) {
         if (!isValidImage(picked.path)) {
-          print("❌ Only JPG/PNG images allowed");
+          print(" Only JPG/PNG images allowed");
           return;
         }
 
@@ -131,7 +129,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
             if (selectedImage != null)
               Container(
-                height: 180,
+                height: 225,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -230,12 +228,12 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
               onPressed: () async {
                 // 1) Validate Image
                 if (selectedImage == null) {
-                  print("❌ No image selected");
+                  print("No image selected");
                   return;
                 }
 
                 if (!isValidImage(selectedImage!.path)) {
-                  print("❌ Only JPG/PNG images allowed");
+                  print("Only JPG/PNG images allowed");
                   return;
                 }
 

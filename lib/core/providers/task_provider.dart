@@ -70,8 +70,6 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //تعديل
-
   Future<void> updateTask(String id, UpdateTodoModel model) async {
     _isLoading = true;
     notifyListeners();
@@ -80,22 +78,12 @@ class TaskProvider extends ChangeNotifier {
       final success = await todoService.updateTodo(id: id, model: model);
 
       if (success) {
-        // refresh local data
+        // Re-fetch updated task from API
+        final updated = await todoService.getTodoById(id);
+
         final index = _tasks.indexWhere((t) => t.id == id);
         if (index != -1) {
-          final old = _tasks[index];
-
-          _tasks[index] = TaskModel(
-            id: old.id,
-            image: model.image,
-            title: model.title,
-            desc: model.desc,
-            priority: model.priority,
-            status: model.status,
-            user: model.user,
-            createdAt: old.createdAt,
-            updatedAt: DateTime.now(),
-          );
+          _tasks[index] = updated;
         }
       }
     } catch (e) {

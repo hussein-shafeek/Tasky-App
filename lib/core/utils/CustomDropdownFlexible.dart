@@ -13,7 +13,7 @@ class CustomDropdownFlexible extends StatelessWidget {
   final Widget? trailingWidget;
   final VoidCallback? onTrailingTap;
   final Widget? prefixWidget;
-  final String? suffixText; // هنا كلمة Priority
+  final String? suffixText;
 
   const CustomDropdownFlexible({
     super.key,
@@ -41,10 +41,9 @@ class CustomDropdownFlexible extends StatelessWidget {
             const SizedBox(width: 14),
           ],
 
-          // القيمة (Low, Medium, High)
           Expanded(
             child: Text(
-              "$text ${suffixText ?? ""}", // ← هنا ركبنا priority بعد القيمة
+              "$text ${suffixText ?? ""}",
               style: textTheme.titleMedium!.copyWith(color: textColor),
               overflow: TextOverflow.ellipsis,
             ),

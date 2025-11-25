@@ -8,4 +8,5 @@ class AppRoutes {
   static const String addTask = '/addTask';
   static const String profileScreen = '/profileScreenr';
   static const String qrScanner = '/QRScannerScreen';
-} // TODO Implement this library.
+  static const String editTaskScreen = '/editTask';
+}

@@ -5,7 +5,6 @@ import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
 import 'package:tasky_app/core/theme/app_theme.dart';
-import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
 import 'package:tasky_app/features/home/data/qr_scanner_screen.dart';
@@ -13,6 +12,7 @@ import 'package:tasky_app/features/home/ui/home_screen.dart';
 import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
 import 'package:tasky_app/features/profile/ui/profile_screen.dart';
 import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
+import 'package:tasky_app/features/tasks/ui/edit_task.dart';
 import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
 void main() async {
@@ -55,6 +55,10 @@ class _TaskyAppState extends State<TaskyApp> {
         AppRoutes.taskDetailsScreen: (context) {
           final taskId = ModalRoute.of(context)!.settings.arguments as String;
           return TaskDetailsScreen(taskId: taskId);
+        },
+        AppRoutes.editTaskScreen: (context) {
+          final taskId = ModalRoute.of(context)!.settings.arguments as String;
+          return EditTaskScreen(taskId: taskId);
         },
         AppRoutes.addTask: (_) => AddNewTaskScreen(),
         AppRoutes.profileScreen: (_) => ProfileScreen(),

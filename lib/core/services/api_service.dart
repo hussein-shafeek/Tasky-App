@@ -24,7 +24,6 @@ class ApiService {
       },
     );
 
-    // -------------------- TOKEN EXPIRED = 401 --------------------
     if (response.statusCode == 401) {
       bool success = await _refreshToken();
 
@@ -47,7 +46,6 @@ class ApiService {
     return response;
   }
 
-  // -------------------- REFRESH TOKEN FUNCTION --------------------
   Future<bool> _refreshToken() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -68,7 +66,6 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      /// Save new access token + new refresh token
       prefs.setString("token", data["access_token"]);
       prefs.setString("refresh_token", data["refresh_token"]);
 

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/providers/task_provider.dart';
+import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/data/task_qr_widget.dart';
@@ -39,7 +39,15 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final TaskModel? task = taskProvider.getTaskById(widget.taskId);
+    if (taskProvider.tasks.isEmpty) {
+      Future.microtask(() {
+        context.read<TaskProvider>().fetchTasks();
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final task = taskProvider.getTaskById(widget.taskId);
+
     if (task == null) {
       return const Scaffold(body: Center(child: Text("Task not found")));
     }
@@ -187,7 +195,12 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                 children: [
                   InkWell(
                     onTap: () {
-                      // Edit Task logic later
+                      _hideMenu();
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.editTaskScreen,
+                        arguments: widget.taskId,
+                      );
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -231,9 +244,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                         ),
                       );
                       if (confirm == true) {
-                        Navigator.of(
-                          context,
-                        ).pop(); // أولًا ارجع للصفحة السابقة
+                        Navigator.of(context).pop();
                         final provider = Provider.of<TaskProvider>(
                           context,
                           listen: false,
@@ -339,7 +350,7 @@ class _InfoBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.lightPurple.withOpacity(0.3),
+        color: AppColors.lightPurple.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -371,7 +382,7 @@ class _ColoredBox extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.lightPurple.withOpacity(0.3),
+        color: AppColors.lightPurple.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

@@ -218,7 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             phone: countryCode + phoneController.text,
                             password: passwordController.text,
                             displayName: nameController.text,
-                            experienceYears: 1, // ممكن تغير حسب اختيارك
+                            experienceYears: 1,
                             address: addressController.text,
                             level: experienceLevelController.text.toLowerCase(),
                           );

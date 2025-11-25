@@ -22,7 +22,7 @@ class User {
       experienceYears: json['experienceYears'],
       address: json['address'],
       level: json['level'],
-      token: json['token'], // هيجي من login response
+      token: json['token'],
     );
   }
   Map<String, dynamic> toJson() {

@@ -14,7 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedCategory = 'All';
+  String selectedCategory = 'all';
+
   late ScrollController _scrollController;
   @override
   void initState() {
@@ -23,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController = ScrollController();
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
-    // استدعاء fetchTasks بعد انتهاء بناء الواجهة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       taskProvider.fetchTasks();
     });
@@ -140,9 +140,11 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           List<TaskModel> filteredTasks = taskProvider.tasks.where((task) {
-            if (selectedCategory == 'all') return true;
+            final s = selectedCategory.toLowerCase();
 
-            return task.status.toLowerCase() == selectedCategory.toLowerCase();
+            if (s == 'all') return true;
+
+            return task.status.toLowerCase() == s;
           }).toList();
 
           return RefreshIndicator(
@@ -152,8 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 HomeHeader(
                   onCategoryChanged: (selected) {
                     setState(() {
-                      selectedCategory = selected == 'Inpogress'
-                          ? 'Inprogress'
+                      selectedCategory = selected == 'inpogress'
+                          ? 'inprogress'
                           : selected;
                     });
                   },
@@ -163,12 +165,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 22),
                     itemCount:
-                        filteredTasks.length +
-                        (taskProvider.isLoading ? 1 : 0), // Spinner
+                        filteredTasks.length + (taskProvider.isLoading ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index < filteredTasks.length) {
                         final task = filteredTasks[index];
-                        // print("Task ${index + 1} ID: ${task.id}");
+
                         return GestureDetector(
                           onTap: () async {
                             final updated = await Navigator.of(context)
@@ -259,7 +260,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     task.desc,
                                     style: text.bodySmall!.copyWith(
-                                      color: AppColors.black.withOpacity(0.6),
+                                      color: AppColors.black.withValues(
+                                        alpha: 0.6,
+                                      ),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

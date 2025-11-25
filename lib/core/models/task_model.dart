@@ -3,8 +3,8 @@ class TaskModel {
   final String? image;
   final String title;
   final String desc;
-  final String priority; // low / medium / high
-  final String status; // waiting / inprogress / finished
+  final String priority;
+  final String status;
   final String user;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -24,8 +24,10 @@ class TaskModel {
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json["_id"],
-      image: json['image'] != null
-          ? "https://todo.iraqsapp.com/images/${json['image']}"
+      image: (json['image'] != null && json['image'].toString().isNotEmpty)
+          ? (json['image'].toString().startsWith("http")
+                ? json['image']
+                : "https://todo.iraqsapp.com/images/${json['image']}")
           : null,
 
       title: json["title"],
