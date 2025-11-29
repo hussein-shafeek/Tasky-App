@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final String baseUrl = "https://todo.iraqsapp.com/auth";
-
+  String? _lastError;
+  String? getLastError() => _lastError;
   Future<bool> register({
     required String phone,
     required String password,
@@ -27,10 +28,19 @@ class AuthService {
       }),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    //print("STATUS: ${response.statusCode}");
+    //print("RESPONSE BODY: ${response.body}");
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      _lastError = null;
       return true;
     } else {
-      print('Register failed: ${response.body}');
+      try {
+        final data = jsonDecode(response.body);
+        _lastError = data['message'] ?? "Register failed";
+      } catch (e) {
+        _lastError = "Register failed";
+      }
       return false;
     }
   }
@@ -47,12 +57,11 @@ class AuthService {
       body: jsonEncode({'phone': phone, 'password': password}),
     );
 
-    print("STATUS: ${response.statusCode}");
-    print("BODY: ${response.body}");
+    // print("STATUS: ${response.statusCode}");
+    //print("RESPONSE BODY: ${response.body}");
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = jsonDecode(response.body);
-
       String token = data['access_token'];
 
       final prefs = await SharedPreferences.getInstance();
@@ -60,11 +69,15 @@ class AuthService {
       await prefs.setString('refresh_token', data['refresh_token']);
       await prefs.setString('user_id', data['_id']);
 
+      _lastError = null;
       return token;
     } else {
-      print('StatusCode = ${response.statusCode}');
-      print('Response = ${response.body}');
-
+      try {
+        final data = jsonDecode(response.body);
+        _lastError = data['message'] ?? "Login failed";
+      } catch (e) {
+        _lastError = "Login failed";
+      }
       return null;
     }
   }

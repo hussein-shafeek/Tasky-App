@@ -50,6 +50,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       DefaultTextFormField(
                         hintText: "123 456-7890",
                         controller: phoneController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Phone number is required";
+                          }
+
+                          if (!RegExp(r'^[0-9]{8,15}$').hasMatch(value)) {
+                            return "Enter a valid phone number";
+                          }
+
+                          return null;
+                        },
                         prefixWidget: Padding(
                           padding: const EdgeInsets.only(left: 15),
                           child: CountryCodePicker(
@@ -101,6 +112,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: height * 0.024630),
                       DefaultTextFormField(
                         hintText: "Password...",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Password is required";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+                          return null;
+                        },
                         controller: passwordController,
                         isPassword: true,
                       ),
@@ -109,31 +129,53 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: 'Sign In',
                         textStyle: text.titleMedium,
                         onPressed: () async {
-                          if (phoneController.text.isEmpty ||
-                              passwordController.text.isEmpty) {
+                          if (formKey.currentState!.validate()) {
+                            final authService = AuthService();
+
+                            try {
+                              final token = await authService.login(
+                                phone: countryCode + phoneController.text,
+                                password: passwordController.text,
+                              );
+
+                              if (token != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Login successful"),
+                                    backgroundColor: AppColors.green,
+                                  ),
+                                );
+
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed(AppRoutes.homeScreen);
+                              } else {
+                                final errorMessage =
+                                    authService.getLastError() ??
+                                    "Login failed";
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(errorMessage),
+                                    backgroundColor: AppColors.coral,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("An error occurred: $e"),
+                                  backgroundColor: AppColors.coral,
+                                ),
+                              );
+                            }
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  "Phone and password are required",
+                                  "Please fill all required fields correctly",
                                 ),
+                                backgroundColor: AppColors.coral,
                               ),
-                            );
-                            return;
-                          }
-
-                          final authService = AuthService();
-                          final token = await authService.login(
-                            phone: countryCode + phoneController.text,
-                            password: passwordController.text,
-                          );
-
-                          if (token != null) {
-                            Navigator.of(
-                              context,
-                            ).pushReplacementNamed(AppRoutes.homeScreen);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Login failed")),
                             );
                           }
                         },

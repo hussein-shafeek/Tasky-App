@@ -56,11 +56,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       DefaultTextFormField(
                         hintText: "Name...",
                         controller: nameController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Name is required";
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: height * 0.024630),
                       DefaultTextFormField(
                         hintText: "123 456-7890",
                         controller: phoneController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Phone number is required";
+                          }
+                          if (!RegExp(r'^[0-9]{8,15}$').hasMatch(value)) {
+                            return "Enter a valid phone number";
+                          }
+                          return null;
+                        },
                         prefixWidget: Padding(
                           padding: const EdgeInsets.only(left: 15),
                           child: CountryCodePicker(
@@ -113,6 +128,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       DefaultTextFormField(
                         hintText: "Years of experience...",
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Experience years is required";
+                          }
+                          if (int.tryParse(value) == null) {
+                            return "Enter a valid number";
+                          }
+                          return null;
+                        },
                         controller: experienceYearsController,
                       ),
                       SizedBox(height: height * 0.024630),
@@ -123,6 +147,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefixWidget: null,
                         isPassword: false,
                         readOnly: true,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Experience level is required";
+                          }
+                          return null;
+                        },
                         onTap: () async {
                           final level = await showModalBottomSheet<String>(
                             context: context,
@@ -187,12 +217,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       DefaultTextFormField(
                         hintText: "Address...",
                         controller: addressController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Address is required";
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: height * 0.024630),
 
                       DefaultTextFormField(
                         hintText: "Password...",
                         controller: passwordController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Password is required";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+                          return null;
+                        },
                         isPassword: true,
                       ),
                       SizedBox(height: height * 0.02955),
@@ -200,41 +245,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         label: 'Sign Up',
                         textStyle: text.titleMedium,
                         onPressed: () async {
-                          if (nameController.text.isEmpty ||
-                              phoneController.text.isEmpty ||
-                              passwordController.text.isEmpty ||
-                              experienceLevelController.text.isEmpty ||
-                              addressController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Please fill all fields"),
-                              ),
-                            );
-                            return;
-                          }
+                          if (formKey.currentState!.validate()) {
+                            final authService = AuthService();
 
-                          final authService = AuthService();
-                          bool success = await authService.register(
-                            phone: countryCode + phoneController.text,
-                            password: passwordController.text,
-                            displayName: nameController.text,
-                            experienceYears: 1,
-                            address: addressController.text,
-                            level: experienceLevelController.text.toLowerCase(),
-                          );
+                            try {
+                              bool success = await authService.register(
+                                phone: countryCode + phoneController.text,
+                                password: passwordController.text,
+                                displayName: nameController.text,
+                                experienceYears:
+                                    int.tryParse(
+                                      experienceYearsController.text,
+                                    ) ??
+                                    1,
+                                address: addressController.text,
+                                level: experienceLevelController.text
+                                    .toLowerCase(),
+                              );
 
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Register successful"),
-                              ),
-                            );
-                            Navigator.of(
-                              context,
-                            ).pushReplacementNamed(AppRoutes.loginScreen);
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Register successful"),
+                                    backgroundColor: AppColors.green,
+                                  ),
+                                );
+
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed(AppRoutes.loginScreen);
+
+                                final errorMessage =
+                                    authService.getLastError() ??
+                                    "Register failed";
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(errorMessage),
+                                    backgroundColor: AppColors.coral,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("An error occurred: $e"),
+                                  backgroundColor: AppColors.coral,
+                                ),
+                              );
+                            }
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Register failed")),
+                              const SnackBar(
+                                content: Text(
+                                  "Please fill all required fields correctly",
+                                ),
+                                backgroundColor: AppColors.coral,
+                              ),
                             );
                           }
                         },
