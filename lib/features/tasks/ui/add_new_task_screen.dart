@@ -1,4 +1,3 @@
-// Import existing packages
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -226,7 +225,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
               label: "Add Task",
               textStyle: text.bodyLarge,
               onPressed: () async {
-                // 1) Validate Image
                 if (selectedImage == null) {
                   print("No image selected");
                   return;
@@ -237,7 +235,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   return;
                 }
 
-                //  Upload Image
                 final uploadService = UploadService();
 
                 final uploadedImageFilename = await uploadService.uploadImage(
@@ -249,7 +246,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   return;
                 }
 
-                //Build CreateTodoModel
                 final createModel = CreateTodoModel(
                   image: uploadedImageFilename,
                   title: titleController.text.trim(),

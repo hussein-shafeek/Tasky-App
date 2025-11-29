@@ -44,7 +44,7 @@ class UploadService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final decoded = json.decode(responseBody);
       print("UPLOAD -> image filename: ${decoded["image"]}");
-      return decoded["image"]; //  يرجّع اسم الصورة فقط
+      return decoded["image"];
     }
 
     return null;

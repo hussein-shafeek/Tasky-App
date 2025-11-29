@@ -37,7 +37,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               height: height * 0.5394,
             ),
 
-            // SizedBox(height: height * 0.02955),
             Text(
               page.title,
               textAlign: TextAlign.center,

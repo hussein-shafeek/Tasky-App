@@ -15,7 +15,7 @@ class ProfileService {
         final data = jsonDecode(response.body);
         return ProfileModel.fromJson(data);
       } else {
-        print("⚠️ WARNING: /auth/profile returned EMPTY BODY");
+        print("WARNING: /auth/profile returned EMPTY BODY");
       }
     }
 

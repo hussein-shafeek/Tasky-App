@@ -2,8 +2,8 @@ class CreateTodoModel {
   final String image;
   final String title;
   final String desc;
-  final String priority; // low, medium, high
-  final String dueDate; // "2024-05-15"
+  final String priority;
+  final String dueDate;
 
   CreateTodoModel({
     required this.image,

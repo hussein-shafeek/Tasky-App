@@ -191,7 +191,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
             SizedBox(height: height * 0.0197),
 
-            // Priority Dropdown
             Text(
               'Priority',
               style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
@@ -202,7 +201,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               items: const ["low", "medium", "high"],
               textColor: AppColors.primary,
 
-              // أيقونة قبل النص
               prefixWidget: const Icon(
                 Icons.flag_outlined,
                 color: AppColors.primary,
@@ -226,7 +224,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
             SizedBox(height: height * 0.0431),
 
-            // Save Button
             DefaultElevatedButton(
               label: "Update Task",
               textStyle: text.bodyLarge,

@@ -4,7 +4,7 @@ class User {
   final int experienceYears;
   final String address;
   final String level;
-  final String token; // JWT token
+  final String token;
 
   User({
     required this.phone,

@@ -34,7 +34,6 @@ class ProfileField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // -------- label ----------
                 Text(
                   label.toUpperCase(),
                   style: text.titleSmall!.copyWith(
@@ -43,10 +42,6 @@ class ProfileField extends StatelessWidget {
                 ),
                 SizedBox(height: height * 0.004926),
                 Text(value, style: text.bodyMedium),
-
-                // const SizedBox(height: 6),
-
-                // -------- container ----------
               ],
             ),
           ),

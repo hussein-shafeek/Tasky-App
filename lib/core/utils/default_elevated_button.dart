@@ -27,7 +27,7 @@ class DefaultElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.sizeOf(context).width;
     TextTheme text = Theme.of(context).textTheme;
-    //double height = MediaQuery.sizeOf(context).height;
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

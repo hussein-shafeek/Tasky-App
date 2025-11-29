@@ -18,7 +18,6 @@ class AppTheme {
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.white,
-      // shape: CircleBorder(side: BorderSide(width: 5, color: AppColors.white)),
     ),
 
     inputDecorationTheme: InputDecorationTheme(

@@ -87,7 +87,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   SizedBox(height: size.height * 0.02955),
 
-                  /// ----------- NAME -----------
                   ProfileField(
                     label: "NAME",
                     value: profile?.displayName ?? "-",
@@ -95,7 +94,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: size.height * 0.009852),
 
-                  /// ----------- PHONE -----------
                   ProfileField(
                     label: "PHONE",
                     value: profile?.phone ?? "-",
@@ -109,12 +107,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: size.height * 0.009852),
 
-                  /// ----------- LEVEL -----------
                   ProfileField(label: "LEVEL", value: profile?.level ?? "-"),
 
                   SizedBox(height: size.height * 0.009852),
 
-                  /// ----------- YEARS OF EXPERIENCE -----------
                   ProfileField(
                     label: "YEARS OF EXPERIENCE",
                     value: "${profile?.experienceYears ?? 0} years",
@@ -122,7 +118,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: size.height * 0.009852),
 
-                  /// ----------- LOCATION -----------
                   ProfileField(
                     label: "LOCATION",
                     value: profile?.address ?? "-",

@@ -11,7 +11,7 @@ class ProfileFieldLoading extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: AppColors.lightPurple.withOpacity(0.3),
+        color: AppColors.lightPurple.withValues(alpha: 0.3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -20,7 +20,7 @@ class ProfileFieldLoading extends StatelessWidget {
           Container(
             height: 12,
             width: 80,
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 10),
 
@@ -28,7 +28,7 @@ class ProfileFieldLoading extends StatelessWidget {
           Container(
             height: 16,
             width: double.infinity,
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
           ),
         ],
       ),

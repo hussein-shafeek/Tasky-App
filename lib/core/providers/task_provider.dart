@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:tasky_app/core/models/add_task_model.dart';
 import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/models/update_model.dart';
@@ -78,7 +79,6 @@ class TaskProvider extends ChangeNotifier {
       final success = await todoService.updateTodo(id: id, model: model);
 
       if (success) {
-        // Re-fetch updated task from API
         final updated = await todoService.getTodoById(id);
 
         final index = _tasks.indexWhere((t) => t.id == id);
@@ -94,22 +94,30 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteTask(String id) async {
+  Future<bool> deleteTask(String id) async {
     _isLoading = true;
-    _error = null;
     notifyListeners();
 
     try {
       final success = await todoService.deleteTodo(id);
+
       if (success) {
-        _tasks.removeWhere((t) => t.id == id);
+        _tasks.removeWhere((task) => task.id == id);
+
+        _isLoading = false;
+        notifyListeners();
+        print("Task deleted successfully");
+        return true;
+      } else {
+        print("Delete failed");
       }
     } catch (e) {
-      _error = e.toString();
+      print("Delete error: $e");
     }
 
     _isLoading = false;
     notifyListeners();
+    return false;
   }
 
   TaskModel? getTaskById(String id) {

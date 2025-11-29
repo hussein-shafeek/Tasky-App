@@ -28,7 +28,7 @@ class ApiService {
       bool success = await _refreshToken();
 
       if (success) {
-        token = prefs.getString('token'); //  get new token
+        token = prefs.getString('token');
 
         response = await http.get(
           url,

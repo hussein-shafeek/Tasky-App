@@ -2,8 +2,8 @@ class UpdateTodoModel {
   final String image;
   final String title;
   final String desc;
-  final String priority; // low, medium, high
-  final String status; // waiting, inprogress, finished
+  final String priority;
+  final String status;
   final String user;
 
   UpdateTodoModel({

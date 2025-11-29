@@ -28,11 +28,9 @@ class TodoService {
     http.Response response = await request();
 
     if (response.statusCode == 401) {
-      // Try refresh token
       final success = await _refreshToken();
       if (!success) throw Exception("Unauthorized & refresh failed");
 
-      // Retry original request with new token
       response = await request();
     }
 
@@ -138,7 +136,13 @@ class TodoService {
       return http.delete(url, headers: await _getHeaders());
     });
 
-    final result = int.tryParse(response.body.trim());
-    return result == 1;
+    print("DELETE STATUS: ${response.statusCode}");
+    print("DELETE BODY: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    }
+
+    return false;
   }
 }

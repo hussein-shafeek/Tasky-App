@@ -63,7 +63,6 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Logo
             Center(
               child: Image.network(
                 task.image!,
@@ -73,7 +72,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               ),
             ),
             SizedBox(height: height * 0.0197),
-            // Title
+
             Text(
               task.title,
               style: text.headlineSmall,
@@ -81,7 +80,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: height * 0.00985),
-            // Description
+
             Text(
               task.desc,
               style: text.titleSmall!.copyWith(
@@ -101,7 +100,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               onChanged: (v) {},
             ),
             SizedBox(height: height * 0.00985),
-            // Status
+
             CustomDropdownFlexible(
               value: task.status,
               items: const ["waiting", "inprogress", "finished"],
@@ -139,7 +138,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               onChanged: (value) {},
             ),
             SizedBox(height: height * 0.0197),
-            // QR Image from API
+
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -173,7 +172,8 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
   OverlayEntry? _overlayEntry;
 
   void _showMenu() {
-    final overlay = Overlay.of(context)!;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
     final topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
 
     _overlayEntry = OverlayEntry(
@@ -193,6 +193,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Edit Button
                   InkWell(
                     onTap: () {
                       _hideMenu();
@@ -218,23 +219,36 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                     ),
                   ),
                   const Divider(height: 1, color: AppColors.white),
+
+                  // Delete Button
                   InkWell(
                     onTap: () async {
                       _hideMenu();
+
+                      final provider = Provider.of<TaskProvider>(
+                        context,
+                        listen: false,
+                      );
+
+                      final navigator = Navigator.of(context);
+                      final messenger = ScaffoldMessenger.of(context);
+
                       final bool? confirm = await showDialog<bool>(
                         context: context,
-                        builder: (_) => AlertDialog(
+                        builder: (dialogContext) => AlertDialog(
                           title: const Text("Delete Task"),
                           content: const Text(
                             "Are you sure you want to delete this task?",
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context, false),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
                               child: const Text("Cancel"),
                             ),
                             TextButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
                               child: const Text(
                                 "Delete",
                                 style: TextStyle(color: Colors.red),
@@ -243,15 +257,25 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                           ],
                         ),
                       );
-                      if (confirm == true) {
-                        Navigator.of(context).pop();
-                        final provider = Provider.of<TaskProvider>(
-                          context,
-                          listen: false,
+
+                      if (confirm != true) return;
+
+                      print("Deleting ID: ${widget.taskId}");
+                      print("IDs BEFORE DELETE:");
+                      for (var t in provider.tasks) {
+                        print(t.id);
+                      }
+
+                      final success = await provider.deleteTask(widget.taskId);
+
+                      if (success) {
+                        navigator.pop(true);
+                      } else {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text("Failed to delete task"),
+                          ),
                         );
-                        await provider.deleteTask(
-                          widget.taskId,
-                        ); // بعد كده احذف
                       }
                     },
                     child: const Padding(
@@ -262,7 +286,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                       child: Text(
                         "Delete",
                         style: TextStyle(
-                          color: AppColors.coral,
+                          color: Colors.red,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
