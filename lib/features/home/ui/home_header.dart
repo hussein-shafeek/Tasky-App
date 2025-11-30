@@ -16,6 +16,7 @@ class HomeHeader extends StatefulWidget {
 
 class _HomeHeaderState extends State<HomeHeader> {
   int currentIndex = 0;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,22 +53,44 @@ class _HomeHeaderState extends State<HomeHeader> {
 
                       GestureDetector(
                         onTap: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => const Center(
+                              child: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 8,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+
                           final authService = AuthService();
                           final success = await authService.logout();
+
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                success
+                                    ? "Logged out successfully"
+                                    : "Logout failed",
+                              ),
+                              backgroundColor: success
+                                  ? AppColors.green
+                                  : AppColors.coral,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
 
                           if (success) {
                             Navigator.pushReplacementNamed(
                               context,
                               AppRoutes.loginScreen,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Logged out successfully"),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Logout failed")),
                             );
                           }
                         },

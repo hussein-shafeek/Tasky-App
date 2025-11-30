@@ -10,6 +10,7 @@ import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final String taskId;
@@ -120,35 +121,66 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             // Image Picker
             GestureDetector(
               onTap: pickImage,
-              child: Container(
-                height: 225,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.lightLavender,
-                  image: DecorationImage(
-                    image: selectedImage != null
-                        ? FileImage(selectedImage!)
-                        : (task.image != null
-                              ? NetworkImage(task.image!)
-                              : const AssetImage(
-                                      "assets/images/placeholder.png",
-                                    )
-                                    as ImageProvider),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                child: selectedImage == null
-                    ? Center(
+              child: FutureBuilder<Size>(
+                future: selectedImage != null
+                    ? ImageUtils.getLocalImageSize(selectedImage!)
+                    : (task.image != null
+                          ? ImageUtils.getNetworkImageSize(
+                              task.image!.startsWith("http")
+                                  ? task.image!
+                                  : "https://todo.iraqsapp.com/images/${task.image!}",
+                            )
+                          : null),
+                builder: (context, snapshot) {
+                  final screenWidth = MediaQuery.of(context).size.width;
+
+                  if (!snapshot.hasData) {
+                    return Container(
+                      height: 225,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.lightLavender,
+                      ),
+                      child: Center(
                         child: SvgPicture.asset(
                           "assets/icons/add_img.svg",
                           width: 50,
                           height: 50,
                         ),
-                      )
-                    : null,
+                      ),
+                    );
+                  }
+
+                  final imgSize = snapshot.data!;
+                  final double containerHeight =
+                      (imgSize.height / imgSize.width) * screenWidth;
+
+                  final imageProvider = selectedImage != null
+                      ? FileImage(selectedImage!)
+                      : NetworkImage(
+                              task.image!.startsWith("http")
+                                  ? task.image!
+                                  : "https://todo.iraqsapp.com/images/${task.image!}",
+                            )
+                            as ImageProvider;
+
+                  return Container(
+                    height: containerHeight,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.lightLavender,
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
+
             SizedBox(height: height * 0.0197),
 
             // Title

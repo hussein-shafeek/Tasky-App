@@ -8,6 +8,7 @@ import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/data/task_qr_widget.dart';
 import 'package:tasky_app/features/tasks/data/date_utils.dart' as myDateUtils;
+import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
   final String taskId;
@@ -64,13 +65,42 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Image.network(
-                task.image!,
-                height: height * 0.277,
-                width: double.infinity,
-                fit: BoxFit.fill,
+              child: FutureBuilder<Size>(
+                future: ImageUtils.getNetworkImageSize(
+                  task.image!.startsWith("http")
+                      ? task.image!
+                      : "https://todo.iraqsapp.com/images/${task.image!}",
+                ),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return SizedBox(
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final imageSize = snapshot.data!;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final containerHeight =
+                      (imageSize.height / imageSize.width) * screenWidth;
+
+                  final imageUrl = task.image!.startsWith("http")
+                      ? task.image!
+                      : "https://todo.iraqsapp.com/images/${task.image!}";
+
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      height: containerHeight,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                },
               ),
             ),
+
             SizedBox(height: height * 0.0197),
 
             Text(

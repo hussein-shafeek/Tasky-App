@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/core/utils/default_text_form_field.dart';
+import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class AddNewTaskScreen extends StatefulWidget {
   const AddNewTaskScreen({super.key});
@@ -127,17 +129,35 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             SizedBox(height: height * 0.0197),
 
             if (selectedImage != null)
-              Container(
-                height: 225,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: FileImage(selectedImage!),
-                    fit: BoxFit.cover,
-                  ),
+              if (selectedImage != null)
+                FutureBuilder<Size>(
+                  future: ImageUtils.getLocalImageSize(selectedImage!),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox(
+                        height: 100,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final imageSize = snapshot.data!;
+                    final containerHeight =
+                        (imageSize.height / imageSize.width) *
+                        MediaQuery.of(context).size.width;
+
+                    return Container(
+                      width: double.infinity,
+                      height: containerHeight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: FileImage(selectedImage!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ),
 
             SizedBox(height: height * 0.0197),
             Text(

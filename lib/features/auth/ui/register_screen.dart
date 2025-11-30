@@ -274,10 +274,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Navigator.of(
                                   context,
                                 ).pushReplacementNamed(AppRoutes.loginScreen);
-
+                              } else {
                                 final errorMessage =
                                     authService.getLastError() ??
                                     "Register failed";
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(errorMessage),
