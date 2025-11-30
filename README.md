@@ -40,7 +40,8 @@ Tasky App is a simple, intuitive, and powerful Todo/Task management app that all
 ## Demo Video 
 
 Watch the demo video here:  
-[Demo Video]([YOUR_DEMO_VIDEO_LINK](https://drive.google.com/file/d/1wnnAt3UtImic4OqBovCAFuCRGYCvnKGd/view?usp=sharing))
+[Demo Video](https://drive.google.com/file/d/1wnnAt3UtImic4OqBovCAFuCRGYCvnKGd/view?usp=sharing)
+
 
 
 ## UI Design 
