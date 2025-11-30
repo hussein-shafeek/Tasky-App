@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
@@ -15,8 +16,13 @@ import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
 import 'package:tasky_app/features/tasks/ui/edit_task.dart';
 import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 
+bool? showOnboarding;
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final todoService = TodoService();
+  final prefs = await SharedPreferences.getInstance();
+
+  showOnboarding = prefs.getBool('onboarding_shown') ?? false;
   runApp(
     DevicePreview(
       enabled: false,
@@ -26,14 +32,15 @@ void main() async {
             create: (_) => TaskProvider(todoService: todoService),
           ),
         ],
-        child: const TaskyApp(),
+        child: TaskyApp(showOnboarding: showOnboarding),
       ),
     ),
   );
 }
 
 class TaskyApp extends StatefulWidget {
-  const TaskyApp({super.key});
+  final bool? showOnboarding;
+  const TaskyApp({super.key, this.showOnboarding});
 
   @override
   State<TaskyApp> createState() => _TaskyAppState();
@@ -44,7 +51,9 @@ class _TaskyAppState extends State<TaskyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.onboardingScreen,
+      initialRoute: widget.showOnboarding == true
+          ? AppRoutes.loginScreen
+          : AppRoutes.onboardingScreen,
       theme: AppTheme.CustomeLightTheme,
       themeMode: ThemeMode.light,
       routes: {
