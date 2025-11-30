@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 100 &&
           !taskProvider.isLoading) {
-        taskProvider.fetchTasks(); // Load next page
+        taskProvider.fetchTasks();
       }
     });
   }
