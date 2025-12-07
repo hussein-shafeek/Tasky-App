@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
@@ -51,42 +52,59 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text('Login', style: text.headlineSmall),
                       SizedBox(height: height * 0.02955),
-                      IntlPhoneField(
-                        controller: phoneController,
-                        keyboardType: TextInputType.phone,
-                        initialCountryCode: 'EG',
-                        dropdownIconPosition: IconPosition.trailing,
-                        dropdownIcon: Icon(
-                          Icons.arrow_drop_down,
-                          color: AppColors.grayMedium,
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          textTheme: text.copyWith(
+                            titleMedium: text.titleMedium!.copyWith(
+                              color: AppColors.black,
+                            ),
+                          ),
                         ),
-                        flagsButtonMargin: const EdgeInsets.only(left: 15),
-                        dropdownTextStyle: text.titleSmall!.copyWith(
-                          color: AppColors.grayMedium,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        style: text.titleMedium!.copyWith(
-                          color: AppColors.black,
-                        ),
-                        onChanged: (phone) {
-                          fullPhone = phone.completeNumber;
-                          setState(() {
-                            phoneError = null;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Phone Number',
-                          hintStyle: text.titleSmall!.copyWith(
+                        child: IntlPhoneField(
+                          controller: phoneController,
+                          keyboardType: TextInputType.phone,
+                          initialCountryCode: 'EG',
+                          dropdownIconPosition: IconPosition.trailing,
+                          dropdownIcon: Icon(
+                            Icons.arrow_drop_down,
                             color: AppColors.grayMedium,
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          flagsButtonMargin: const EdgeInsets.only(left: 15),
+                          dropdownTextStyle: text.titleSmall!.copyWith(
+                            color: AppColors.grayMedium,
+                            fontWeight: FontWeight.bold,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15,
-                            horizontal: 12,
+                          style: text.titleMedium!.copyWith(
+                            color: AppColors.black,
                           ),
-                          errorText: phoneError,
+                          pickerDialogStyle: PickerDialogStyle(
+                            searchFieldInputDecoration: InputDecoration(
+                              hintText: 'Search country',
+                              hintStyle: text.titleSmall!.copyWith(
+                                color: AppColors.grayMedium,
+                              ),
+                            ),
+                          ),
+                          onChanged: (phone) {
+                            fullPhone = phone.completeNumber;
+                            setState(() {
+                              phoneError = null;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Phone Number',
+                            hintStyle: text.titleSmall!.copyWith(
+                              color: AppColors.grayMedium,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 15,
+                              horizontal: 12,
+                            ),
+                            errorText: phoneError,
+                          ),
                         ),
                       ),
 
@@ -116,7 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : DefaultElevatedButton(
                                 label: 'Sign In',
-                                textStyle: text.titleMedium,
+                                textStyle: text.titleMedium!.copyWith(
+                                  color: AppColors.white,
+                                ),
                                 onPressed: () async {
                                   setState(() {
                                     phoneError =

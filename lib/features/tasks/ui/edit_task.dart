@@ -38,8 +38,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       final task = context.read<TaskProvider>().getTaskById(widget.taskId);
 
       if (task != null) {
-        titleController = TextEditingController(text: task.title);
-        descController = TextEditingController(text: task.desc);
+        titleController.text = task.title;
+        descController.text = task.desc;
+
         status = task.status;
         priority = task.priority;
       } else {
@@ -258,7 +259,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
             DefaultElevatedButton(
               label: "Update Task",
-              textStyle: text.bodyLarge,
+              textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
               onPressed: () async {
                 String? imageUrl = task.image;
                 if (selectedImage != null) {

@@ -25,10 +25,12 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   File? selectedImage;
   final picker = ImagePicker();
   bool isPicking = false;
+  bool isLoading = false;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   String priority = "Medium";
   bool isPriorityFavourite = false;
@@ -90,211 +92,268 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ▪▪ Add Image Button ▪▪
-            GestureDetector(
-              onTap: pickImage,
-              child: DottedBorder(
-                options: RoundedRectDottedBorderOptions(
-                  dashPattern: [2, 2],
-                  strokeWidth: 2,
-                  radius: Radius.circular(12),
-                  color: AppColors.primary,
-                ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        "assets/icons/add_img.svg",
-                        height: height * 0.02955,
-                        width: width * 0.064,
-                      ),
-                      SizedBox(width: width * 0.03733),
-                      Text(
-                        "Add Img",
-                        style: text.titleMedium!.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ▪▪ Add Image Button ▪▪
+              GestureDetector(
+                onTap: pickImage,
+                behavior: HitTestBehavior.opaque,
+                child: DottedBorder(
+                  options: RoundedRectDottedBorderOptions(
+                    dashPattern: [2, 2],
+                    strokeWidth: 2,
+                    radius: Radius.circular(12),
+                    color: AppColors.primary,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          "assets/icons/add_img.svg",
+                          height: height * 0.02955,
+                          width: width * 0.064,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: width * 0.03733),
+                        Text(
+                          "Add Img",
+                          style: text.titleMedium!.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: height * 0.0197),
+              SizedBox(height: height * 0.0197),
 
-            if (selectedImage != null)
               if (selectedImage != null)
-                FutureBuilder<Size>(
-                  future: ImageUtils.getLocalImageSize(selectedImage!),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox(
-                        height: 100,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
+                if (selectedImage != null)
+                  FutureBuilder<Size>(
+                    future: ImageUtils.getLocalImageSize(selectedImage!),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox(
+                          height: 100,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-                    final imageSize = snapshot.data!;
-                    final containerHeight =
-                        (imageSize.height / imageSize.width) *
-                        MediaQuery.of(context).size.width;
+                      // final imageSize = snapshot.data!;
+                      // final containerHeight =
+                      //     (imageSize.height / imageSize.width) *
+                      //     MediaQuery.of(context).size.width;
 
-                    return Container(
-                      width: double.infinity,
-                      height: containerHeight,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: DecorationImage(
-                          image: FileImage(selectedImage!),
-                          fit: BoxFit.cover,
+                      return Container(
+                        width: double.infinity,
+                        height: height * 0.277,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: FileImage(selectedImage!),
+
+                            fit: BoxFit.cover,
+                          ),
                         ),
+                      );
+                    },
+                  ),
+
+              SizedBox(height: height * 0.0197),
+              Text(
+                'Task title',
+                style: text.labelSmall!.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: height * 0.009852),
+              DefaultTextFormField(
+                hintText: "Enter title here...",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Title is required";
+                  }
+                  return null;
+                },
+                controller: titleController,
+              ),
+
+              SizedBox(height: height * 0.022167),
+              Text(
+                'Task Description',
+                style: text.labelSmall!.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: height * 0.009852),
+              DefaultTextFormField(
+                hintText: "Enter description here...",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "description is required";
+                  }
+                  return null;
+                },
+                controller: descriptionController,
+                minLines: 6,
+                maxLines: 15,
+              ),
+
+              SizedBox(height: height * 0.0197),
+              Text(
+                'Priority',
+                style: text.labelSmall!.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: height * 0.009852),
+              CustomDropdownFlexible(
+                value: priority,
+                items: const ["Low", "Medium", "High"],
+                textColor: AppColors.primary,
+                prefixWidget: const Icon(
+                  Icons.flag_outlined,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
+                suffixText: "Priority",
+                trailingWidget: Icon(
+                  isPriorityFavourite ? Icons.favorite : Icons.favorite_border,
+                  color: AppColors.primary,
+                ),
+                onTrailingTap: () {
+                  setState(() => isPriorityFavourite = !isPriorityFavourite);
+                },
+                onChanged: (value) {
+                  setState(() => priority = value!);
+                },
+              ),
+
+              SizedBox(height: height * 0.0197),
+              Text(
+                'Due date',
+                style: text.labelSmall!.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: height * 0.009852),
+              DefaultTextFormField(
+                hintText: "choose due date...",
+                controller: dateController,
+                readOnly: true,
+                suffixIcon: SvgPicture.asset(
+                  "assets/icons/calendar.svg",
+                  width: width * 0.064,
+                  height: height * 0.02955,
+                  fit: BoxFit.scaleDown,
+                ),
+                onTap: () async {
+                  DateTime? picked = await showDatePicker(
+                    context: context,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2050),
+                  );
+                  if (picked != null) {
+                    dateController.text =
+                        "${picked.year}-${picked.month}-${picked.day}";
+                  }
+                },
+              ),
+
+              SizedBox(height: height * 0.0431),
+              DefaultElevatedButton(
+                label: "Add Task",
+
+                textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill all required fields"),
+                        backgroundColor: AppColors.coral,
                       ),
                     );
-                  },
-                ),
+                    return;
+                  }
 
-            SizedBox(height: height * 0.0197),
-            Text(
-              'Task title',
-              style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: height * 0.009852),
-            DefaultTextFormField(
-              hintText: "Enter title here...",
-              controller: titleController,
-            ),
+                  if (selectedImage == null) {
+                    print("No image selected");
+                    return;
+                  }
 
-            SizedBox(height: height * 0.022167),
-            Text(
-              'Task Description',
-              style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: height * 0.009852),
-            DefaultTextFormField(
-              hintText: "Enter description here...",
-              controller: descriptionController,
-              minLines: 6,
-              maxLines: 15,
-            ),
+                  if (!isValidImage(selectedImage!.path)) {
+                    print("Only JPG/PNG images allowed");
+                    return;
+                  }
 
-            SizedBox(height: height * 0.0197),
-            Text(
-              'Priority',
-              style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: height * 0.009852),
-            CustomDropdownFlexible(
-              value: priority,
-              items: const ["Low", "Medium", "High"],
-              textColor: AppColors.primary,
-              prefixWidget: const Icon(
-                Icons.flag_outlined,
-                color: AppColors.primary,
-                size: 22,
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(
+                      child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 8,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  );
+
+                  try {
+                    final uploadService = UploadService();
+
+                    final uploadedImageFilename = await uploadService
+                        .uploadImage(selectedImage!);
+
+                    if (uploadedImageFilename == null) {
+                      Navigator.pop(context); // Close loading dialog
+                      print("Upload failed");
+                      return;
+                    }
+
+                    final createModel = CreateTodoModel(
+                      image: uploadedImageFilename,
+                      title: titleController.text.trim(),
+                      desc: descriptionController.text.trim(),
+                      priority: priority.toLowerCase(),
+                      dueDate: dateController.text.trim(),
+                    );
+
+                    final taskProvider = Provider.of<TaskProvider>(
+                      context,
+                      listen: false,
+                    );
+                    print("CREATE MODEL: ${createModel.toJson()}");
+
+                    await taskProvider.addTask(createModel);
+
+                    final addedTask = taskProvider.tasks.isNotEmpty
+                        ? taskProvider.tasks.last
+                        : null;
+
+                    Navigator.pop(context); // Close loading dialog
+                    Navigator.pop(context, addedTask); // Close screen
+                  } catch (e) {
+                    Navigator.pop(context); // Close loading dialog
+                    print("Failed to add task: $e");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Failed to add task: $e")),
+                    );
+                  }
+                },
               ),
-              suffixText: "Priority",
-              trailingWidget: Icon(
-                isPriorityFavourite ? Icons.favorite : Icons.favorite_border,
-                color: AppColors.primary,
-              ),
-              onTrailingTap: () {
-                setState(() => isPriorityFavourite = !isPriorityFavourite);
-              },
-              onChanged: (value) {
-                setState(() => priority = value!);
-              },
-            ),
-
-            SizedBox(height: height * 0.0197),
-            Text(
-              'Due date',
-              style: text.labelSmall!.copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: height * 0.009852),
-            DefaultTextFormField(
-              hintText: "choose due date...",
-              controller: dateController,
-              readOnly: true,
-              suffixIcon: SvgPicture.asset(
-                "assets/icons/calendar.svg",
-                width: width * 0.064,
-                height: height * 0.02955,
-                fit: BoxFit.scaleDown,
-              ),
-              onTap: () async {
-                DateTime? picked = await showDatePicker(
-                  context: context,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2050),
-                );
-                if (picked != null) {
-                  dateController.text =
-                      "${picked.year}-${picked.month}-${picked.day}";
-                }
-              },
-            ),
-
-            SizedBox(height: height * 0.0431),
-            DefaultElevatedButton(
-              label: "Add Task",
-              textStyle: text.bodyLarge,
-              onPressed: () async {
-                if (selectedImage == null) {
-                  print("No image selected");
-                  return;
-                }
-
-                if (!isValidImage(selectedImage!.path)) {
-                  print("Only JPG/PNG images allowed");
-                  return;
-                }
-
-                final uploadService = UploadService();
-
-                final uploadedImageFilename = await uploadService.uploadImage(
-                  selectedImage!,
-                );
-
-                if (uploadedImageFilename == null) {
-                  print("Upload failed");
-                  return;
-                }
-
-                final createModel = CreateTodoModel(
-                  image: uploadedImageFilename,
-                  title: titleController.text.trim(),
-                  desc: descriptionController.text.trim(),
-                  priority: priority.toLowerCase(),
-                  dueDate: dateController.text.trim(),
-                );
-
-                final taskProvider = Provider.of<TaskProvider>(
-                  context,
-                  listen: false,
-                );
-                print("CREATE MODEL: ${createModel.toJson()}");
-
-                try {
-                  await taskProvider.addTask(createModel);
-
-                  final addedTask = taskProvider.tasks.isNotEmpty
-                      ? taskProvider.tasks.last
-                      : null;
-
-                  Navigator.pop(context, addedTask);
-                } catch (e) {
-                  print("Failed to add task: $e");
-                }
-              },
-            ),
-            SizedBox(height: height * 0.02463),
-          ],
+              SizedBox(height: height * 0.02463),
+            ],
+          ),
         ),
       ),
     );

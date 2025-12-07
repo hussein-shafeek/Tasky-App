@@ -40,7 +40,28 @@ class _HomeHeaderState extends State<HomeHeader> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => const Center(
+                              child: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 8,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+
+                          await Future.delayed(
+                            const Duration(milliseconds: 500),
+                          );
+
+                          Navigator.pop(context);
+
                           Navigator.pushNamed(context, AppRoutes.profileScreen);
                         },
                         child: SvgPicture.asset(

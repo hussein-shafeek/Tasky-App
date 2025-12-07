@@ -234,7 +234,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               )
                             : DefaultElevatedButton(
                                 label: 'Sign Up',
-                                textStyle: text.titleMedium,
+                                textStyle: text.titleMedium!.copyWith(
+                                  color: AppColors.white,
+                                ),
                                 onPressed: () async {
                                   setState(() {
                                     phoneError =

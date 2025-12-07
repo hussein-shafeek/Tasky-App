@@ -74,15 +74,15 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return SizedBox(
-                      height: 200,
+                      height: height * 0.277,
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
 
-                  final imageSize = snapshot.data!;
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final containerHeight =
-                      (imageSize.height / imageSize.width) * screenWidth;
+                  //final imageSize = snapshot.data!;
+                  //  final screenWidth = MediaQuery.of(context).size.width;
+                  // final containerHeight =
+                  ///    (imageSize.height / imageSize.width) * screenWidth;
 
                   final imageUrl = task.image!.startsWith("http")
                       ? task.image!
@@ -93,8 +93,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     child: Image.network(
                       imageUrl,
                       width: double.infinity,
-                      height: containerHeight,
-                      fit: BoxFit.cover,
+                      height: height * 0.277,
+                      fit: BoxFit.scaleDown,
                     ),
                   );
                 },
