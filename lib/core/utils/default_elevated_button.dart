@@ -11,6 +11,7 @@ class DefaultElevatedButton extends StatelessWidget {
   String? prefixSvgPath;
   final String? suffixSvgPath;
   final TextStyle? textStyle;
+  final bool isLoading;
 
   DefaultElevatedButton({
     super.key,
@@ -21,6 +22,7 @@ class DefaultElevatedButton extends StatelessWidget {
     this.prefixSvgPath,
     this.suffixSvgPath,
     this.textStyle,
+    this.isLoading = false,
   });
 
   @override
@@ -29,7 +31,7 @@ class DefaultElevatedButton extends StatelessWidget {
     TextTheme text = Theme.of(context).textTheme;
 
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         fixedSize: Size(width, 49),
         backgroundColor: backgroundColor,
@@ -38,26 +40,38 @@ class DefaultElevatedButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (prefixSvgPath != null) ...[
-            SvgPicture.asset(prefixSvgPath!, width: 24, height: 24),
+      child: isLoading
+          ? const SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2.5,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (prefixSvgPath != null) ...[
+                  SvgPicture.asset(prefixSvgPath!, width: 24, height: 24),
 
-            SizedBox(width: width * 0.020),
-          ],
-          Text(label, style: textStyle ?? text.titleLarge),
-          if (suffixSvgPath != null) ...[
-            SizedBox(width: width * 0.0293),
-            SvgPicture.asset(
-              suffixSvgPath!,
-              width: 18,
-              height: 12,
-              colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+                  SizedBox(width: width * 0.020),
+                ],
+                Text(label, style: textStyle ?? text.titleLarge),
+                if (suffixSvgPath != null) ...[
+                  SizedBox(width: width * 0.0293),
+                  SvgPicture.asset(
+                    suffixSvgPath!,
+                    width: 18,
+                    height: 12,
+                    colorFilter: ColorFilter.mode(
+                      AppColors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
     );
   }
 }

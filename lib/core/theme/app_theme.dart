@@ -38,6 +38,10 @@ class AppTheme {
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: AppColors.coral),
       ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: AppColors.coral, width: 1.5),
+      ),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(

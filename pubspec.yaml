@@ -32,6 +32,9 @@ dependencies:
   path_provider: ^2.1.5
   qr_code_scanner_plus: ^2.0.14
 
+  intl_phone_number_input: ^0.7.5
+  intl_phone_field: ^3.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

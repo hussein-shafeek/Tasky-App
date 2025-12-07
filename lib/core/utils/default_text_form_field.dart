@@ -4,6 +4,7 @@ import 'package:tasky_app/core/theme/app_colors.dart';
 
 // ignore: must_be_immutable
 class DefaultTextFormField extends StatefulWidget {
+  TextInputType? keyboardType;
   String hintText;
   TextEditingController? controller;
   void Function(String)? onChanged;
@@ -32,7 +33,7 @@ class DefaultTextFormField extends StatefulWidget {
     this.readOnly = false,
     this.onTap,
     this.hintStyle,
-
+    this.keyboardType,
     this.minLines,
     this.maxLines,
   });
@@ -49,6 +50,7 @@ class _DefaultTextFormFieldState extends State<DefaultTextFormField> {
     return TextFormField(
       controller: widget.controller,
       onChanged: widget.onChanged,
+      keyboardType: widget.keyboardType,
       style: Theme.of(
         context,
       ).textTheme.titleMedium!.copyWith(color: AppColors.black),
@@ -60,11 +62,20 @@ class _DefaultTextFormFieldState extends State<DefaultTextFormField> {
 
       decoration: InputDecoration(
         hintText: widget.hintText,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 12,
+        ),
+
         hintStyle:
             widget.hintStyle ??
             Theme.of(
               context,
             ).textTheme.titleSmall!.copyWith(color: AppColors.grayMedium),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
         prefixIcon:
             widget.prefixWidget ??
             (widget.prefixIconImageName == null

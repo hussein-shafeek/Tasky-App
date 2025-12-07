@@ -1,5 +1,5 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -25,6 +25,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   String countryCode = "+20";
+  String fullPhone = '';
+  bool isLoading = false;
+  String? phoneError;
 
   @override
   Widget build(BuildContext context) {
@@ -64,63 +67,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       SizedBox(height: height * 0.024630),
-                      DefaultTextFormField(
-                        hintText: "123 456-7890",
+                      IntlPhoneField(
                         controller: phoneController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Phone number is required";
-                          }
-                          if (!RegExp(r'^[0-9]{8,15}$').hasMatch(value)) {
-                            return "Enter a valid phone number";
-                          }
-                          return null;
-                        },
-                        prefixWidget: Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: CountryCodePicker(
-                            onChanged: (value) => setState(() {
-                              countryCode = value.dialCode ?? "+20";
-                            }),
-                            initialSelection: 'EG',
-                            favorite: ['+20', 'EG'],
-                            showCountryOnly: false,
-                            showOnlyCountryWhenClosed: false,
-                            alignLeft: false,
-                            showFlag: true,
+                        keyboardType: TextInputType.phone,
+                        initialCountryCode: 'EG',
+                        dropdownIconPosition: IconPosition.trailing,
+                        dropdownIcon: Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.grayMedium,
+                        ),
+                        flagsButtonMargin: const EdgeInsets.only(left: 15),
 
-                            builder: (country) => Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (country?.flagUri != null)
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.asset(
-                                      country!.flagUri!,
-                                      package: 'country_code_picker',
-                                      width: 24,
-                                      height: 24,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  country?.dialCode ?? "+20",
-                                  style: const TextStyle(
-                                    color: AppColors.grayMedium,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.expand_more,
-                                  color: AppColors.grayMedium,
-                                  size: 24,
-                                ),
-                              ],
-                            ),
+                        dropdownTextStyle: text.titleSmall!.copyWith(
+                          color: AppColors.grayMedium,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        style: text.titleMedium!.copyWith(
+                          color: AppColors.black,
+                        ),
+                        onChanged: (phone) {
+                          fullPhone = phone.completeNumber;
+                          setState(() {
+                            phoneError = null;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Phone Number',
+                          hintStyle: text.titleSmall!.copyWith(
+                            color: AppColors.grayMedium,
                           ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: 12,
+                          ),
+                          errorText: phoneError,
                         ),
                       ),
 
@@ -241,72 +224,113 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isPassword: true,
                       ),
                       SizedBox(height: height * 0.02955),
-                      DefaultElevatedButton(
-                        label: 'Sign Up',
-                        textStyle: text.titleMedium,
-                        onPressed: () async {
-                          if (formKey.currentState!.validate()) {
-                            final authService = AuthService();
-
-                            try {
-                              bool success = await authService.register(
-                                phone: countryCode + phoneController.text,
-                                password: passwordController.text,
-                                displayName: nameController.text,
-                                experienceYears:
-                                    int.tryParse(
-                                      experienceYearsController.text,
-                                    ) ??
-                                    1,
-                                address: addressController.text,
-                                level: experienceLevelController.text
-                                    .toLowerCase(),
-                              );
-
-                              if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Register successful"),
-                                    backgroundColor: AppColors.green,
-                                  ),
-                                );
-
-                                Navigator.of(
-                                  context,
-                                ).pushReplacementNamed(AppRoutes.loginScreen);
-                              } else {
-                                final errorMessage =
-                                    authService.getLastError() ??
-                                    "Register failed";
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(errorMessage),
-                                    backgroundColor: AppColors.coral,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("An error occurred: $e"),
-                                  backgroundColor: AppColors.coral,
+                      SizedBox(
+                        width: double.infinity,
+                        child: isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
                                 ),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Please fill all required fields correctly",
-                                ),
-                                backgroundColor: AppColors.coral,
+                              )
+                            : DefaultElevatedButton(
+                                label: 'Sign Up',
+                                textStyle: text.titleMedium,
+                                onPressed: () async {
+                                  setState(() {
+                                    phoneError =
+                                        phoneController.text.trim().isEmpty
+                                        ? 'Phone number is required'
+                                        : null;
+                                  });
+
+                                  bool isFormValid =
+                                      formKey.currentState?.validate() ?? false;
+
+                                  if ((phoneError == null) && isFormValid) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+
+                                    final authService = AuthService();
+
+                                    try {
+                                      bool success = await authService.register(
+                                        phone: fullPhone.isEmpty
+                                            ? '+20${phoneController.text}'
+                                            : fullPhone,
+                                        password: passwordController.text,
+                                        displayName: nameController.text,
+                                        experienceYears:
+                                            int.tryParse(
+                                              experienceYearsController.text,
+                                            ) ??
+                                            1,
+                                        address: addressController.text,
+                                        level: experienceLevelController.text
+                                            .toLowerCase(),
+                                      );
+
+                                      if (success) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Register successful",
+                                            ),
+                                            backgroundColor: AppColors.green,
+                                          ),
+                                        );
+
+                                        Navigator.of(
+                                          context,
+                                        ).pushReplacementNamed(
+                                          AppRoutes.loginScreen,
+                                        );
+                                      } else {
+                                        final errorMessage =
+                                            authService.getLastError() ??
+                                            "Register failed";
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(errorMessage),
+                                            backgroundColor: AppColors.coral,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "An error occurred: $e",
+                                          ),
+                                          backgroundColor: AppColors.coral,
+                                        ),
+                                      );
+                                    } finally {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Please fill all required fields correctly",
+                                        ),
+                                        backgroundColor: AppColors.coral,
+                                      ),
+                                    );
+                                  }
+                                },
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.white,
                               ),
-                            );
-                          }
-                        },
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
                       ),
 
                       SizedBox(height: height * 0.02955),
