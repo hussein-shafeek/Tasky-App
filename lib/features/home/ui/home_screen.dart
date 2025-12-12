@@ -4,6 +4,7 @@ import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/features/home/data/priority.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -144,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (s == 'all') return true;
 
-            return task.status.toLowerCase() == s;
+            return task.status.value.toLowerCase() == s;
           }).toList();
 
           return RefreshIndicator(
@@ -240,17 +241,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: _getStatusColor(task.status),
+                                          color: task.status.color,
                                           borderRadius: BorderRadius.circular(
                                             5,
                                           ),
                                         ),
                                         child: Text(
-                                          task.status,
+                                          task.status.label,
                                           style: text.labelSmall!.copyWith(
-                                            color: _getStatusTextColor(
-                                              task.status,
-                                            ),
+                                            color: task.status.textColor,
                                           ),
                                         ),
                                       ),
@@ -273,13 +272,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Icon(
                                         Icons.flag_outlined,
                                         size: 16,
-                                        color: getPriorityColor(task.priority),
+                                        color: getPriorityColorFromEnum(
+                                          task.priority,
+                                        ),
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        task.priority,
+                                        task.priority.label,
                                         style: text.bodySmall!.copyWith(
-                                          color: getPriorityColor(
+                                          color: getPriorityColorFromEnum(
                                             task.priority,
                                           ),
                                         ),
@@ -319,42 +320,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'inprogress':
-        return AppColors.lightLavender;
-      case 'waiting':
-        return AppColors.pinkLace;
-      case 'finished':
-        return AppColors.lightBlueCustom;
-      default:
+  Color getPriorityColorFromEnum(Priority p) {
+    switch (p) {
+      case Priority.high:
+        return AppColors.coral;
+      case Priority.medium:
         return AppColors.primary;
+      case Priority.low:
+      default:
+        return AppColors.azureBlue;
     }
   }
 
-  Color _getStatusTextColor(String status) {
-    switch (status) {
-      case 'inprogress':
-        return AppColors.primary;
-      case 'waiting':
-        return AppColors.coral;
-      case 'finished':
-        return AppColors.azureBlue;
-      default:
-        return Colors.white;
-    }
-  }
+  // Color _getStatusColor(String status) {
+  //   switch (status) {
+  //     case 'inprogress':
+  //       return AppColors.lightLavender;
+  //     case 'waiting':
+  //       return AppColors.pinkLace;
+  //     case 'finished':
+  //       return AppColors.lightBlueCustom;
+  //     default:
+  //       return AppColors.primary;
+  //   }
+  // }
 
-  Color getPriorityColor(String priority) {
-    switch (priority) {
-      case 'high':
-        return AppColors.coral;
-      case 'medium':
-        return AppColors.primary;
-      case 'low':
-        return AppColors.azureBlue;
-      default:
-        return Colors.blue;
-    }
-  }
+  // Color _getStatusTextColor(String status) {
+  //   switch (status) {
+  //     case 'inprogress':
+  //       return AppColors.primary;
+  //     case 'waiting':
+  //       return AppColors.coral;
+  //     case 'finished':
+  //       return AppColors.azureBlue;
+  //     default:
+  //       return Colors.white;
+  //   }
+  // }
+
+  // Color getPriorityColor(String priority) {
+  //   switch (priority) {
+  //     case 'high':
+  //       return AppColors.coral;
+  //     case 'medium':
+  //       return AppColors.primary;
+  //     case 'low':
+  //       return AppColors.azureBlue;
+  //     default:
+  //       return Colors.blue;
+  //   }
+  // }
 }

@@ -132,7 +132,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             SizedBox(height: height * 0.00985),
 
             CustomDropdownFlexible(
-              value: task.status,
+              value: task.status.label,
               items: const ["waiting", "inprogress", "finished"],
               textColor: AppColors.primary,
               trailingWidget: Icon(
@@ -148,7 +148,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             SizedBox(height: height * 0.00985),
             // Priority
             CustomDropdownFlexible(
-              value: task.priority,
+              value: task.priority.label,
               items: const ["low", "medium", "high"],
               textColor: AppColors.primary,
               prefixWidget: const Icon(

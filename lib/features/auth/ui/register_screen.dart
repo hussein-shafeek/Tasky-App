@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:tasky_app/core/models/user_model.dart';
 import 'package:tasky_app/core/routes/routes.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -157,27 +158,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+                                  ...List.generate(
+                                    ExperienceLevel.values.length,
+                                    (index) {
+                                      final lvl = ExperienceLevel.values[index];
+                                      return ListTile(
+                                        title: Text(lvl.label),
+                                        onTap: () =>
+                                            Navigator.pop(context, lvl.name),
+                                      );
+                                    },
+                                  ),
 
-                                  ListTile(
-                                    title: const Text("Fresh"),
-                                    onTap: () =>
-                                        Navigator.pop(context, "Fresh"),
-                                  ),
-                                  ListTile(
-                                    title: const Text("Junior"),
-                                    onTap: () =>
-                                        Navigator.pop(context, "Junior"),
-                                  ),
-                                  ListTile(
-                                    title: const Text("Mid Level"),
-                                    onTap: () =>
-                                        Navigator.pop(context, "Mid Level"),
-                                  ),
-                                  ListTile(
-                                    title: const Text("Senior"),
-                                    onTap: () =>
-                                        Navigator.pop(context, "Senior"),
-                                  ),
+                                  // ListTile(
+                                  //   title: const Text("Fresh"),
+                                  //   onTap: () =>
+                                  //       Navigator.pop(context, "Fresh"),
+                                  // ),
+                                  // ListTile(
+                                  //   title: const Text("Junior"),
+                                  //   onTap: () =>
+                                  //       Navigator.pop(context, "Junior"),
+                                  // ),
+                                  // ListTile(
+                                  //   title: const Text("Mid Level"),
+                                  //   onTap: () =>
+                                  //       Navigator.pop(context, "Mid Level"),
+                                  // ),
+                                  // ListTile(
+                                  //   title: const Text("Senior"),
+                                  //   onTap: () =>
+                                  //       Navigator.pop(context, "Senior"),
+                                  // ),
                                 ],
                               ),
                             ),

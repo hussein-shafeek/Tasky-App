@@ -1,10 +1,13 @@
+import 'package:tasky_app/features/home/data/priority.dart';
+import 'package:tasky_app/features/home/data/status.dart';
+
 class TaskModel {
   final String id;
   final String? image;
   final String title;
   final String desc;
-  final String priority;
-  final String status;
+  final Priority priority;
+  final Status status;
   final String user;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,11 +33,11 @@ class TaskModel {
                 : "https://todo.iraqsapp.com/images/${json['image']}")
           : null,
 
-      title: json["title"],
-      desc: json["desc"],
-      priority: json["priority"],
-      status: json["status"],
-      user: json["user"],
+      title: json["title"] ?? "",
+      desc: json["desc"] ?? "",
+      priority: Priority.fromName(json["priority"]?.toString()),
+      status: Status.fromName(json["status"]?.toString()),
+      user: json["user"] ?? "",
       createdAt: DateTime.parse(json["createdAt"]),
       updatedAt: DateTime.parse(json["updatedAt"]),
     );
@@ -45,8 +48,8 @@ class TaskModel {
       "image": image,
       "title": title,
       "desc": desc,
-      "priority": priority,
-      "status": status,
+      "priority": priority.name,
+      "status": status.value,
       "user": user,
       "createdAt": createdAt.toIso8601String(),
       "updatedAt": updatedAt.toIso8601String(),

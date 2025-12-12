@@ -20,7 +20,6 @@ class ImageUtils {
     return completer.future;
   }
 
-  /// لحساب حجم صورة من URL
   static Future<Size> getNetworkImageSize(String url) async {
     final completer = Completer<Size>();
     final img = Image.network(url);

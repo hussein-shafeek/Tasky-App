@@ -41,8 +41,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         titleController.text = task.title;
         descController.text = task.desc;
 
-        status = task.status;
-        priority = task.priority;
+        status = task.status.label;
+        priority = task.priority.label;
       } else {
         context.read<TaskProvider>().fetchTasks();
       }

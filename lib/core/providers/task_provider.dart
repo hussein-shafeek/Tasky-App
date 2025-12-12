@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tasky_app/core/models/add_task_model.dart';
@@ -46,8 +48,9 @@ class TaskProvider extends ChangeNotifier {
         _tasks.addAll(fetchedTasks);
         _page++;
       }
-    } catch (e) {
+    } catch (e, s) {
       _error = e.toString();
+      log("$e\n$s");
     }
 
     _isLoading = false;
