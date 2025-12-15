@@ -50,12 +50,16 @@ enum ExperienceLevel {
   midLevel,
   senior;
 
-  static ExperienceLevel fromName(String? name) {
-    if (name == null) return ExperienceLevel.fresh;
-    try {
-      return ExperienceLevel.values.firstWhere((e) => e.name == name);
-    } catch (_) {
-      return ExperienceLevel.fresh;
+  String get apiValue {
+    switch (this) {
+      case ExperienceLevel.fresh:
+        return 'fresh';
+      case ExperienceLevel.junior:
+        return 'junior';
+      case ExperienceLevel.midLevel:
+        return 'midLevel';
+      case ExperienceLevel.senior:
+        return 'senior';
     }
   }
 
@@ -71,60 +75,11 @@ enum ExperienceLevel {
         return 'Senior';
     }
   }
+
+  static ExperienceLevel fromName(String? name) {
+    return ExperienceLevel.values.firstWhere(
+      (e) => e.name == name,
+      orElse: () => ExperienceLevel.fresh,
+    );
+  }
 }
-
- 
-//   ExperienceLevelValues getExperienceLevelValues() {
-//     switch (this) {
-//       case ExperienceLevel.fresh:
-//         return ExperienceLevelValues(
-//           name: 'Fresh',
-//           value: 'Fresh',
-//           color: const Color(0xFF000000),
-//         );
-//       case ExperienceLevel.junior:
-//         return ExperienceLevelValues(
-//           name: 'Junior',
-//           value: 'Junior',
-//           color: const Color(0xFF000000),
-//         );
-//       case ExperienceLevel.midLevel:
-//         return ExperienceLevelValues(
-//           name: 'MidLevel',
-//           value: 'MidLevel',
-//           color: const Color(0xFF000000),
-//         );
-//       case ExperienceLevel.senior:
-//         return ExperienceLevelValues(
-//           name: 'Senior',
-//           value: 'Senior',
-//           color: const Color(0xFF000000),
-//         );
-//     }
-//   }
-
-
-// class ExperienceLevelValues {
-//   final String name;
-//   final String value;
-//   final Color color;
-//   ExperienceLevelValues({required this.name, required this.value, required this.color});
-// }
-
-// sealed class ExperienceLevelSealed {
-//  final String level;
- 
-//  ExperienceLevelSealed({required this.level});
-// }
-//  class Fresh extends ExperienceLevelSealed {
-// Fresh() : super(level: 'Fresh');
-//   }
-//   class Junior extends ExperienceLevelSealed {
-// Junior() : super(level: 'Junior');
-//   }
-//   class MidLevel extends ExperienceLevelSealed {
-// MidLevel() : super(level: 'MidLevel');
-//   }
-//   class Senior extends ExperienceLevelSealed {
-// Senior() : super(level: 'Senior');
-//   }

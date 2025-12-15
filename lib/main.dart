@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tasky_app/core/task_cubit/bloc_observer.dart';
-import 'package:tasky_app/core/task_cubit/task_cubit.dart';
+import 'package:tasky_app/core/cubit/bloc_observer.dart';
+import 'package:tasky_app/core/cubit/task_cubit.dart';
 
 // check if imports are needed
 import 'package:device_preview/device_preview.dart';

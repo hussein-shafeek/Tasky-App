@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:tasky_app/core/task_cubit/task_cubit.dart';
-import 'package:tasky_app/core/task_cubit/task_state.dart';
+import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/core/states/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
