@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky_app/core/models/task_model.dart';
-import 'package:tasky_app/core/providers/task_provider.dart';
 import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/task_cubit/task_cubit.dart';
+import 'package:tasky_app/core/task_cubit/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/features/home/data/priority.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
@@ -23,17 +25,19 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _scrollController = ScrollController();
-    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      taskProvider.fetchTasks();
+      context.read<TaskCubit>().fetchTasks();
     });
-
     _scrollController.addListener(() {
+      final cubit = context.read<TaskCubit>();
+      final state = cubit.state;
+
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 100 &&
-          !taskProvider.isLoading) {
-        taskProvider.fetchTasks();
+          state is TaskSuccess &&
+          state.hasMore) {
+        cubit.fetchTasks();
       }
     });
   }
@@ -45,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshTasks() async {
-    await Provider.of<TaskProvider>(context, listen: false).refreshTasks();
+    await context.read<TaskCubit>().refreshTasks();
   }
 
   @override
@@ -73,11 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final taskId = qrResult.toString();
                     print("Scanned Task ID: $taskId");
 
-                    final taskProvider = Provider.of<TaskProvider>(
-                      context,
-                      listen: false,
-                    );
-                    final task = taskProvider.getTaskById(taskId);
+                    final task = context.read<TaskCubit>().getTaskById(taskId);
 
                     if (task != null) {
                       await Navigator.of(context).pushNamed(
@@ -112,7 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 final result = await Navigator.of(
                   context,
                 ).pushNamed(AppRoutes.addTask);
-                if (result == true) _refreshTasks();
               },
               fillColor: AppColors.primary,
               shape: RoundedRectangleBorder(
@@ -130,21 +129,20 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: Consumer<TaskProvider>(
-        builder: (context, taskProvider, child) {
-          if (taskProvider.isLoading && taskProvider.tasks.isEmpty) {
+      body: BlocBuilder<TaskCubit, TaskState>(
+        builder: (context, state) {
+          if (state is TaskLoading && state.tasks.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (taskProvider.error != null && taskProvider.tasks.isEmpty) {
-            return Center(child: Text("Error: ${taskProvider.error}"));
+          if (state is TaskError && state.tasks.isEmpty) {
+            return Center(child: Text("Error: ${state.message}"));
           }
 
-          List<TaskModel> filteredTasks = taskProvider.tasks.where((task) {
+          List<TaskModel> tasks = state.tasks;
+          List<TaskModel> filteredTasks = tasks.where((task) {
             final s = selectedCategory.toLowerCase();
-
             if (s == 'all') return true;
-
             return task.status.value.toLowerCase() == s;
           }).toList();
 
@@ -166,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 22),
                     itemCount:
-                        filteredTasks.length + (taskProvider.isLoading ? 1 : 0),
+                        filteredTasks.length + (state is TaskLoading ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index < filteredTasks.length) {
                         final task = filteredTasks[index];
@@ -178,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   AppRoutes.taskDetailsScreen,
                                   arguments: task.id,
                                 );
-                            if (updated == true) _refreshTasks();
                           },
                           child: Container(
                             decoration: BoxDecoration(

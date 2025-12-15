@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import 'package:tasky_app/core/models/add_task_model.dart';
-import 'package:tasky_app/core/providers/task_provider.dart';
-import 'package:tasky_app/core/services/upload_service.dart';
+
+import 'package:tasky_app/core/task_cubit/task_cubit.dart';
+import 'package:tasky_app/core/task_cubit/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
@@ -25,7 +25,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   File? selectedImage;
   final picker = ImagePicker();
   bool isPicking = false;
-  bool isLoading = false;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -98,40 +97,52 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ▪▪ Add Image Button ▪▪
-              GestureDetector(
-                onTap: pickImage,
-                behavior: HitTestBehavior.opaque,
-                child: DottedBorder(
-                  options: RoundedRectDottedBorderOptions(
-                    dashPattern: [2, 2],
-                    strokeWidth: 2,
-                    radius: Radius.circular(12),
-                    color: AppColors.primary,
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          "assets/icons/add_img.svg",
-                          height: height * 0.02955,
-                          width: width * 0.064,
+              if (selectedImage == null)
+                FormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a image';
+                    }
+                    return null;
+                  },
+                  initialValue: "",
+                  builder: (FormFieldState<String> state) {
+                    return GestureDetector(
+                      onTap: pickImage,
+                      behavior: HitTestBehavior.opaque,
+                      child: DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                          dashPattern: [2, 2],
+                          strokeWidth: 2,
+                          radius: Radius.circular(12),
+                          color: AppColors.primary,
                         ),
-                        SizedBox(width: width * 0.03733),
-                        Text(
-                          "Add Img",
-                          style: text.titleMedium!.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/icons/add_img.svg",
+                                height: height * 0.02955,
+                                width: width * 0.064,
+                              ),
+                              SizedBox(width: width * 0.03733),
+                              Text(
+                                "Add Img",
+                                style: text.titleMedium!.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ),
               SizedBox(height: height * 0.0197),
 
               if (selectedImage != null)
@@ -268,87 +279,57 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
               ),
 
               SizedBox(height: height * 0.0431),
-              DefaultElevatedButton(
-                label: "Add Task",
 
-                textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
-                onPressed: () async {
-                  if (!_formKey.currentState!.validate()) {
+              BlocConsumer<TaskCubit, TaskState>(
+                listener: (context, state) {
+                  if (state is TaskSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Please fill all required fields"),
+                        content: Text("Task added successfully"),
+                        backgroundColor: AppColors.green,
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  }
+
+                  if (state is TaskError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
                         backgroundColor: AppColors.coral,
                       ),
                     );
-                    return;
                   }
+                },
+                builder: (context, state) {
+                  return DefaultElevatedButton(
+                    label: "Add Task",
 
-                  if (selectedImage == null) {
-                    print("No image selected");
-                    return;
-                  }
+                    textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
+                    isLoading: state is TaskLoading,
 
-                  if (!isValidImage(selectedImage!.path)) {
-                    print("Only JPG/PNG images allowed");
-                    return;
-                  }
+                    onPressed: () {
+                      if (!_formKey.currentState!.validate()) return;
+                      if (selectedImage == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please select an image"),
+                            backgroundColor: AppColors.coral,
+                          ),
+                        );
+                        return;
+                      }
 
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => const Center(
-                      child: SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 8,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
+                      context.read<TaskCubit>().addTaskWithImage(
+                        image: selectedImage!,
+                        title: titleController.text.trim(),
+                        desc: descriptionController.text.trim(),
+                        priority: priority.toLowerCase(),
+                        dueDate: dateController.text.trim(),
+                      );
+                    },
                   );
-
-                  try {
-                    final uploadService = UploadService();
-
-                    final uploadedImageFilename = await uploadService
-                        .uploadImage(selectedImage!);
-
-                    if (uploadedImageFilename == null) {
-                      Navigator.pop(context); // Close loading dialog
-                      print("Upload failed");
-                      return;
-                    }
-
-                    final createModel = CreateTodoModel(
-                      image: uploadedImageFilename,
-                      title: titleController.text.trim(),
-                      desc: descriptionController.text.trim(),
-                      priority: priority.toLowerCase(),
-                      dueDate: dateController.text.trim(),
-                    );
-
-                    final taskProvider = Provider.of<TaskProvider>(
-                      context,
-                      listen: false,
-                    );
-                    print("CREATE MODEL: ${createModel.toJson()}");
-
-                    await taskProvider.addTask(createModel);
-
-                    final addedTask = taskProvider.tasks.isNotEmpty
-                        ? taskProvider.tasks.last
-                        : null;
-
-                    Navigator.pop(context); // Close loading dialog
-                    Navigator.pop(context, addedTask); // Close screen
-                  } catch (e) {
-                    Navigator.pop(context); // Close loading dialog
-                    print("Failed to add task: $e");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Failed to add task: $e")),
-                    );
-                  }
                 },
               ),
               SizedBox(height: height * 0.02463),

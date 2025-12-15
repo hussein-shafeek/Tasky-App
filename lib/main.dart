@@ -1,4 +1,10 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tasky_app/core/task_cubit/bloc_observer.dart';
+import 'package:tasky_app/core/task_cubit/task_cubit.dart';
+
+// check if imports are needed
 import 'package:device_preview/device_preview.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,20 +26,14 @@ bool? showOnboarding;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final todoService = TodoService();
+  Bloc.observer = MyBlocObserver();
   final prefs = await SharedPreferences.getInstance();
 
   showOnboarding = prefs.getBool('onboarding_shown') ?? false;
   runApp(
-    DevicePreview(
-      enabled: false,
-      builder: (context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (_) => TaskProvider(todoService: todoService),
-          ),
-        ],
-        child: TaskyApp(showOnboarding: showOnboarding),
-      ),
+    BlocProvider(
+      create: (_) => TaskCubit(TodoService())..fetchTasks(),
+      child: TaskyApp(showOnboarding: showOnboarding),
     ),
   );
 }
@@ -69,7 +69,7 @@ class _TaskyAppState extends State<TaskyApp> {
           final taskId = ModalRoute.of(context)!.settings.arguments as String;
           return EditTaskScreen(taskId: taskId);
         },
-        AppRoutes.addTask: (_) => AddNewTaskScreen(),
+        AppRoutes.addTask: (_) => const AddNewTaskScreen(),
         AppRoutes.profileScreen: (_) => ProfileScreen(),
         AppRoutes.qrScanner: (_) => QRScannerScreen(),
       },

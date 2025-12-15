@@ -5,7 +5,7 @@ import 'package:tasky_app/core/theme/app_colors.dart';
 // ignore: must_be_immutable
 class DefaultElevatedButton extends StatelessWidget {
   String label;
-  VoidCallback onPressed;
+  VoidCallback? onPressed;
   Color? backgroundColor;
   Color? foregroundColor;
   String? prefixSvgPath;

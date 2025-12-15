@@ -1,78 +1,108 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
+  static final ApiService _instance = ApiService._internal();
+  factory ApiService() => _instance;
+
   final String baseUrl = "https://todo.iraqsapp.com";
+  late final Dio dio;
 
-  Future<http.Response?> get(String endpoint) async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      print("No token saved");
-      return null;
-    }
-
-    final url = Uri.parse(baseUrl + endpoint);
-
-    http.Response response = await http.get(
-      url,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json",
-      },
+  ApiService._internal() {
+    dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        headers: {"Content-Type": "application/json"},
+      ),
     );
 
-    if (response.statusCode == 401) {
-      bool success = await _refreshToken();
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final prefs = await SharedPreferences.getInstance();
+          final token = prefs.getString('token');
+          if (token != null) {
+            options.headers["Authorization"] = "Bearer $token";
+          }
+          handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            if (error.requestOptions.path.contains("refresh-token")) {
+              return handler.next(error);
+            }
+            final success = await _refreshToken();
+            if (success) {
+              final prefs = await SharedPreferences.getInstance();
+              final token = prefs.getString('token');
+              error.requestOptions.headers["Authorization"] = "Bearer $token";
 
-      if (success) {
-        token = prefs.getString('token');
+              final response = await dio.fetch(error.requestOptions);
+              return handler.resolve(response);
+            }
+          }
+          handler.next(error);
+        },
+      ),
+    );
+  }
 
-        response = await http.get(
-          url,
-          headers: {
-            "Authorization": "Bearer $token",
-            "Content-Type": "application/json",
-          },
-        );
-      } else {
-        print("Refresh failed → logout");
-        return null;
-      }
+  Future<Response?> get(String endpoint) async {
+    try {
+      return await dio.get(endpoint);
+    } catch (e) {
+      print("GET request error: $e");
+      return null;
     }
+  }
 
-    return response;
+  Future<Response?> post(String endpoint, {Map<String, dynamic>? body}) async {
+    try {
+      return await dio.post(endpoint, data: body);
+    } catch (e) {
+      print("POST request error: $e");
+      return null;
+    }
+  }
+
+  Future<Response?> put(String endpoint, {Map<String, dynamic>? body}) async {
+    try {
+      return await dio.put(endpoint, data: body);
+    } catch (e) {
+      print("PUT request error: $e");
+      return null;
+    }
+  }
+
+  Future<Response?> delete(String endpoint) async {
+    try {
+      return await dio.delete(endpoint);
+    } catch (e) {
+      print("DELETE request error: $e");
+      return null;
+    }
   }
 
   Future<bool> _refreshToken() async {
     final prefs = await SharedPreferences.getInstance();
-
-    String? refreshToken = prefs.getString('refresh_token');
+    final refreshToken = prefs.getString('refresh_token');
     if (refreshToken == null) return false;
 
-    final url = Uri.parse("$baseUrl/auth/refresh-token");
+    try {
+      final response = await dio.post(
+        "/auth/refresh-token",
+        data: {"refreshToken": refreshToken},
+      );
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"refreshToken": refreshToken}),
-    );
-
-    print("REFRESH STATUS: ${response.statusCode}");
-    print("REFRESH BODY: ${response.body}");
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      prefs.setString("token", data["access_token"]);
-      prefs.setString("refresh_token", data["refresh_token"]);
-
+      final data = response.data;
+      await prefs.setString("token", data["access_token"]);
+      await prefs.setString("refresh_token", data["refresh_token"]);
       print("Token refreshed successfully");
       return true;
+    } catch (e) {
+      print("Refresh token failed: $e");
     }
-
     return false;
   }
 }
