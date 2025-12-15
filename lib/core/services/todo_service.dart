@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:tasky_app/core/models/add_task_model.dart';
 import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/models/update_model.dart';

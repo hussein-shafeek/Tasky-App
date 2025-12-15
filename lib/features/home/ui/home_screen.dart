@@ -73,6 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                   ).pushNamed(AppRoutes.qrScanner);
 
+                  if (!mounted) return;
+
                   if (qrResult != null) {
                     final taskId = qrResult.toString();
                     print("Scanned Task ID: $taskId");
