@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky_app/core/models/task_model.dart';
-import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
 import 'package:tasky_app/core/states/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -69,9 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
               right: 7,
               child: RawMaterialButton(
                 onPressed: () async {
-                  final qrResult = await Navigator.of(
-                    context,
-                  ).pushNamed(AppRoutes.qrScanner);
+                  final qrResult = await context.push(Routes.qrScanner);
 
                   if (!mounted) return;
 
@@ -82,9 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     final task = context.read<TaskCubit>().getTaskById(taskId);
 
                     if (task != null) {
-                      await Navigator.of(context).pushNamed(
-                        AppRoutes.taskDetailsScreen,
-                        arguments: task.id,
+                      await context.push(
+                        Routes.taskDetailsScreen,
+                        extra: task.id,
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,9 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             RawMaterialButton(
               onPressed: () async {
-                final result = await Navigator.of(
-                  context,
-                ).pushNamed(AppRoutes.addTask);
+                final result = await context.push(Routes.addTask);
               },
               fillColor: AppColors.primary,
               shape: RoundedRectangleBorder(
@@ -173,11 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         return GestureDetector(
                           onTap: () async {
-                            final updated = await Navigator.of(context)
-                                .pushNamed(
-                                  AppRoutes.taskDetailsScreen,
-                                  arguments: task.id,
-                                );
+                            final updated = await context.push(
+                              Routes.taskDetailsScreen,
+                              extra: task.id,
+                            );
                           },
                           child: Container(
                             decoration: BoxDecoration(

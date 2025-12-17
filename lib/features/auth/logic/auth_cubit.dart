@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../states/auth_state.dart';
+import 'auth_state.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
 
 class AuthCubit extends Cubit<AuthState> {

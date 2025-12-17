@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:tasky_app/core/cubit/auth_cubit.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
+import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
 import 'package:tasky_app/core/models/user_model.dart';
-import 'package:tasky_app/core/routes/routes.dart';
-import 'package:tasky_app/core/states/auth_state.dart';
+import 'package:tasky_app/features/auth/logic/auth_state.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
@@ -44,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 backgroundColor: AppColors.green,
               ),
             );
-            Navigator.of(context).pushReplacementNamed(AppRoutes.loginScreen);
+            context.go(Routes.loginScreen);
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -355,9 +356,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () => Navigator.of(
-                                  context,
-                                ).pushReplacementNamed(AppRoutes.loginScreen),
+                                onPressed: () => context.go(Routes.loginScreen),
                                 child: Text('Sign in'),
                               ),
                             ],

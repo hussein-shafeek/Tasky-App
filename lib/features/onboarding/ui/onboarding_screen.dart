@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/default_elevated_button.dart';
 import 'package:tasky_app/features/onboarding/data/onboarding_model.dart';
@@ -19,7 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_shown', true);
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, AppRoutes.loginScreen);
+    context.go(Routes.loginScreen);
   }
 
   @override

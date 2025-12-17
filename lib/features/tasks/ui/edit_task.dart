@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/update_model.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
@@ -126,7 +127,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 width: 24,
                 height: 24,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
             title: Text(
               'Edit Task',
@@ -243,7 +244,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 SizedBox(height: height * 0.009852),
                 CustomDropdownFlexible(
                   value: status.toLowerCase(),
-                  items: const ["waiting", "inprogress", "finished"],
+                  items: const ["waiting", "in progress", "finished"],
                   textColor: AppColors.primary,
                   onChanged: (val) => setState(() => status = val!),
                 ),
@@ -307,7 +308,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     try {
                       await cubit.updateTask(task.id, updateModel);
                       await cubit.refreshTasks();
-                      if (mounted) Navigator.pop(context);
+                      if (mounted) context.pop();
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Failed to update task")),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tasky_app/core/routes/routes.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
 import 'package:tasky_app/core/states/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
@@ -122,8 +123,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                 IgnorePointer(
                   ignoring: true,
                   child: CustomDropdownFlexible(
-                    value: task.status.label.toLowerCase(),
+                    value: task.status.value,
                     items: const ["waiting", "inprogress", "finished"],
+
                     textColor: AppColors.primary,
                     trailingWidget: Icon(
                       isStatusFavourite
@@ -220,11 +222,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                   InkWell(
                     onTap: () {
                       _hideMenu();
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.editTaskScreen,
-                        arguments: widget.taskId,
-                      );
+                      context.push(Routes.editTaskScreen, extra: widget.taskId);
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -246,7 +244,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                     onTap: () async {
                       _hideMenu();
                       final cubit = context.read<TaskCubit>();
-                      final navigator = Navigator.of(context);
+                      final navigator = context.pop();
                       final messenger = ScaffoldMessenger.of(context);
 
                       final bool? confirm = await showDialog<bool>(
@@ -258,13 +256,11 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(false),
+                              onPressed: () => context.pop(false),
                               child: const Text("Cancel"),
                             ),
                             TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(true),
+                              onPressed: () => context.pop(true),
                               child: const Text(
                                 "Delete",
                                 style: TextStyle(color: Colors.red),
@@ -278,7 +274,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
 
                       final success = await cubit.deleteTask(widget.taskId);
                       if (success) {
-                        navigator.pop(true);
+                        context.pop(true);
                       } else {
                         messenger.showSnackBar(
                           const SnackBar(
@@ -329,7 +325,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
           width: 24,
           height: 24,
         ),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => context.pop(),
       ),
       title: Text(
         'Task Details',

@@ -1,17 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tasky_app/core/routes/app_router.dart';
+import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
 import 'package:tasky_app/core/cubit/bloc_observer.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
-
-// check if imports are needed
 import 'package:device_preview/device_preview.dart';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tasky_app/core/providers/task_provider.dart';
-import 'package:tasky_app/core/routes/routes.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
 import 'package:tasky_app/core/theme/app_theme.dart';
+import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
 import 'package:tasky_app/features/home/data/qr_scanner_screen.dart';
@@ -25,54 +23,45 @@ import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
 bool? showOnboarding;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final todoService = TodoService();
   Bloc.observer = MyBlocObserver();
   final prefs = await SharedPreferences.getInstance();
-
+  final token = prefs.getString('token');
   showOnboarding = prefs.getBool('onboarding_shown') ?? false;
   runApp(
-    BlocProvider(
-      create: (_) => TaskCubit(TodoService())..fetchTasks(),
-      child: TaskyApp(showOnboarding: showOnboarding),
+    DevicePreview(
+      enabled: false,
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthCubit>(create: (_) => AuthCubit(AuthService())),
+          BlocProvider<TaskCubit>(
+            create: (_) => TaskCubit(TodoService())..fetchTasks(),
+          ),
+        ],
+        child: TaskyApp(token: token, showOnboarding: showOnboarding),
+      ),
     ),
   );
 }
 
-class TaskyApp extends StatefulWidget {
+class TaskyApp extends StatelessWidget {
   final bool? showOnboarding;
-  const TaskyApp({super.key, this.showOnboarding});
+  final String? token;
+  const TaskyApp({
+    super.key,
+    required this.showOnboarding,
+    required this.token,
+  });
 
-  @override
-  State<TaskyApp> createState() => _TaskyAppState();
-}
-
-class _TaskyAppState extends State<TaskyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      initialRoute: widget.showOnboarding == true
-          ? AppRoutes.loginScreen
-          : AppRoutes.onboardingScreen,
       theme: AppTheme.CustomeLightTheme,
       themeMode: ThemeMode.light,
-      routes: {
-        AppRoutes.onboardingScreen: (_) => OnboardingScreen(),
-        AppRoutes.loginScreen: (_) => LoginScreen(),
-        AppRoutes.registerScreen: (_) => RegisterScreen(),
-        AppRoutes.homeScreen: (_) => HomeScreen(),
-        AppRoutes.taskDetailsScreen: (context) {
-          final taskId = ModalRoute.of(context)!.settings.arguments as String;
-          return TaskDetailsScreen(taskId: taskId);
-        },
-        AppRoutes.editTaskScreen: (context) {
-          final taskId = ModalRoute.of(context)!.settings.arguments as String;
-          return EditTaskScreen(taskId: taskId);
-        },
-        AppRoutes.addTask: (_) => const AddNewTaskScreen(),
-        AppRoutes.profileScreen: (_) => ProfileScreen(),
-        AppRoutes.qrScanner: (_) => QRScannerScreen(),
-      },
+      routerConfig: AppRouter.router(
+        showOnboarding: showOnboarding ?? false,
+        token: token,
+      ),
     );
   }
 }
