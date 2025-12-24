@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky_app/features/auth/data/auth_tokens.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -18,7 +19,6 @@ class AuthService {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // إضافة الـ Authorization header تلقائي
           final prefs = await SharedPreferences.getInstance();
           final token = prefs.getString("token");
           if (token != null) {
@@ -27,7 +27,6 @@ class AuthService {
           handler.next(options);
         },
         onError: (error, handler) async {
-          // لو response 401 حاول refresh token
           if (error.response?.statusCode == 401 &&
               !error.requestOptions.path.contains("refresh-token")) {
             final refreshed = await _refreshToken();
@@ -37,10 +36,12 @@ class AuthService {
               if (newToken != null) {
                 error.requestOptions.headers["Authorization"] =
                     "Bearer $newToken";
-                // إعادة تنفيذ الطلب الأصلي
+
                 final response = await dio.fetch(error.requestOptions);
                 return handler.resolve(response);
               }
+            } else {
+              await clearAuth();
             }
           }
           handler.next(error);
@@ -49,10 +50,38 @@ class AuthService {
     );
   }
 
+  Future<void> saveAuth(AuthTokens auth) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("token", auth.accessToken);
+    await prefs.setString("refresh_token", auth.refreshToken);
+    await prefs.setString("user_id", auth.userId);
+  }
+
+  Future<AuthTokens?> getSavedAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final refresh = prefs.getString("refresh_token");
+    final userId = prefs.getString("user_id");
+
+    if (token == null || refresh == null || userId == null) return null;
+
+    return AuthTokens(
+      userId: userId,
+      accessToken: token,
+      refreshToken: refresh,
+    );
+  }
+
+  Future<void> clearAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token");
+    await prefs.remove("refresh_token");
+    await prefs.remove("user_id");
+  }
+
   String? getLastError() => _lastError;
 
-  // ================= REGISTER =================
-  Future<bool> register({
+  Future<AuthTokens?> register({
     required String phone,
     required String password,
     required String displayName,
@@ -73,19 +102,20 @@ class AuthService {
         },
       );
 
+      final auth = AuthTokens.fromJson(response.data);
+      await saveAuth(auth);
+
       _lastError = null;
-      return response.statusCode! >= 200 && response.statusCode! < 300;
+      return auth;
     } on DioException catch (e) {
       _lastError = e.response?.data?["message"] ?? "Register failed";
-      return false;
-    } catch (e) {
-      _lastError = "Register failed";
-      return false;
+      return null;
     }
   }
 
   // ================= LOGIN =================
-  Future<String?> login({
+
+  Future<AuthTokens?> login({
     required String phone,
     required String password,
   }) async {
@@ -95,56 +125,25 @@ class AuthService {
         data: {"phone": phone, "password": password},
       );
 
-      final data = response.data;
-      final prefs = await SharedPreferences.getInstance();
-
-      await prefs.setString("token", data["access_token"]);
-      await prefs.setString("refresh_token", data["refresh_token"]);
-      await prefs.setString("user_id", data["_id"]);
-
+      final auth = AuthTokens.fromJson(response.data);
+      await saveAuth(auth);
       _lastError = null;
-      return data["access_token"];
+      return auth;
     } on DioException catch (e) {
       _lastError = e.response?.data?["message"] ?? "Login failed";
-      return null;
-    } catch (e) {
-      _lastError = "Login failed";
       return null;
     }
   }
 
   // ================= LOGOUT =================
-  Future<bool> logout() async {
+  Future<void> logout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-      if (token == null) return false;
-
-      await dio.post(
-        "/logout",
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-        data: {"token": token},
-      );
-
-      await prefs.remove("token");
-      await prefs.remove("refresh_token");
-      await prefs.remove("user_id");
-      return true;
-    } on DioException catch (e) {
-      print("Logout failed: ${e.response?.data}");
-      return false;
+      await dio.post("/logout");
+    } catch (_) {
+      // حتى لو فشل، نمسح التوكن
+    } finally {
+      await clearAuth();
     }
-  }
-
-  // ================= TOKEN =================
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("token");
-  }
-
-  Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("token", token);
   }
 
   // ================= REFRESH TOKEN =================
@@ -170,6 +169,24 @@ class AuthService {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//old
+
 
 // import 'dart:convert';
 // import 'package:http/http.dart' as http;

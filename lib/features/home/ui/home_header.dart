@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/category_model.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/auth/data/auth_service.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
 import 'package:tasky_app/core/utils/tab_item.dart';
+import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
 
 class HomeHeader extends StatefulWidget {
   final Function(String) onCategoryChanged;
@@ -74,44 +75,8 @@ class _HomeHeaderState extends State<HomeHeader> {
                       const SizedBox(width: 16),
 
                       GestureDetector(
-                        onTap: () async {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (_) => const Center(
-                              child: SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 8,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          );
-
-                          final authService = AuthService();
-                          final success = await authService.logout();
-
-                          context.pop();
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                success
-                                    ? "Logged out successfully"
-                                    : "Logout failed",
-                              ),
-                              backgroundColor: success
-                                  ? AppColors.green
-                                  : AppColors.coral,
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-
-                          if (success) {
-                            context.go(Routes.loginScreen);
-                          }
+                        onTap: () {
+                          context.read<AuthCubit>().logout();
                         },
                         child: SvgPicture.asset(
                           'assets/icons/logout.svg',

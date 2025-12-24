@@ -1,28 +1,40 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'auth_state.dart';
 import 'package:tasky_app/features/auth/data/auth_service.dart';
+import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthService authService;
 
   AuthCubit(this.authService) : super(const AuthInitial());
 
+  // ================= LOGIN =================
   Future<void> login({required String phone, required String password}) async {
+    if (phone.isEmpty) {
+      emit(const AuthValidationError(phoneError: 'Phone number is required'));
+      return;
+    }
+
+    if (password.isEmpty) {
+      emit(const AuthValidationError(passwordError: 'Password is required'));
+      return;
+    }
+
     emit(const AuthLoading());
 
     try {
-      final token = await authService.login(phone: phone, password: password);
+      final auth = await authService.login(phone: phone, password: password);
 
-      if (token != null) {
-        emit(AuthSuccess(token: token));
+      if (auth != null) {
+        emit(AuthAuthenticated(auth));
       } else {
-        emit(AuthError(authService.getLastError() ?? "Login failed"));
+        emit(AuthError(authService.getLastError() ?? 'Login failed'));
       }
-    } catch (e) {
-      emit(AuthError(e.toString()));
+    } catch (_) {
+      emit(const AuthError('Login failed'));
     }
   }
 
+  // ================= REGISTER =================
   Future<void> register({
     required String phone,
     required String password,
@@ -33,34 +45,42 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(const AuthLoading());
 
-    try {
-      final success = await authService.register(
-        phone: phone,
-        password: password,
-        displayName: displayName,
-        experienceYears: experienceYears,
-        address: address,
-        level: level,
-      );
+    final auth = await authService.register(
+      phone: phone,
+      password: password,
+      displayName: displayName,
+      experienceYears: experienceYears,
+      address: address,
+      level: level,
+    );
 
-      if (success) {
-        emit(const AuthSuccess());
-      } else {
-        emit(AuthError(authService.getLastError() ?? "Register failed"));
-      }
-    } catch (e) {
-      emit(AuthError(e.toString()));
+    if (auth != null) {
+      emit(AuthAuthenticated(auth));
+    } else {
+      emit(AuthError(authService.getLastError() ?? "Register failed"));
     }
   }
 
+  // ================= LOGOUT =================
   Future<void> logout() async {
     emit(const AuthLoading());
 
-    final success = await authService.logout();
-    if (success) {
-      emit(const AuthInitial());
-    } else {
+    try {
+      await authService.logout();
+      emit(const AuthUnauthenticated());
+    } catch (_) {
       emit(const AuthError("Logout failed"));
+    }
+  }
+
+  // ================= CHECK AUTH =================
+  Future<void> checkAuthStatus() async {
+    final auth = await authService.getSavedAuth();
+
+    if (auth != null) {
+      emit(AuthAuthenticated(auth));
+    } else {
+      emit(const AuthUnauthenticated());
     }
   }
 }

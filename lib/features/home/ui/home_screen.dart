@@ -7,6 +7,8 @@ import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
 import 'package:tasky_app/core/states/task_state.dart';
 import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
+import 'package:tasky_app/features/auth/logic/auth_state.dart';
 import 'package:tasky_app/features/home/data/priority.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
 
@@ -57,260 +59,303 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundWhite,
-      floatingActionButton: SizedBox(
-        width: 70,
-        height: 140,
-        child: Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            Positioned(
-              bottom: 80,
-              right: 7,
-              child: RawMaterialButton(
-                onPressed: () async {
-                  final qrResult = await context.push(Routes.qrScanner);
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        }
 
-                  if (!mounted) return;
+        if (state is AuthUnauthenticated) {
+          if (Navigator.canPop(context)) context.pop();
 
-                  if (qrResult != null) {
-                    final taskId = qrResult.toString();
-                    print("Scanned Task ID: $taskId");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Logged out successfully"),
+              backgroundColor: AppColors.green,
+            ),
+          );
 
-                    final task = context.read<TaskCubit>().getTaskById(taskId);
+          context.go(Routes.loginScreen);
+        }
 
-                    if (task != null) {
-                      await context.push(
-                        Routes.taskDetailsScreen,
-                        extra: task.id,
+        if (state is AuthError) {
+          if (Navigator.canPop(context)) context.pop();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.coral,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundWhite,
+        floatingActionButton: SizedBox(
+          width: 70,
+          height: 140,
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Positioned(
+                bottom: 80,
+                right: 7,
+                child: RawMaterialButton(
+                  onPressed: () async {
+                    final qrResult = await context.push(Routes.qrScanner);
+
+                    if (!mounted) return;
+
+                    if (qrResult != null) {
+                      final taskId = qrResult.toString();
+                      print("Scanned Task ID: $taskId");
+
+                      final task = context.read<TaskCubit>().getTaskById(
+                        taskId,
                       );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Task not found for ID: $taskId"),
-                        ),
-                      );
+
+                      if (task != null) {
+                        await context.push(
+                          Routes.taskDetailsScreen,
+                          extra: task.id,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Task not found for ID: $taskId"),
+                          ),
+                        );
+                      }
                     }
-                  }
+                  },
+                  fillColor: AppColors.lightPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 50,
+                    minHeight: 50,
+                    maxWidth: 50,
+                    maxHeight: 50,
+                  ),
+                  padding: const EdgeInsets.all(13),
+                  child: Icon(
+                    Icons.qr_code,
+                    size: 24,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              RawMaterialButton(
+                onPressed: () async {
+                  final result = await context.push(Routes.addTask);
                 },
-                fillColor: AppColors.lightPurple,
+                fillColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(32),
                 ),
                 constraints: const BoxConstraints(
-                  minWidth: 50,
-                  minHeight: 50,
-                  maxWidth: 50,
-                  maxHeight: 50,
+                  minWidth: 64,
+                  minHeight: 64,
+                  maxWidth: 64,
+                  maxHeight: 64,
                 ),
-                padding: const EdgeInsets.all(13),
-                child: Icon(Icons.qr_code, size: 24, color: AppColors.primary),
+                padding: const EdgeInsets.all(16),
+                child: const Icon(Icons.add, size: 32, color: AppColors.white),
               ),
-            ),
-            RawMaterialButton(
-              onPressed: () async {
-                final result = await context.push(Routes.addTask);
-              },
-              fillColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(32),
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 64,
-                minHeight: 64,
-                maxWidth: 64,
-                maxHeight: 64,
-              ),
-              padding: const EdgeInsets.all(16),
-              child: const Icon(Icons.add, size: 32, color: AppColors.white),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      body: BlocBuilder<TaskCubit, TaskState>(
-        builder: (context, state) {
-          if (state is TaskLoading && state.tasks.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        body: BlocBuilder<TaskCubit, TaskState>(
+          builder: (context, state) {
+            if (state is TaskLoading && state.tasks.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is TaskError && state.tasks.isEmpty) {
-            return Center(child: Text("Error: ${state.message}"));
-          }
+            if (state is TaskError && state.tasks.isEmpty) {
+              return Center(child: Text("Error: ${state.message}"));
+            }
 
-          List<TaskModel> tasks = state.tasks;
-          List<TaskModel> filteredTasks = tasks.where((task) {
-            final s = selectedCategory.toLowerCase();
-            if (s == 'all') return true;
-            return task.status.value.toLowerCase() == s;
-          }).toList();
+            List<TaskModel> tasks = state.tasks;
+            List<TaskModel> filteredTasks = tasks.where((task) {
+              final s = selectedCategory.toLowerCase();
+              if (s == 'all') return true;
+              return task.status.value.toLowerCase() == s;
+            }).toList();
 
-          return RefreshIndicator(
-            onRefresh: _refreshTasks,
-            child: Column(
-              children: [
-                HomeHeader(
-                  onCategoryChanged: (selected) {
-                    setState(() {
-                      selectedCategory = selected == 'inpogress'
-                          ? 'inprogress'
-                          : selected;
-                    });
-                  },
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 22),
-                    itemCount:
-                        filteredTasks.length + (state is TaskLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index < filteredTasks.length) {
-                        final task = filteredTasks[index];
+            return RefreshIndicator(
+              onRefresh: _refreshTasks,
+              child: Column(
+                children: [
+                  HomeHeader(
+                    onCategoryChanged: (selected) {
+                      setState(() {
+                        selectedCategory = selected == 'inpogress'
+                            ? 'inprogress'
+                            : selected;
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                      itemCount:
+                          filteredTasks.length + (state is TaskLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index < filteredTasks.length) {
+                          final task = filteredTasks[index];
 
-                        return GestureDetector(
-                          onTap: () async {
-                            final updated = await context.push(
-                              Routes.taskDetailsScreen,
-                              extra: task.id,
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.backgroundWhite,
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child:
-                                    (task.image != null &&
-                                        task.image!.isNotEmpty)
-                                    ? Image.network(
-                                        task.image!,
-                                        width: 64,
-                                        height: 64,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              print("URL: ${task.image}");
-                                              print("Error: $error");
-                                              print("StackTrace: $stackTrace");
-
-                                              return Image.asset(
-                                                'assets/images/grocery.png',
-                                                width: 64,
-                                                height: 64,
-                                                fit: BoxFit.cover,
-                                              );
-                                            },
-                                      )
-                                    : Image.asset(
-                                        'assets/images/grocery.png',
-                                        width: 64,
-                                        height: 64,
-                                        fit: BoxFit.cover,
-                                      ),
+                          return GestureDetector(
+                            onTap: () async {
+                              final updated = await context.push(
+                                Routes.taskDetailsScreen,
+                                extra: task.id,
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.backgroundWhite,
                               ),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child:
+                                      (task.image != null &&
+                                          task.image!.isNotEmpty)
+                                      ? Image.network(
+                                          task.image!,
+                                          width: 64,
+                                          height: 64,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                print("URL: ${task.image}");
+                                                print("Error: $error");
+                                                print(
+                                                  "StackTrace: $stackTrace",
+                                                );
 
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          task.title,
-                                          style: text.titleMedium!.copyWith(
-                                            color: AppColors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
+                                                return Image.asset(
+                                                  'assets/images/grocery.png',
+                                                  width: 64,
+                                                  height: 64,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                        )
+                                      : Image.asset(
+                                          'assets/images/grocery.png',
+                                          width: 64,
+                                          height: 64,
+                                          fit: BoxFit.cover,
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: task.status.color,
-                                          borderRadius: BorderRadius.circular(
-                                            5,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          task.status.label,
-                                          style: text.labelSmall!.copyWith(
-                                            color: task.status.textColor,
+                                ),
+
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            task.title,
+                                            style: text.titleMedium!.copyWith(
+                                              color: AppColors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    task.desc,
-                                    style: text.bodySmall!.copyWith(
-                                      color: AppColors.black.withValues(
-                                        alpha: 0.6,
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: task.status.color,
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            task.status.label,
+                                            style: text.labelSmall!.copyWith(
+                                              color: task.status.textColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.flag_outlined,
-                                        size: 16,
-                                        color: getPriorityColorFromEnum(
-                                          task.priority,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      task.desc,
+                                      style: text.bodySmall!.copyWith(
+                                        color: AppColors.black.withValues(
+                                          alpha: 0.6,
                                         ),
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        task.priority.label,
-                                        style: text.bodySmall!.copyWith(
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.flag_outlined,
+                                          size: 16,
                                           color: getPriorityColorFromEnum(
                                             task.priority,
                                           ),
                                         ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        task.createdAt
-                                            .toLocal()
-                                            .toString()
-                                            .split(' ')[0],
-                                        style: text.bodySmall!.copyWith(
-                                          color: AppColors.textSecondary,
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          task.priority.label,
+                                          style: text.bodySmall!.copyWith(
+                                            color: getPriorityColorFromEnum(
+                                              task.priority,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        const Spacer(),
+                                        Text(
+                                          task.createdAt
+                                              .toLocal()
+                                              .toString()
+                                              .split(' ')[0],
+                                          style: text.bodySmall!.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      } else {
-                        // Spinner for Pagination
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                    },
+                          );
+                        } else {
+                          // Spinner for Pagination
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

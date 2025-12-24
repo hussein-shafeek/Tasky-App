@@ -1,87 +1,64 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/core/routes/routes_name.dart';
+import 'package:tasky_app/core/services/todo_service.dart';
+import 'package:tasky_app/features/auth/data/auth_service.dart';
+import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
+import 'package:tasky_app/features/auth/logic/auth_state.dart';
 import 'package:tasky_app/features/auth/ui/login_screen.dart';
 import 'package:tasky_app/features/auth/ui/register_screen.dart';
-import 'package:tasky_app/features/home/data/qr_scanner_screen.dart';
 import 'package:tasky_app/features/home/ui/home_screen.dart';
-import 'package:tasky_app/features/onboarding/ui/onboarding_screen.dart';
-import 'package:tasky_app/features/profile/ui/profile_screen.dart';
-import 'package:tasky_app/features/tasks/ui/add_new_task_screen.dart';
-import 'package:tasky_app/features/tasks/ui/edit_task.dart';
-import 'package:tasky_app/features/tasks/ui/task_details_screen.dart';
-
-import 'routes_name.dart';
 
 class AppRouter {
-  static GoRouter router({
-    required bool showOnboarding,
-    required String? token,
-  }) {
-    return GoRouter(
-      initialLocation: _getInitialLocation(
-        showOnboarding: showOnboarding,
-        token: token,
-      ),
-
-      routes: [
-        GoRoute(
-          path: Routes.onboardingScreen,
-          builder: (_, state) => OnboardingScreen(),
+  static Widget withProviders(Widget child) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(
+          create: (_) => AuthCubit(AuthService())..checkAuthStatus(),
         ),
-
-        GoRoute(path: Routes.loginScreen, builder: (_, state) => LoginScreen()),
-
-        GoRoute(
-          path: Routes.registerScreen,
-          builder: (_, state) => RegisterScreen(),
-        ),
-
-        GoRoute(path: Routes.homeScreen, builder: (_, state) => HomeScreen()),
-
-        GoRoute(
-          path: '${Routes.taskDetailsScreen}/:id',
-          builder: (context, state) {
-            final taskId = state.pathParameters['id']!;
-            return TaskDetailsScreen(taskId: taskId);
-          },
-        ),
-
-        /// Edit Task
-        GoRoute(
-          path: '${Routes.editTaskScreen}/:id',
-          builder: (context, state) {
-            final taskId = state.pathParameters['id']!;
-            return EditTaskScreen(taskId: taskId);
-          },
-        ),
-
-        GoRoute(
-          path: Routes.addTask,
-          builder: (_, state) => const AddNewTaskScreen(),
-        ),
-
-        GoRoute(
-          path: Routes.profileScreen,
-          builder: (_, state) => ProfileScreen(),
-        ),
-
-        GoRoute(
-          path: Routes.qrScanner,
-          builder: (_, state) => QRScannerScreen(),
+        BlocProvider<TaskCubit>(
+          create: (_) => TaskCubit(TodoService())..fetchTasks(),
         ),
       ],
+      child: child,
     );
   }
 
-  static String _getInitialLocation({
-    required bool showOnboarding,
-    required String? token,
-  }) {
-    if (!showOnboarding) {
-      return Routes.onboardingScreen;
-    } else if (token != null && token.isNotEmpty) {
-      return Routes.homeScreen;
-    } else {
-      return Routes.loginScreen;
-    }
+  static GoRouter router() {
+    return GoRouter(
+      initialLocation: Routes.loginScreen,
+
+      redirect: (context, state) {
+        final authState = context.read<AuthCubit>().state;
+        final isLogin = state.matchedLocation == Routes.loginScreen;
+        final isRegister = state.matchedLocation == Routes.registerScreen;
+
+        if (authState is AuthUnauthenticated && !isLogin && !isRegister) {
+          return Routes.loginScreen;
+        }
+
+        if (authState is AuthAuthenticated && (isLogin || isRegister)) {
+          return Routes.homeScreen;
+        }
+
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: Routes.loginScreen,
+          builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: Routes.registerScreen,
+          builder: (context, state) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: Routes.homeScreen,
+          builder: (context, state) => const HomeScreen(),
+        ),
+      ],
+    );
   }
 }

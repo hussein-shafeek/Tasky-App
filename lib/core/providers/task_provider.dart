@@ -1,7 +1,5 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:tasky_app/core/models/add_task_model.dart';
 import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/models/update_model.dart';
