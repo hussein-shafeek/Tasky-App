@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 
 class AppTheme {
   // ignore: non_constant_identifier_names

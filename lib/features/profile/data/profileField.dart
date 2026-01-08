@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 
 class ProfileField extends StatelessWidget {
   final String label;
@@ -49,7 +50,7 @@ class ProfileField extends StatelessWidget {
             GestureDetector(
               onTap: onSuffixTap,
               child: SvgPicture.asset(
-                'assets/icons/copy.svg',
+                IconsAssets.copy,
                 width: width * 0.064,
                 height: height * 0.02955,
               ),

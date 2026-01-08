@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 
 class CountryPhone extends StatefulWidget {

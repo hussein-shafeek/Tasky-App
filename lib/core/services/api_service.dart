@@ -1,17 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky_app/core/api/apiConstant.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
 
-  final String baseUrl = "https://todo.iraqsapp.com";
   late final Dio dio;
 
   ApiService._internal() {
     dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl,
+        baseUrl: ApiConstant.baseUrl,
         headers: {"Content-Type": "application/json"},
       ),
     );
@@ -90,7 +90,7 @@ class ApiService {
 
     try {
       final response = await dio.post(
-        "/auth/refresh-token",
+        ApiConstant.refreshToken,
         data: {"refreshToken": refreshToken},
       );
 

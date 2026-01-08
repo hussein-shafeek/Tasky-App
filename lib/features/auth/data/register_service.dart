@@ -18,7 +18,7 @@
 //     dio.interceptors.add(
 //       InterceptorsWrapper(
 //         onRequest: (options, handler) async {
-       
+
 //           final prefs = await SharedPreferences.getInstance();
 //           final token = prefs.getString("token");
 //           if (token != null) {
@@ -27,7 +27,7 @@
 //           handler.next(options);
 //         },
 //         onError: (error, handler) async {
-       
+
 //           if (error.response?.statusCode == 401 &&
 //               !error.requestOptions.path.contains("refresh-token")) {
 //             final refreshed = await _refreshToken();
@@ -37,7 +37,7 @@
 //               if (newToken != null) {
 //                 error.requestOptions.headers["Authorization"] =
 //                     "Bearer $newToken";
-             
+
 //                 final response = await dio.fetch(error.requestOptions);
 //                 return handler.resolve(response);
 //               }
@@ -86,7 +86,6 @@
 //     return null;
 //   }
 // }
-
 
 //   // ================= LOGOUT =================
 //   Future<bool> logout() async {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 
 class LoadingWidget extends StatelessWidget {
   final double size;
@@ -14,7 +14,7 @@ class LoadingWidget extends StatelessWidget {
         height: size,
         child: const CircularProgressIndicator(
           strokeWidth: 6,
-          color: AppColors.primary, // لون البريمري
+          color: AppColors.primary,
         ),
       ),
     );

@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
-import 'package:tasky_app/core/models/user_model.dart';
-import 'package:tasky_app/features/auth/logic/auth_state.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/core/utils/default_elevated_button.dart';
-import 'package:tasky_app/core/utils/default_text_form_field.dart';
+import 'package:tasky_app/core/utils/ui_utils.dart';
+import 'package:tasky_app/core/widgets/default_elevated_button.dart';
+import 'package:tasky_app/core/widgets/default_text_form_field.dart';
+//import 'package:tasky_app/core/models/user_model.dart';
+import 'package:tasky_app/features/auth/data/models/register_request.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,12 +20,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController experienceLevelController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController experienceYearsController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _experienceLevelController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
+  TextEditingController _experienceYearsController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String fullPhone = '';
   String? phoneError;
@@ -35,29 +37,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthLoading) {
-          // showDialog(
-          //   context: context,
-          //   barrierDismissible: false,
-          //   builder: (_) => const Center(
-          //     child: CircularProgressIndicator(color: AppColors.primary),
+        if (state is RegisterLoading) {
+          UIUtils.showLoading(context);
+        } else if (state is RegisterSuccess) {
+          UIUtils.hideLoading(context);
+          context.go(Routes.homeScreen);
+        } else if (state is RegisterError) {
+          UIUtils.hideLoading(context);
+          UIUtils.showMessage(state.message);
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(state.message),
+          //     backgroundColor: AppColors.coral,
           //   ),
           // );
-        }
-
-        if (state is AuthAuthenticated) {
-          context.pop(); // close loading
-          context.go(Routes.homeScreen);
-        }
-
-        if (state is AuthError) {
-          context.pop(); // close loading if open
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.coral,
-            ),
-          );
         }
       },
       child: Scaffold(
@@ -84,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.02955),
                         DefaultTextFormField(
                           hintText: "Name...",
-                          controller: nameController,
+                          controller: _nameController,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return "Name is required";
@@ -94,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         SizedBox(height: height * 0.024630),
                         IntlPhoneField(
-                          controller: phoneController,
+                          controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           initialCountryCode: 'EG',
                           dropdownIconPosition: IconPosition.trailing,
@@ -130,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.024630),
                         DefaultTextFormField(
                           hintText: "Years of experience...",
-                          controller: experienceYearsController,
+                          controller: _experienceYearsController,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return "Experience years is required";
@@ -144,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.024630),
                         DefaultTextFormField(
                           hintText: "Choose experience level",
-                          controller: experienceLevelController,
+                          controller: _experienceLevelController,
                           readOnly: true,
                           prefixWidget: null,
                           isPassword: false,
@@ -194,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             if (level != null) {
                               setState(() {
-                                experienceLevelController.text = level;
+                                _experienceLevelController.text = level;
                               });
                             }
                           },
@@ -251,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.024630),
                         DefaultTextFormField(
                           hintText: "Address...",
-                          controller: addressController,
+                          controller: _addressController,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return "Address is required";
@@ -262,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.024630),
                         DefaultTextFormField(
                           hintText: "Password...",
-                          controller: passwordController,
+                          controller: _passwordController,
                           isPassword: true,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -277,7 +270,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: height * 0.02955),
                         BlocBuilder<AuthCubit, AuthState>(
                           builder: (context, state) {
-                            bool isLoading = state is AuthLoading;
+                            bool isLoading = state is RegisterLoading;
                             return SizedBox(
                               width: double.infinity,
                               child: isLoading
@@ -292,42 +285,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         color: AppColors.white,
                                       ),
                                       onPressed: () {
-                                        final levelEnum =
-                                            ExperienceLevel.fromName(
-                                              experienceLevelController.text,
-                                            );
+                                        FocusScope.of(
+                                          context,
+                                        ).unfocus(); // يقفل الكيبورد
 
                                         setState(() {
                                           phoneError =
-                                              phoneController.text
+                                              _phoneController.text
                                                   .trim()
                                                   .isEmpty
                                               ? 'Phone number is required'
                                               : null;
                                         });
 
-                                        bool isFormValid =
+                                        final isFormValid =
                                             formKey.currentState?.validate() ??
                                             false;
 
-                                        if ((phoneError == null) &&
-                                            isFormValid) {
-                                          context.read<AuthCubit>().register(
-                                            phone: fullPhone.isEmpty
-                                                ? '+20${phoneController.text}'
-                                                : fullPhone,
-                                            password: passwordController.text,
-                                            displayName: nameController.text,
-                                            experienceYears:
-                                                int.tryParse(
-                                                  experienceYearsController
-                                                      .text,
-                                                ) ??
-                                                1,
-                                            address: addressController.text,
-                                            level: levelEnum.name,
-                                          );
-                                        } else {
+                                        if (!isFormValid ||
+                                            phoneError != null) {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
@@ -338,8 +314,102 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               backgroundColor: AppColors.coral,
                                             ),
                                           );
+                                          return;
                                         }
+
+                                        // ✅ نحول النص لـ enum
+                                        final experienceLevel =
+                                            ExperienceLevel.fromName(
+                                              _experienceLevelController.text,
+                                            );
+
+                                        // ✅ نبني الريكوست صح
+                                        final request = RegisterRequest(
+                                          phone: fullPhone.isEmpty
+                                              ? '+20${_phoneController.text}'
+                                              : fullPhone,
+                                          password: _passwordController.text,
+                                          displayName: _nameController.text
+                                              .trim(),
+                                          experienceYears:
+                                              int.tryParse(
+                                                _experienceYearsController.text,
+                                              ) ??
+                                              1,
+                                          address: _addressController.text
+                                              .trim(),
+                                          experienceLevel: experienceLevel,
+                                        );
+
+                                        // ✅ نبعته مرة واحدة
+                                        context.read<AuthCubit>().register(
+                                          request,
+                                        );
                                       },
+
+                                      // onPressed: () {
+
+                                      //   //-----
+                                      //   FocusScope.of(context).unfocus();
+                                      //   final levelEnum =
+                                      //       ExperienceLevel.fromName(
+                                      //         _experienceLevelController.text,
+                                      //       );
+
+                                      //   setState(() {
+                                      //     phoneError =
+                                      //         _phoneController.text
+                                      //             .trim()
+                                      //             .isEmpty
+                                      //         ? 'Phone number is required'
+                                      //         : null;
+                                      //   });
+
+                                      //   bool isFormValid =
+                                      //       formKey.currentState?.validate() ??
+                                      //       false;
+
+                                      //   if ((phoneError == null) &&
+                                      //       isFormValid) {
+                                      //     context.read<AuthCubit>().register(
+                                      //       RegisterRequest(phone: fullPhone.isEmpty
+                                      //           ? '+20${_phoneController.text}'
+                                      //           : fullPhone,
+                                      //           displayName: _nameController.text,
+                                      //          experienceYears: int.tryParse(
+                                      //             _experienceYearsController
+                                      //                 .text,
+                                      //           ) ??
+                                      //           1,
+                                      //          address: _addressController.text,
+                                      //         level: levelEnum.name,
+
+                                      //          experienceLevel: ExperienceLevel.fromName(_experienceLevelController.text).name)
+                                      //       phone:
+                                      //       password: _passwordController.text,
+                                      //       displayName: _nameController.text,
+                                      //       experienceYears:
+                                      //           int.tryParse(
+                                      //             _experienceYearsController
+                                      //                 .text,
+                                      //           ) ??
+                                      //           1,
+                                      //       address: _addressController.text,
+                                      //       level: levelEnum.name,
+                                      //     );
+                                      //   } else {
+                                      //     ScaffoldMessenger.of(
+                                      //       context,
+                                      //     ).showSnackBar(
+                                      //       const SnackBar(
+                                      //         content: Text(
+                                      //           "Please fill all required fields correctly",
+                                      //         ),
+                                      //         backgroundColor: AppColors.coral,
+                                      //       ),
+                                      //     );
+                                      //   }
+                                      // },
                                       backgroundColor: AppColors.primary,
                                       foregroundColor: AppColors.white,
                                     ),
@@ -372,5 +442,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _nameController.dispose();
+    _experienceLevelController.dispose();
+    _addressController.dispose();
+    _experienceYearsController.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 }

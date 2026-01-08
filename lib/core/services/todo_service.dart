@@ -1,3 +1,4 @@
+import 'package:tasky_app/core/api/apiConstant.dart';
 import 'package:tasky_app/core/models/add_task_model.dart';
 import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/models/update_model.dart';
@@ -13,7 +14,7 @@ class TodoService {
   }
 
   Future<TaskModel> getTodoById(String id) async {
-    final response = await _api.get('/todos/$id');
+    final response = await _api.get('${ApiConstant.todos}/$id');
     if (response != null && response.statusCode == 200) {
       return TaskModel.fromJson(response.data);
     }
@@ -21,7 +22,7 @@ class TodoService {
   }
 
   Future<TaskModel> createTodo(CreateTodoModel model) async {
-    final response = await _api.post('/todos', body: model.toJson());
+    final response = await _api.post(ApiConstant.todos, body: model.toJson());
     if (response != null &&
         (response.statusCode == 200 || response.statusCode == 201)) {
       return TaskModel.fromJson(response.data);
@@ -33,7 +34,10 @@ class TodoService {
     required String id,
     required UpdateTodoModel model,
   }) async {
-    final response = await _api.put('/todos/$id', body: model.toJson());
+    final response = await _api.put(
+      '${ApiConstant.todos}/$id',
+      body: model.toJson(),
+    );
     if (response != null && response.statusCode == 200) {
       return response.data == 1;
     }
@@ -41,24 +45,13 @@ class TodoService {
   }
 
   Future<bool> deleteTodo(String id) async {
-    final response = await _api.delete('/todos/$id');
+    final response = await _api.delete('${ApiConstant.todos}/$id');
     return response != null &&
         (response.statusCode == 200 || response.statusCode == 204);
   }
 }
 
-
-
-
-
-
-
-
-
 // old
-
-
-
 
 // import 'dart:convert';
 // import 'package:http/http.dart' as http;

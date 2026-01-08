@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:tasky_app/core/services/api_service.dart';
+import 'package:tasky_app/core/api/apiConstant.dart';
 
 class UploadService {
   final ApiService _api = ApiService();
@@ -13,7 +14,10 @@ class UploadService {
         "image": await MultipartFile.fromFile(file.path, filename: fileName),
       });
 
-      final response = await _api.dio.post("/upload/image", data: formData);
+      final response = await _api.dio.post(
+        ApiConstant.uploadImage,
+        data: formData,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data["image"];

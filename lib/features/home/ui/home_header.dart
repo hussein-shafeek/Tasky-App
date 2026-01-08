@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/category_model.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/core/utils/tab_item.dart';
-import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/widgets/tab_item.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 
 class HomeHeader extends StatefulWidget {
   final Function(String) onCategoryChanged;
@@ -67,7 +68,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                           context.push(Routes.profileScreen);
                         },
                         child: SvgPicture.asset(
-                          'assets/icons/profile.svg',
+                          IconsAssets.profile,
                           height: 26,
                           width: 26,
                         ),
@@ -79,7 +80,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                           context.read<AuthCubit>().logout();
                         },
                         child: SvgPicture.asset(
-                          'assets/icons/logout.svg',
+                          IconsAssets.logout,
                           height: 26,
                           width: 26,
                         ),

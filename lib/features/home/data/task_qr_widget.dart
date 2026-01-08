@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 
 class TaskQrWidget extends StatefulWidget {
   final String? taskId;

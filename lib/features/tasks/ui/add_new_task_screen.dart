@@ -7,11 +7,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/states/task_state.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
-import 'package:tasky_app/core/utils/default_elevated_button.dart';
-import 'package:tasky_app/core/utils/default_text_form_field.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
+import 'package:tasky_app/core/widgets/default_elevated_button.dart';
+import 'package:tasky_app/core/widgets/default_text_form_field.dart';
 import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class AddNewTaskScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         elevation: 0,
         leading: IconButton(
           icon: SvgPicture.asset(
-            'assets/icons/ArrowLeft.svg',
+            IconsAssets.arrowLeft,
             width: width * 0.064,
             height: height * 0.02955,
           ),
@@ -124,7 +125,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SvgPicture.asset(
-                                "assets/icons/add_img.svg",
+                                IconsAssets.add_img,
                                 height: height * 0.02955,
                                 width: width * 0.064,
                               ),

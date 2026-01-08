@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
 import 'package:tasky_app/core/states/task_state.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/core/utils/CustomDropdownFlexible.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/data/task_qr_widget.dart';
 import 'package:tasky_app/features/tasks/data/date_utils.dart' as myDateUtils;
 import 'package:tasky_app/features/tasks/logic/image_utils.dart';
@@ -115,7 +116,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     items: [myDateUtils.DateUtils.formatDate(task.createdAt)],
                     textColor: AppColors.black,
                     labelInside: "End Date",
-                    svgTrailingAsset: "assets/icons/calendar.svg",
+                    svgTrailingAsset: IconsAssets.calendar,
                     onChanged: (v) {},
                   ),
                 ),
@@ -320,11 +321,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
       backgroundColor: AppColors.backgroundWhite,
       elevation: 0,
       leading: IconButton(
-        icon: SvgPicture.asset(
-          'assets/icons/ArrowLeft.svg',
-          width: 24,
-          height: 24,
-        ),
+        icon: SvgPicture.asset(IconsAssets.arrowLeft, width: 24, height: 24),
         onPressed: () => context.pop(),
       ),
       title: Text(

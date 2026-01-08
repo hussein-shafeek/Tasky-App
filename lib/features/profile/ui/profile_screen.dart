@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/features/profile/data/profileField.dart';
 import 'package:tasky_app/features/profile/data/profile_loading_field.dart';
 import 'package:tasky_app/features/profile/data/profile_service.dart';
@@ -50,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         leading: IconButton(
           icon: SvgPicture.asset(
-            'assets/icons/ArrowLeft.svg',
+            IconsAssets.arrowLeft,
             width: size.width * 0.064,
             height: size.height * 0.02955,
           ),

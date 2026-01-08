@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/core/utils/default_elevated_button.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/widgets/default_elevated_button.dart';
 import 'package:tasky_app/features/onboarding/data/onboarding_model.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -56,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: DefaultElevatedButton(
                 label: 'Let’s Start',
-                suffixSvgPath: 'assets/icons/ArrowRight.svg',
+                suffixSvgPath: IconsAssets.arrowRight,
                 backgroundColor: AppColors.primary,
                 onPressed: () => _finishOnboarding(context),
               ),

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:tasky_app/core/models/task_model.dart';
+import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
 import 'package:tasky_app/core/states/task_state.dart';
-import 'package:tasky_app/core/theme/app_colors.dart';
-import 'package:tasky_app/features/auth/logic/auth_cubit.dart';
-import 'package:tasky_app/features/auth/logic/auth_state.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/features/home/data/priority.dart';
 import 'package:tasky_app/features/home/ui/home_header.dart';
 
@@ -59,9 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    return BlocListener<AuthCubit, AuthState>(
+    return BlocListener<TaskCubit, TaskState>(
       listener: (context, state) {
-        if (state is AuthLoading) {
+        if (state is TaskLoading) {
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -69,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        if (state is AuthUnauthenticated) {
+        if (state is TaskSuccess) {
           if (Navigator.canPop(context)) context.pop();
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           context.go(Routes.loginScreen);
         }
 
-        if (state is AuthError) {
+        if (state is TaskError) {
           if (Navigator.canPop(context)) context.pop();
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -242,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 );
 
                                                 return Image.asset(
-                                                  'assets/images/grocery.png',
+                                                  ImageAssets.grocery,
                                                   width: 64,
                                                   height: 64,
                                                   fit: BoxFit.cover,
@@ -250,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               },
                                         )
                                       : Image.asset(
-                                          'assets/images/grocery.png',
+                                          ImageAssets.grocery,
                                           width: 64,
                                           height: 64,
                                           fit: BoxFit.cover,
