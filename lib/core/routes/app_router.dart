@@ -14,9 +14,7 @@ class AppRouter {
   // static Widget withProviders(Widget child) {
   //   return MultiBlocProvider(
   //     providers: [
-  //       BlocProvider<AuthCubit>(
-  //         create: (_) => getIt.get<AuthCubit>(),
-  //       ),
+  //       BlocProvider<AuthCubit>(create: (_) => getIt.get<AuthCubit>()),
   //       BlocProvider<TaskCubit>(
   //         create: (_) => getIt<TaskCubit>()..fetchTasks(),
   //       ),
@@ -29,21 +27,21 @@ class AppRouter {
     return GoRouter(
       initialLocation: Routes.loginScreen,
 
-      redirect: (context, state) {
-        final authState = context.read<AuthCubit>().state;
-        final isLogin = state.matchedLocation == Routes.loginScreen;
-        final isRegister = state.matchedLocation == Routes.registerScreen;
+      // redirect: (context, state) {
+      //   final authState = context.read<AuthCubit>().state;
+      //   final isLogin = state.matchedLocation == Routes.loginScreen;
+      //   final isRegister = state.matchedLocation == Routes.registerScreen;
 
-        if (authState is LoginError && !isLogin && !isRegister) {
-          return Routes.loginScreen;
-        }
+      //   if (authState is LoginError && !isLogin && !isRegister) {
+      //     return Routes.loginScreen;
+      //   }
 
-        if (authState is LoginSuccess && (isLogin || isRegister)) {
-          return Routes.homeScreen;
-        }
+      //   if (authState is LoginSuccess && (isLogin || isRegister)) {
+      //     return Routes.homeScreen;
+      //   }
 
-        return null;
-      },
+      //   return null;
+      // },
       routes: [
         GoRoute(
           path: Routes.loginScreen,

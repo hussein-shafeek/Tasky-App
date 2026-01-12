@@ -2,20 +2,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:tasky_app/features/auth/data/models/login_request.dart';
 import 'package:tasky_app/features/auth/data/models/register_request.dart';
-import 'package:tasky_app/features/auth/data/repositories/auth_repo.dart';
+import 'package:tasky_app/features/auth/domain/repositories/auth_repo.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'auth_state.dart';
 
 @injectable
 class AuthCubit extends Cubit<AuthState> {
-  final AuthRepo authRepo;
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final LogoutUseCase logoutUseCase;
   //final AuthService authService;
 
-  AuthCubit({required this.authRepo}) : super(const AuthInitial());
+  AuthCubit({
+    required this.loginUseCase,
+    required this.registerUseCase,
+    required this.logoutUseCase,
+  }) : super(const AuthInitial());
 
   // ================= LOGIN =================
   Future<void> login(LoginRequest loginRequest) async {
     emit(const LoginLoading());
-    final response = await authRepo.login(loginRequest);
+    final response = await loginUseCase(loginRequest);
     response.fold(
       (error) {
         emit(LoginError(error.errMessage));
@@ -30,7 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> register(RegisterRequest registerRequest) async {
     emit(const RegisterLoading());
 
-    final response = await authRepo.register(registerRequest);
+    final response = await registerUseCase(registerRequest);
     response.fold(
       (error) {
         emit(RegisterError(error.errMessage));
@@ -45,7 +54,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(const LogoutLoading());
 
-    final response = await authRepo.logout();
+    final response = await logoutUseCase();
     response.fold(
       (error) {
         emit(LogoutError(error.errMessage));

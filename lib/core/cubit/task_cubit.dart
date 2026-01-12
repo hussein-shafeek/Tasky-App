@@ -5,7 +5,7 @@ import 'package:tasky_app/core/models/task_model.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
 import 'dart:io';
 import 'package:tasky_app/core/services/upload_service.dart';
-import '../states/task_state.dart';
+import 'states/task_state.dart';
 
 class TaskCubit extends Cubit<TaskState> {
   final TodoService todoService;

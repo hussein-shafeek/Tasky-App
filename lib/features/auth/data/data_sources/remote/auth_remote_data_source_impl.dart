@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:tasky_app/core/api/api_consumer.dart';
+import 'package:tasky_app/core/api/end_points.dart';
 import 'package:tasky_app/features/auth/data/models/login_request.dart';
 import 'package:tasky_app/features/auth/data/models/register_request.dart';
 import 'auth_remote_data_source.dart';
@@ -13,24 +14,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponse> login(LoginRequest loginRequest) async {
     final response = await apiConsumer.post(
-      path: "/login",
+      path: EndPoints.login,
       body: loginRequest.toJson(),
     );
-    return AuthResponse.fromJson(response.data);
+    return AuthResponse.fromJson(response);
   }
 
   @override
   Future<AuthResponse> register(RegisterRequest registerRequest) async {
     final response = await apiConsumer.post(
-      path: "/register",
+      path: EndPoints.register,
       body: registerRequest.toJson(),
     );
-    return AuthResponse.fromJson(response.data);
+    return AuthResponse.fromJson(response);
   }
 
   @override
   Future<Unit> logout() async {
-    await apiConsumer.post(path: "/logout");
+    await apiConsumer.post(path: EndPoints.logout);
     return unit;
   }
 }

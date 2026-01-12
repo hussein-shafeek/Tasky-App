@@ -1,3 +1,5 @@
+import 'package:tasky_app/features/auth/domain/entities/user_entity.dart';
+
 class AuthResponse {
   final String userId;
   final String accessToken;
@@ -19,4 +21,11 @@ class AuthResponse {
       displayName: json['displayName'],
     );
   }
+
+  UserEntity get toEntity => UserEntity(
+    userId: userId,
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+    displayName: displayName,
+  );
 }

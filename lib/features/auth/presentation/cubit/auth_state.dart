@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:tasky_app/features/auth/data/models/auth_tokens.dart';
+//import 'package:tasky_app/features/auth/data/models/auth_tokens.dart';
 
 sealed class AuthState extends Equatable {
   const AuthState();

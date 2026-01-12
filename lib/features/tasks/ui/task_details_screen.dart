@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
-import 'package:tasky_app/core/states/task_state.dart';
+import 'package:tasky_app/core/cubit/states/task_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/data/task_qr_widget.dart';

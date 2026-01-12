@@ -3,10 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:tasky_app/core/error/failures.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/remote/auth_remote_data_source.dart';
-import 'package:tasky_app/features/auth/data/models/auth_response.dart';
 import 'package:tasky_app/features/auth/data/models/login_request.dart';
 import 'package:tasky_app/features/auth/data/models/register_request.dart';
-import 'package:tasky_app/features/auth/data/repositories/auth_repo.dart';
+import 'package:tasky_app/features/auth/domain/entities/user_entity.dart';
+import 'package:tasky_app/features/auth/domain/repositories/auth_repo.dart';
 
 class AuthRepoImpl extends AuthRepo {
   final AuthRemoteDataSource authRemoteDataSource;
@@ -18,14 +18,14 @@ class AuthRepoImpl extends AuthRepo {
   });
 
   @override
-  Future<Either<Failure, AuthResponse>> login(LoginRequest loginRequest) async {
+  Future<Either<Failure, UserEntity>> login(LoginRequest loginRequest) async {
     try {
       final response = await authRemoteDataSource.login(loginRequest);
       await localDataSource.saveToken(
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
-      return Right(response);
+      return Right(response.toEntity);
     } catch (e) {
       if (e is DioException) {
         return Left(ServerFailure.fromDioException(dioException: e));
@@ -49,7 +49,7 @@ class AuthRepoImpl extends AuthRepo {
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> register(
+  Future<Either<Failure, UserEntity>> register(
     RegisterRequest registerRequest,
   ) async {
     try {
@@ -59,7 +59,7 @@ class AuthRepoImpl extends AuthRepo {
         accessToken: response.accessToken,
       );
 
-      return Right(response);
+      return Right(response.toEntity);
     } catch (e) {
       if (e is DioException) {
         return Left(ServerFailure.fromDioException(dioException: e));

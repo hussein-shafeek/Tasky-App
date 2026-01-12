@@ -7,10 +7,12 @@ import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_shared_local_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/remote/auth_remote_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/remote/auth_remote_data_source_impl.dart';
-import 'package:tasky_app/features/auth/data/repositories/auth_repo.dart';
+import 'package:tasky_app/features/auth/domain/repositories/auth_repo.dart';
 import 'package:tasky_app/features/auth/data/repositories/auth_repo_impl.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:tasky_app/features/auth/view_model/auth_view_model.dart';
 import '../api/api_consumer.dart';
 import '../api/dio_consumer.dart';
 
@@ -46,9 +48,22 @@ Future<void> setupDependencyInjection() async {
       localDataSource: getIt.get<AuthLocalDataSource>(),
     ),
   );
+  getIt.registerLazySingleton<LoginUseCase>(
+    () => LoginUseCase(authRepo: getIt.get<AuthRepo>()),
+  );
+  getIt.registerLazySingleton<RegisterUseCase>(
+    () => RegisterUseCase(authRepo: getIt.get<AuthRepo>()),
+  );
+  getIt.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(authRepo: getIt.get<AuthRepo>()),
+  );
 
   getIt.registerFactory<AuthCubit>(
-    () => AuthCubit(authRepo: getIt.get<AuthRepo>()),
+    () => AuthCubit(
+      loginUseCase: getIt.get<LoginUseCase>(),
+      registerUseCase: getIt.get<RegisterUseCase>(),
+      logoutUseCase: getIt.get<LogoutUseCase>(),
+    ),
   );
 
   ///?

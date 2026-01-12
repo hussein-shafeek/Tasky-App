@@ -7,7 +7,7 @@ import 'package:tasky_app/core/models/update_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
 import 'package:tasky_app/core/cubit/task_cubit.dart';
-import 'package:tasky_app/core/states/task_state.dart';
+import 'package:tasky_app/core/cubit/states/task_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_text_form_field.dart';
