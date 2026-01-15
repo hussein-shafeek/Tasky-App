@@ -1,7 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/features/home/data/data_sources/remote/tasks_remote_data_source.dart';
+import 'package:tasky_app/features/home/data/data_sources/remote/tasks_remote_data_source_impl.dart';
+import 'package:tasky_app/features/home/data/repositories/tasks_repository_impl.dart';
+import 'package:tasky_app/features/home/domain/repositories/tasks_repository.dart';
+import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.dart';
+import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
+import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_shared_local_data_source.dart';
@@ -69,5 +76,34 @@ Future<void> setupDependencyInjection() async {
   ///?
   getIt.registerLazySingleton<TodoService>(() => TodoService());
 
-  getIt.registerFactory<TaskCubit>(() => TaskCubit(getIt.get<TodoService>()));
+  getIt.registerFactory<TaskCubitOld>(
+    () => TaskCubitOld(getIt.get<TodoService>()),
+  );
+  //Remote Data Source
+  getIt.registerLazySingleton<TasksRemoteDataSource>(
+    () => TasksRemoteDataSourceImpl(apiConsumer: getIt<ApiConsumer>()),
+  );
+
+  //Repository
+  getIt.registerLazySingleton<TasksRepository>(
+    () => TasksRepositoryImpl(
+      remoteDataSource: getIt.get<TasksRemoteDataSource>(),
+    ),
+  );
+
+  //UseCase
+  getIt.registerLazySingleton<GetTasksUseCase>(
+    () => GetTasksUseCase(getIt.get<TasksRepository>()),
+  );
+  getIt.registerLazySingleton<GetTaskByIdUseCase>(
+    () => GetTaskByIdUseCase(getIt.get<TasksRepository>()),
+  );
+
+  //Cubit
+  getIt.registerFactory<GetTasksCubit>(
+    () => GetTasksCubit(
+      getTasksUseCase: getIt<GetTasksUseCase>(),
+      getTaskByIdUseCase: getIt<GetTaskByIdUseCase>(),
+    ),
+  );
 }

@@ -6,9 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
-import 'package:tasky_app/core/cubit/states/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_elevated_button.dart';
@@ -281,7 +281,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
               SizedBox(height: height * 0.0431),
 
-              BlocConsumer<TaskCubit, TaskState>(
+              BlocConsumer<TaskCubitOld, TaskStateOld>(
                 listener: (context, state) {
                   if (state is TaskSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -322,7 +322,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                         return;
                       }
 
-                      context.read<TaskCubit>().addTaskWithImage(
+                      context.read<TaskCubitOld>().addTaskWithImage(
                         image: selectedImage!,
                         title: titleController.text.trim(),
                         desc: descriptionController.text.trim(),

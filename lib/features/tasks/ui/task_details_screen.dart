@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/core/cubit/task_cubit.dart';
-import 'package:tasky_app/core/cubit/states/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
-import 'package:tasky_app/features/home/data/task_qr_widget.dart';
+import 'package:tasky_app/features/home/presentation/widgets/task_qr_widget.dart';
 import 'package:tasky_app/features/tasks/data/date_utils.dart' as myDateUtils;
 import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
@@ -27,7 +27,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    final cubit = context.read<TaskCubit>();
+    final cubit = context.read<TaskCubitOld>();
     if (cubit.state.tasks.isEmpty) {
       cubit.fetchTasks();
     }
@@ -38,7 +38,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     final text = Theme.of(context).textTheme;
     double height = MediaQuery.of(context).size.height;
 
-    return BlocBuilder<TaskCubit, TaskState>(
+    return BlocBuilder<TaskCubitOld, TaskStateOld>(
       builder: (context, state) {
         if (state is TaskLoading && state.tasks.isEmpty) {
           return const Scaffold(
@@ -46,7 +46,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           );
         }
 
-        final task = context.read<TaskCubit>().getTaskById(widget.taskId);
+        final task = context.read<TaskCubitOld>().getTaskById(widget.taskId);
 
         if (task == null) {
           return const Scaffold(body: Center(child: Text("Task not found")));
@@ -244,7 +244,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                   InkWell(
                     onTap: () async {
                       _hideMenu();
-                      final cubit = context.read<TaskCubit>();
+                      final cubit = context.read<TaskCubitOld>();
                       final navigator = context.pop();
                       final messenger = ScaffoldMessenger.of(context);
 

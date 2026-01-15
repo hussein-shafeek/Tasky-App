@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tasky_app/core/models/task_model.dart';
+import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/core/cubit/task_cubit.dart';
-import 'package:tasky_app/core/cubit/states/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
-import 'package:tasky_app/features/home/data/priority.dart';
-import 'package:tasky_app/features/home/ui/home_header.dart';
+import 'package:tasky_app/features/home/domain/enums/priority.dart';
+import 'package:tasky_app/features/home/presentation/widgets/home_header.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,10 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskCubit>().fetchTasks();
+      context.read<TaskCubitOld>().fetchTasks();
     });
     _scrollController.addListener(() {
-      final cubit = context.read<TaskCubit>();
+      final cubit = context.read<TaskCubitOld>();
       final state = cubit.state;
 
       if (_scrollController.position.pixels >=
@@ -50,14 +50,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshTasks() async {
-    await context.read<TaskCubit>().refreshTasks();
+    await context.read<TaskCubitOld>().refreshTasks();
   }
 
   @override
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    return BlocListener<TaskCubit, TaskState>(
+    return BlocListener<TaskCubitOld, TaskStateOld>(
       listener: (context, state) {
         if (state is TaskLoading) {
           showDialog(
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final taskId = qrResult.toString();
                       print("Scanned Task ID: $taskId");
 
-                      final task = context.read<TaskCubit>().getTaskById(
+                      final task = context.read<TaskCubitOld>().getTaskById(
                         taskId,
                       );
 
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: BlocBuilder<TaskCubit, TaskState>(
+        body: BlocBuilder<TaskCubitOld, TaskStateOld>(
           builder: (context, state) {
             if (state is TaskLoading && state.tasks.isEmpty) {
               return const Center(child: CircularProgressIndicator());

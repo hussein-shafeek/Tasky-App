@@ -1,5 +1,6 @@
-import 'package:tasky_app/features/home/data/priority.dart';
-import 'package:tasky_app/features/home/data/status.dart';
+import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
+import 'package:tasky_app/features/home/domain/enums/priority.dart';
+import 'package:tasky_app/features/home/domain/value_objects/status.dart';
 
 class TaskModel {
   final String id;
@@ -55,4 +56,15 @@ class TaskModel {
       "updatedAt": updatedAt.toIso8601String(),
     };
   }
+  // TasksEntity get toEntity => TasksEntity(
+  //     id: id,
+  //     image: image,
+  //     title: title,
+  //     desc: desc,
+  //     priority: priority,
+  //     status: status,
+  //     user: user,
+  //     createdAt: createdAt,
+  //     updatedAt: updatedAt,
+  //   );
 }

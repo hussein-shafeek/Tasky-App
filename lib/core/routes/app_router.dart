@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tasky_app/core/cubit/task_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/di/dependency_injection.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:tasky_app/features/auth/presentation/screens/register_screen.dart';
-import 'package:tasky_app/features/home/ui/home_screen.dart';
+import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -64,8 +64,8 @@ class AppRouter {
         GoRoute(
           path: Routes.homeScreen,
           builder: (context, state) {
-            return BlocProvider<TaskCubit>(
-              create: (context) => getIt<TaskCubit>()..fetchTasks(),
+            return BlocProvider<TaskCubitOld>(
+              create: (context) => getIt<TaskCubitOld>()..fetchTasks(),
               child: const HomeScreen(),
             );
           },

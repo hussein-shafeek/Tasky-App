@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/update_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
-import 'package:tasky_app/core/cubit/task_cubit.dart';
-import 'package:tasky_app/core/cubit/states/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_text_form_field.dart';
@@ -40,7 +40,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.initState();
 
     Future.microtask(() {
-      final cubit = context.read<TaskCubit>();
+      final cubit = context.read<TaskCubitOld>();
       if (cubit.state.tasks.isEmpty) {
         cubit.fetchTasks();
       }
@@ -78,7 +78,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TaskCubit, TaskState>(
+    return BlocConsumer<TaskCubitOld, TaskStateOld>(
       listenWhen: (prev, next) => !_initialized && next.tasks.isNotEmpty,
       listener: (context, state) {
         final task = state.tasks.where((t) => t.id == widget.taskId).isNotEmpty
@@ -104,7 +104,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
         if (task == null) {
           if (state is! TaskLoading) {
-            Future.microtask(() => context.read<TaskCubit>().fetchTasks());
+            Future.microtask(() => context.read<TaskCubitOld>().fetchTasks());
           }
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -287,7 +287,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   label: "Update Task",
                   textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
                   onPressed: () async {
-                    final cubit = context.read<TaskCubit>();
+                    final cubit = context.read<TaskCubitOld>();
 
                     String? imageUrl = task.image;
                     if (selectedImage != null) {
