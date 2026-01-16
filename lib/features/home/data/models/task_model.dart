@@ -28,11 +28,7 @@ class TaskModel {
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json["_id"],
-      image: (json['image'] != null && json['image'].toString().isNotEmpty)
-          ? (json['image'].toString().startsWith("http")
-                ? json['image']
-                : "https://todo.iraqsapp.com/images/${json['image']}")
-          : null,
+      image: json['image'],
 
       title: json["title"] ?? "",
       desc: json["desc"] ?? "",
@@ -56,15 +52,16 @@ class TaskModel {
       "updatedAt": updatedAt.toIso8601String(),
     };
   }
+
   // TasksEntity get toEntity => TasksEntity(
-  //     id: id,
-  //     image: image,
-  //     title: title,
-  //     desc: desc,
-  //     priority: priority,
-  //     status: status,
-  //     user: user,
-  //     createdAt: createdAt,
-  //     updatedAt: updatedAt,
-  //   );
+  //   id: id,
+  //   image: image,
+  //   title: title,
+  //   desc: desc,
+  //   priority: priority,
+  //   status: status,
+  //   user: user,
+  //   createdAt: createdAt,
+  //   updatedAt: updatedAt,
+  // );
 }

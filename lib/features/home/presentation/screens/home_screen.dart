@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
+import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
+import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/task_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/features/home/domain/enums/priority.dart';
 import 'package:tasky_app/features/home/presentation/widgets/home_header.dart';
@@ -20,69 +23,131 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategory = 'all';
 
-  late ScrollController _scrollController;
+  late final ScrollController _scrollController;
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   _scrollController = ScrollController();
+
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     context.read<TaskCubitOld>().fetchTasks();
+  //   });
+  //   _scrollController.addListener(() {
+  //     final cubit = context.read<TaskCubitOld>();
+  //     final state = cubit.state;
+
+  //     if (_scrollController.position.pixels >=
+  //             _scrollController.position.maxScrollExtent - 100 &&
+  //         state is TaskSuccess &&
+  //         state.hasMore) {
+  //       cubit.fetchTasks();
+  //     }
+  //   });
+  // }
+
+  // @override
+  // void dispose() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
+
+  // Future<void> _refreshTasks() async {
+  //   await context.read<GetTasksCubit>().fetchTasks(refresh: true);
+  // }
   @override
   void initState() {
     super.initState();
-
     _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskCubitOld>().fetchTasks();
-    });
-    _scrollController.addListener(() {
-      final cubit = context.read<TaskCubitOld>();
-      final state = cubit.state;
+  void _onScroll() {
+    final cubit = context.read<GetTasksCubit>();
+    final state = cubit.state;
 
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 100 &&
-          state is TaskSuccess &&
-          state.hasMore) {
-        cubit.fetchTasks();
-      }
-    });
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 120 &&
+        state is TaskSuccess &&
+        state.hasMore) {
+      cubit.fetchTasks();
+    }
+  }
+
+  Future<void> _refreshTasks() async {
+    await context.read<GetTasksCubit>().fetchTasks(refresh: true);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     super.dispose();
-  }
-
-  Future<void> _refreshTasks() async {
-    await context.read<TaskCubitOld>().refreshTasks();
   }
 
   @override
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    return BlocListener<TaskCubitOld, TaskStateOld>(
+    // return BlocListener<GetTasksCubit, TaskState>(
+    //   listener: (context, state) {
+    //     if (state is TaskLoading) {
+    //       showDialog(
+    //         context: context,
+    //         barrierDismissible: false,
+    //         builder: (_) => const Center(child: CircularProgressIndicator()),
+    //       );
+    //     }
+
+    //     if (state is TaskSuccess) {
+    //       if (Navigator.canPop(context)) context.pop();
+
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         const SnackBar(
+    //           content: Text("Logged out successfully"),
+    //           backgroundColor: AppColors.green,
+    //         ),
+    //       );
+
+    //       context.go(Routes.loginScreen);
+    //     }
+
+    //     if (state is TaskError) {
+    //       if (Navigator.canPop(context)) context.pop();
+
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(
+    //           content: Text(state.message),
+    //           backgroundColor: AppColors.coral,
+    //         ),
+    //       );
+    //     }
+    //   },
+    return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is TaskLoading) {
+        if (state is LogoutLoading) {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
+            builder: (_) => const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 6,
+                color: AppColors.primary,
+              ),
+            ),
           );
         }
 
-        if (state is TaskSuccess) {
-          if (Navigator.canPop(context)) context.pop();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Logged out successfully"),
-              backgroundColor: AppColors.green,
-            ),
-          );
-
+        if (state is LogoutSuccess) {
+          if (Navigator.canPop(context))
+            Navigator.of(context, rootNavigator: true).pop();
           context.go(Routes.loginScreen);
         }
 
-        if (state is TaskError) {
-          if (Navigator.canPop(context)) context.pop();
-
+        if (state is LogoutError) {
+          if (Navigator.canPop(context))
+            Navigator.of(context, rootNavigator: true).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -106,28 +171,45 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () async {
                     final qrResult = await context.push(Routes.qrScanner);
 
-                    if (!mounted) return;
+                    //if (!mounted) return;
+                    if (!mounted || qrResult == null) return;
 
-                    if (qrResult != null) {
-                      final taskId = qrResult.toString();
-                      print("Scanned Task ID: $taskId");
+                    //   if (qrResult != null) {
+                    //     final taskId = qrResult.toString();
+                    //     print("Scanned Task ID: $taskId");
 
-                      final task = context.read<TaskCubitOld>().getTaskById(
-                        taskId,
+                    //     final task = context.read<TaskCubitOld>().getTaskById(
+                    //       taskId,
+                    //     );
+
+                    //     if (task != null) {
+                    //       await context.push(
+                    //         Routes.taskDetailsScreen,
+                    //         extra: task.id,
+                    //       );
+                    //     } else {
+                    //       ScaffoldMessenger.of(context).showSnackBar(
+                    //         SnackBar(
+                    //           content: Text("Task not found for ID: $taskId"),
+                    //         ),
+                    //       );
+                    //     }
+                    //   }
+                    // },
+
+                    final taskId = qrResult.toString();
+                    final cubit = context.read<GetTasksCubit>();
+
+                    final task = cubit.state.tasks
+                        .cast<TasksEntity?>()
+                        .firstWhere((t) => t?.id == taskId, orElse: () => null);
+
+                    if (task != null) {
+                      context.push(Routes.taskDetailsScreen, extra: task.id);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Task not found')),
                       );
-
-                      if (task != null) {
-                        await context.push(
-                          Routes.taskDetailsScreen,
-                          extra: task.id,
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Task not found for ID: $taskId"),
-                          ),
-                        );
-                      }
                     }
                   },
                   fillColor: AppColors.lightPurple,
@@ -151,6 +233,9 @@ class _HomeScreenState extends State<HomeScreen> {
               RawMaterialButton(
                 onPressed: () async {
                   final result = await context.push(Routes.addTask);
+                  if (result == true && mounted) {
+                    _refreshTasks();
+                  }
                 },
                 fillColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
@@ -168,33 +253,43 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: BlocBuilder<TaskCubitOld, TaskStateOld>(
+        body: BlocConsumer<GetTasksCubit, TaskState>(
+          listener: (context, state) {
+            if (state is TaskError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.coral,
+                ),
+              );
+            }
+          },
           builder: (context, state) {
             if (state is TaskLoading && state.tasks.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
 
             if (state is TaskError && state.tasks.isEmpty) {
-              return Center(child: Text("Error: ${state.message}"));
+              return Center(child: Text(state.message));
             }
 
-            List<TaskModel> tasks = state.tasks;
-            List<TaskModel> filteredTasks = tasks.where((task) {
-              final s = selectedCategory.toLowerCase();
-              if (s == 'all') return true;
-              return task.status.value.toLowerCase() == s;
-            }).toList();
+            final tasks = _filterTasks(state.tasks.cast<TasksEntity>());
+            // List<TaskModel> filteredTasks = tasks.where((task) {
+            //   final s = selectedCategory.toLowerCase();
+            //   if (s == 'all') return true;
+            //   return task.status.value.toLowerCase() == s;
+            // }).toList();
 
             return RefreshIndicator(
               onRefresh: _refreshTasks,
               child: Column(
                 children: [
                   HomeHeader(
-                    onCategoryChanged: (selected) {
+                    onCategoryChanged: (value) {
                       setState(() {
-                        selectedCategory = selected == 'inpogress'
+                        selectedCategory = value == 'inpogress'
                             ? 'inprogress'
-                            : selected;
+                            : value;
                       });
                     },
                   ),
@@ -202,11 +297,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 22),
-                      itemCount:
-                          filteredTasks.length + (state is TaskLoading ? 1 : 0),
+                      itemCount: tasks.length + (state.hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
-                        if (index < filteredTasks.length) {
-                          final task = filteredTasks[index];
+                        if (index < tasks.length) {
+                          final task = tasks[index];
 
                           return GestureDetector(
                             onTap: () async {
@@ -370,6 +464,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  String getFullImageUrl(String? image) {
+    if (image == null || image.isEmpty) return '';
+    if (image.startsWith('http')) return image; // Already full URL
+    return 'https://todo.iraqsapp.com/images/$image'; // Add base path
+  }
+
   // Color _getStatusColor(String status) {
   //   switch (status) {
   //     case 'inprogress':
@@ -408,4 +508,14 @@ class _HomeScreenState extends State<HomeScreen> {
   //       return Colors.blue;
   //   }
   // }
+  List<TasksEntity> _filterTasks(List<TasksEntity> tasks) {
+    if (selectedCategory == 'all') return tasks;
+
+    return tasks
+        .where(
+          (task) =>
+              task.status.value.toLowerCase() == selectedCategory.toLowerCase(),
+        )
+        .toList();
+  }
 }

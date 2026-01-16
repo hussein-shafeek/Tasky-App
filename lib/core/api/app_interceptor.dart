@@ -18,10 +18,11 @@ class AppInterceptors extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final token = prefs.getString("token");
+    final token = prefs.getString("accessToken"); // بدل "token"
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
+
     getIt.unregister<CancelToken>();
     getIt.registerSingleton<CancelToken>(CancelToken());
     options.cancelToken = getIt<CancelToken>();
@@ -51,10 +52,10 @@ class AppInterceptors extends Interceptor {
       } else if (refreshToken != null && refreshToken.isNotEmpty) {
         try {
           dio.options.baseUrl = EndPoints.baseUrl;
-          final refreshEndpoint = EndPoints.refreshToken;
+          final refreshEndpoint =
+              '${EndPoints.refreshToken}?token=$refreshToken';
           final response = await dio.post(
             refreshEndpoint,
-            data: {"token": refreshToken},
             options: Options(
               headers: {'Content-Type': 'application/json'},
               validateStatus: (status) => true,
@@ -66,10 +67,8 @@ class AppInterceptors extends Interceptor {
           );
 
           if (response.statusCode == StatusCode.ok) {
-            String token = response.data["token"];
-            prefs.setString("token", token);
-
-            accessToken = token;
+            String newAccessToken = response.data["token"];
+            prefs.setString("accessToken", newAccessToken);
             err.requestOptions.headers['Authorization'] = 'Bearer $accessToken';
             return handler.resolve(await dio.fetch(err.requestOptions));
           } else {

@@ -4,7 +4,7 @@ import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
 extension TaskMapper on TaskModel {
   TasksEntity get toEntity => TasksEntity(
     id: id,
-    image: image,
+    image: _mapImage(image),
     title: title,
     desc: desc,
     priority: priority,
@@ -13,4 +13,10 @@ extension TaskMapper on TaskModel {
     createdAt: createdAt,
     updatedAt: updatedAt,
   );
+
+  String? _mapImage(String? image) {
+    if (image == null || image.isEmpty) return null;
+    if (image.startsWith('http')) return image;
+    return 'https://todo.iraqsapp.com/images/$image';
+  }
 }

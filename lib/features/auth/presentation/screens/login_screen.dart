@@ -29,33 +29,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     TextTheme text = Theme.of(context).textTheme;
-
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is LoginLoading) {
-          UIUtils.showLoading(context);
-          //   // showDialog(
-          //   //   context: context,
-          //   //   barrierDismissible: false,
-          //   //   builder: (_) => const Center(
-          //   //     child: CircularProgressIndicator(color: AppColors.primary),
-          //   //   ),
-          //   // );
-          // } else {
-          //   context.pop(); // close loading if open
-        } else if (state is LoginSuccess) {
-          UIUtils.hideLoading(context);
-
+        if (state is LoginSuccess) {
           context.go(Routes.homeScreen);
         } else if (state is LoginError) {
-          UIUtils.hideLoading(context);
           UIUtils.showMessage(state.message);
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: Text(state.message),
-          //     backgroundColor: AppColors.coral,
-          //   ),
-          //);
         }
       },
       child: Scaffold(
@@ -79,15 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Text('Login', style: text.headlineSmall),
                         SizedBox(height: height * 0.02955),
-
-                        // Theme(
-                        //   data: Theme.of(context).copyWith(
-                        //     textTheme: text.copyWith(
-                        //       titleMedium: text.titleMedium!.copyWith(
-                        //         color: AppColors.black,
-                        //       ),
-                        //    ),
-                        // ),
                         IntlPhoneField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
@@ -225,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 context.push(Routes.registerScreen);
                               },
-                              child: Text('Sign Up here'),
+                              child: Text('Sign Up'),
                             ),
                           ],
                         ),

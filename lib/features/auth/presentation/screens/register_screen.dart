@@ -37,13 +37,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is RegisterLoading) {
-          UIUtils.showLoading(context);
-        } else if (state is RegisterSuccess) {
-          UIUtils.hideLoading(context);
+        if (state is RegisterSuccess) {
           context.go(Routes.homeScreen);
         } else if (state is RegisterError) {
-          UIUtils.hideLoading(context);
           UIUtils.showMessage(state.message);
           // ScaffoldMessenger.of(context).showSnackBar(
           //   SnackBar(
