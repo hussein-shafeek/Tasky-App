@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
-import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
+import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/utils/validator.dart';
 
-class CountryPhone extends StatefulWidget {
+class CountryPhone extends StatelessWidget {
   const CountryPhone({
     super.key,
     required this.onChanged,
@@ -13,28 +14,21 @@ class CountryPhone extends StatefulWidget {
     this.hintText,
   });
 
-  final TextEditingController? phoneController;
-  final void Function(PhoneNumber)? onChanged;
+  final TextEditingController phoneController;
+  final void Function(PhoneNumber) onChanged;
   final String title;
-
   final String? hintText;
 
   @override
-  State<CountryPhone> createState() => _CountryPhoneState();
-}
-
-class _CountryPhoneState extends State<CountryPhone> {
-  @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    TextTheme text = Theme.of(context).textTheme;
+    final text = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.title,
-          style: text.titleMedium!.copyWith(color: AppColors.black),
-        ),
+        Text(title, style: text.titleMedium!.copyWith(color: AppColors.black)),
+        const SizedBox(height: 8),
+
         Theme(
           data: Theme.of(context).copyWith(
             textTheme: text.copyWith(
@@ -42,7 +36,16 @@ class _CountryPhoneState extends State<CountryPhone> {
             ),
           ),
           child: IntlPhoneField(
-            controller: widget.phoneController,
+            controller: phoneController,
+            initialCountryCode: 'EG',
+
+            // ✅ validation بقى هنا
+            validator: (phone) {
+              return Validator.validateLoginPhone(phone?.number);
+            },
+
+            onChanged: onChanged,
+
             style: text.titleMedium!.copyWith(color: AppColors.black),
             pickerDialogStyle: PickerDialogStyle(
               searchFieldInputDecoration: InputDecoration(
@@ -53,19 +56,17 @@ class _CountryPhoneState extends State<CountryPhone> {
               ),
             ),
             decoration: InputDecoration(
-              hintText: widget.hintText,
-              errorMaxLines: 1,
+              hintText: hintText,
               filled: true,
               isDense: true,
-              hintStyle: text.titleMedium!.copyWith(color: AppColors.black),
               fillColor: AppColors.white,
+              hintStyle: text.titleMedium!.copyWith(
+                color: AppColors.grayMedium,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            showCursor: false,
-            initialCountryCode: 'EG',
-            onChanged: widget.onChanged,
           ),
         ),
       ],

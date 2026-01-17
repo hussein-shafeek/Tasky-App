@@ -14,17 +14,17 @@ class Validator {
     }
   }
 
-  static String? validatePassword(String? val) {
-    if (val == null) {
-      return 'this field is required';
-    } else if (val.isEmpty) {
-      return 'this field is required';
-    } else if (val.length < 8) {
-      return 'strong password please';
-    } else {
-      return null;
-    }
-  }
+  // static String? validatePassword(String? val) {
+  //   if (val == null) {
+  //     return 'this field is required';
+  //   } else if (val.isEmpty) {
+  //     return 'this field is required';
+  //   } else if (val.length < 8) {
+  //     return 'strong password please';
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   static String? validateConfirmPassword(String? val, String? password) {
     if (val == null || val.isEmpty) {
@@ -67,5 +67,38 @@ class Validator {
     } else {
       return null;
     }
+  }
+
+  static String? validateLoginPassword(String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Password is required';
+    } else if (val.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    return null;
+  }
+
+  static String? validateLoginPhone(String? val) {
+    if (val == null || val.trim().isEmpty) {
+      return 'Phone number is required';
+    }
+
+    if (val.replaceAll(RegExp(r'\D'), '').length < 10) {
+      return 'Enter a valid phone number';
+    }
+
+    return null;
+  }
+
+  static String? validatePhoneNumberField(String? val) {
+    if (val == null || val.trim().isEmpty) return "Phone number is required";
+    if (val.trim().length < 10) return "Invalid mobile number";
+    return null;
+  }
+
+  static String? validatePassword(String? val) {
+    if (val == null || val.isEmpty) return 'Password is required';
+    if (val.length < 6) return 'Password must be at least 6 characters';
+    return null;
   }
 }
