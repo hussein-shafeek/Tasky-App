@@ -16,7 +16,6 @@ class RegisterButton extends StatelessWidget {
   final TextEditingController experienceLevelController;
   final String fullPhone;
 
-  // ✅ أضف هذا الباراميتر الجديد
   final bool Function()? onValidatePhone;
 
   const RegisterButton({
@@ -29,7 +28,7 @@ class RegisterButton extends StatelessWidget {
     required this.experienceYearsController,
     required this.experienceLevelController,
     required this.fullPhone,
-    this.onValidatePhone, // هنا استقبل الدالة
+    this.onValidatePhone,
   });
 
   @override
@@ -46,10 +45,8 @@ class RegisterButton extends StatelessWidget {
           onPressed: () {
             FocusScope.of(context).unfocus();
 
-            // ✅ تحقق من الفورم
             final isFormValid = formKey.currentState?.validate() ?? false;
 
-            // ✅ تحقق من الفون
             final phoneValid = onValidatePhone?.call() ?? true;
 
             if (!isFormValid || !phoneValid) return;

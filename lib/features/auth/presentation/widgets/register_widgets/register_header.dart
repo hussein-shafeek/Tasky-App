@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RegisterHeader extends StatelessWidget {
-  final double height;
-  const RegisterHeader({super.key, required this.height});
+  const RegisterHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,11 +10,11 @@ class RegisterHeader extends StatelessWidget {
       children: [
         Image.asset(
           'assets/images/register.png',
-          fit: BoxFit.cover,
+          fit: BoxFit.fitWidth,
           width: double.infinity,
-          height: height * 0.2315,
+          height: 400.h,
         ),
-        SizedBox(height: height * 0.005),
+        SizedBox(height: 5.h),
       ],
     );
   }

@@ -30,6 +30,8 @@ class TaskyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
       builder: (_, _) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.CustomeLightTheme,

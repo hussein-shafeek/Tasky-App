@@ -12,7 +12,7 @@ class LoginButton extends StatelessWidget {
   final TextEditingController passwordController;
   final String fullPhone;
   final TextTheme textTheme;
-  final bool Function()? onValidatePhone; // دالة التحقق من الهاتف
+  final bool Function()? onValidatePhone;
 
   const LoginButton({
     super.key,

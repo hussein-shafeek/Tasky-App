@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tasky_app/core/utils/validator.dart';
-import 'package:tasky_app/features/auth/data/models/login_request.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tasky_app/core/resources/ui_extensions.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/auth/presentation/widgets/login_widgets/login_button.dart';
@@ -31,7 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final text = Theme.of(context).textTheme;
 
     return BlocListener<AuthCubit, AuthState>(
@@ -50,14 +49,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  LoginHeader(height: height),
+                  LoginHeader(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.5),
+                    padding: 24.5.pHorizontal,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Login', style: text.headlineSmall),
-                        SizedBox(height: height * 0.03),
+                        SizedBox(height: 24.h),
 
                         // ===== PHONE =====
                         LoginPhoneField(
@@ -68,11 +67,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             fullPhone = value;
                           },
                         ),
-                        SizedBox(height: height * 0.02),
+                        SizedBox(height: 20.h),
 
                         // ===== PASSWORD =====
                         LoginPasswordField(controller: _passwordController),
-                        SizedBox(height: height * 0.03),
+                        SizedBox(height: 24.h),
 
                         // ===== BUTTON =====
                         LoginButton(
@@ -87,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 true;
                           },
                         ),
-                        SizedBox(height: height * 0.03),
+                        SizedBox(height: 24.h),
 
                         // ===== FOOTER =====
                         const LoginFooter(),

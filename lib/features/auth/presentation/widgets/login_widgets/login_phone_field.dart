@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/resources/ui_extensions.dart';
 import 'package:tasky_app/core/utils/validator.dart';
 
 class LoginPhoneField extends StatefulWidget {
@@ -14,8 +15,6 @@ class LoginPhoneField extends StatefulWidget {
     required this.textTheme,
     required this.onChanged,
   });
-
-  // خلي ال state public
   @override
   LoginPhoneFieldState createState() => LoginPhoneFieldState();
 }
@@ -33,7 +32,7 @@ class LoginPhoneFieldState extends State<LoginPhoneField> {
           keyboardType: TextInputType.phone,
           initialCountryCode: 'EG',
           dropdownIconPosition: IconPosition.trailing,
-          flagsButtonMargin: const EdgeInsets.only(left: 15),
+          flagsButtonMargin: 15.mLeft,
           style: widget.textTheme.titleMedium!.copyWith(color: AppColors.black),
           dropdownTextStyle: widget.textTheme.titleSmall!.copyWith(
             color: AppColors.grayMedium,
@@ -48,11 +47,8 @@ class LoginPhoneFieldState extends State<LoginPhoneField> {
             hintStyle: widget.textTheme.titleSmall!.copyWith(
               color: AppColors.grayMedium,
             ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 12,
-            ),
+            border: OutlineInputBorder(borderRadius: 8.brAll),
+            contentPadding: 15.pVH(12),
             errorText: errorText,
           ),
         ),

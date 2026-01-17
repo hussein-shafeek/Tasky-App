@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoginHeader extends StatelessWidget {
-  final double height;
-
-  const LoginHeader({super.key, required this.height});
+  const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset(
-          'assets/images/art.png',
-          fit: BoxFit.fill,
-          height: height * 0.5394,
-        ),
-        SizedBox(height: height * 0.005),
+        Image.asset('assets/images/art.png', fit: BoxFit.fill, height: 482.h),
+        SizedBox(height: 4.h),
       ],
     );
   }

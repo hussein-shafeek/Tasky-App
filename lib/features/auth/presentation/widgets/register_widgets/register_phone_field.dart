@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/resources/ui_extensions.dart';
 
 class RegisterPhoneField extends StatefulWidget {
   final TextEditingController controller;
@@ -31,9 +32,10 @@ class _RegisterPhoneFieldState extends State<RegisterPhoneField> {
         IntlPhoneField(
           focusNode: widget.focusNode,
           controller: widget.controller,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           initialCountryCode: 'EG',
           dropdownIconPosition: IconPosition.trailing,
-          flagsButtonMargin: const EdgeInsets.only(left: 15),
+          flagsButtonMargin: 15.mLeft,
           style: text.titleMedium!.copyWith(color: Colors.black),
           dropdownTextStyle: text.titleSmall!.copyWith(
             color: Colors.grey,
@@ -41,7 +43,6 @@ class _RegisterPhoneFieldState extends State<RegisterPhoneField> {
           ),
           onChanged: (phone) {
             widget.onChanged(phone.completeNumber);
-            // امسح الرسالة أثناء الكتابة
             if (errorText != null) {
               setState(() {
                 errorText = null;
@@ -53,11 +54,8 @@ class _RegisterPhoneFieldState extends State<RegisterPhoneField> {
           },
           decoration: InputDecoration(
             hintText: 'Phone Number',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 12,
-            ),
+            border: OutlineInputBorder(borderRadius: 8.brAll),
+            contentPadding: 15.pVH(12),
             errorText: errorText,
           ),
         ),
