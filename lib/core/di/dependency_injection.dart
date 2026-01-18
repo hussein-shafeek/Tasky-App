@@ -20,6 +20,12 @@ import 'package:tasky_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:tasky_app/features/profile/data/data_sources/remote/profile_remote_data_source.dart';
+import 'package:tasky_app/features/profile/data/data_sources/remote/profile_remote_data_source_impl.dart';
+import 'package:tasky_app/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:tasky_app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:tasky_app/features/profile/domain/use_cases/get_profile_usecase.dart';
+import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
 import '../api/api_consumer.dart';
 import '../api/dio_consumer.dart';
 
@@ -105,5 +111,24 @@ Future<void> setupDependencyInjection() async {
       getTasksUseCase: getIt<GetTasksUseCase>(),
       getTaskByIdUseCase: getIt<GetTaskByIdUseCase>(),
     ),
+  );
+
+  //Profile
+  getIt.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(apiConsumer: getIt<ApiConsumer>()),
+  );
+
+  getIt.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      remoteDataSource: getIt<ProfileRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetProfileUseCase>(
+    () => GetProfileUseCase(repository: getIt<ProfileRepository>()),
+  );
+
+  getIt.registerFactory<ProfileCubit>(
+    () => ProfileCubit(getProfileUseCase: getIt<GetProfileUseCase>()),
   );
 }

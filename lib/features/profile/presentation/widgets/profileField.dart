@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/resources/ui_extensions.dart';
 
 class ProfileField extends StatelessWidget {
   final String label;
@@ -20,14 +22,11 @@ class ProfileField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+      padding: 12.pVH(15),
       decoration: BoxDecoration(
         color: AppColors.ultraLightGray,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: 10.brAll,
       ),
       child: Row(
         children: [
@@ -41,7 +40,7 @@ class ProfileField extends StatelessWidget {
                     color: AppColors.darkCharcoal..withValues(alpha: 0.4),
                   ),
                 ),
-                SizedBox(height: height * 0.004926),
+                SizedBox(height: 4.h),
                 Text(value, style: text.bodyMedium),
               ],
             ),
@@ -51,8 +50,8 @@ class ProfileField extends StatelessWidget {
               onTap: onSuffixTap,
               child: SvgPicture.asset(
                 IconsAssets.copy,
-                width: width * 0.064,
-                height: height * 0.02955,
+                width: 24.w,
+                height: 24.h,
               ),
             ),
         ],

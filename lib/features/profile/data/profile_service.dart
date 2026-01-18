@@ -1,5 +1,5 @@
 import 'package:tasky_app/core/services/api_service.dart';
-import '../model/profile_model.dart';
+import 'models/profile_model.dart';
 
 class ProfileService {
   final ApiService _api = ApiService();

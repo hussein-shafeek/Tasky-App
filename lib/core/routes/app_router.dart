@@ -10,6 +10,8 @@ import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:tasky_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
+import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -73,6 +75,15 @@ class AppRouter {
                 BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
               ],
               child: const HomeScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: Routes.profileScreen,
+          builder: (context, state) {
+            return BlocProvider<ProfileCubit>(
+              create: (context) => getIt<ProfileCubit>()..getProfile(),
+              child: ProfileScreen(),
             );
           },
         ),

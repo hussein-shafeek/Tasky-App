@@ -26,15 +26,6 @@ extension MarginExtension on num {
   EdgeInsets get mVertical => EdgeInsets.symmetric(vertical: h);
 }
 
-// extension InsetsVH on num {
-//   /// Padding: vertical = this , horizontal = hValue
-//   EdgeInsets pVH(num hValue) =>
-//       EdgeInsets.symmetric(vertical: h, horizontal: hValue.w);
-
-//   /// Margin: vertical = this , horizontal = hValue
-//   EdgeInsets mVH(num hValue) =>
-//       EdgeInsets.symmetric(vertical: h, horizontal: hValue.w);
-// }
 extension InsetsVH on num {
   /// Padding: vertical = this , horizontal = hValue
   EdgeInsets pVH(num horizontal) =>

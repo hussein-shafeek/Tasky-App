@@ -52,16 +52,4 @@ class TaskModel {
       "updatedAt": updatedAt.toIso8601String(),
     };
   }
-
-  // TasksEntity get toEntity => TasksEntity(
-  //   id: id,
-  //   image: image,
-  //   title: title,
-  //   desc: desc,
-  //   priority: priority,
-  //   status: status,
-  //   user: user,
-  //   createdAt: createdAt,
-  //   updatedAt: updatedAt,
-  // );
 }
