@@ -24,37 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedCategory = 'all';
 
   late final ScrollController _scrollController;
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   _scrollController = ScrollController();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     context.read<TaskCubitOld>().fetchTasks();
-  //   });
-  //   _scrollController.addListener(() {
-  //     final cubit = context.read<TaskCubitOld>();
-  //     final state = cubit.state;
-
-  //     if (_scrollController.position.pixels >=
-  //             _scrollController.position.maxScrollExtent - 100 &&
-  //         state is TaskSuccess &&
-  //         state.hasMore) {
-  //       cubit.fetchTasks();
-  //     }
-  //   });
-  // }
-
-  // @override
-  // void dispose() {
-  //   _scrollController.dispose();
-  //   super.dispose();
-  // }
-
-  // Future<void> _refreshTasks() async {
-  //   await context.read<GetTasksCubit>().fetchTasks(refresh: true);
-  // }
   @override
   void initState() {
     super.initState();
@@ -90,40 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     TextTheme text = Theme.of(context).textTheme;
 
-    // return BlocListener<GetTasksCubit, TaskState>(
-    //   listener: (context, state) {
-    //     if (state is TaskLoading) {
-    //       showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (_) => const Center(child: CircularProgressIndicator()),
-    //       );
-    //     }
-
-    //     if (state is TaskSuccess) {
-    //       if (Navigator.canPop(context)) context.pop();
-
-    //       ScaffoldMessenger.of(context).showSnackBar(
-    //         const SnackBar(
-    //           content: Text("Logged out successfully"),
-    //           backgroundColor: AppColors.green,
-    //         ),
-    //       );
-
-    //       context.go(Routes.loginScreen);
-    //     }
-
-    //     if (state is TaskError) {
-    //       if (Navigator.canPop(context)) context.pop();
-
-    //       ScaffoldMessenger.of(context).showSnackBar(
-    //         SnackBar(
-    //           content: Text(state.message),
-    //           backgroundColor: AppColors.coral,
-    //         ),
-    //       );
-    //     }
-    //   },
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is LogoutLoading) {
@@ -173,29 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     //if (!mounted) return;
                     if (!mounted || qrResult == null) return;
-
-                    //   if (qrResult != null) {
-                    //     final taskId = qrResult.toString();
-                    //     print("Scanned Task ID: $taskId");
-
-                    //     final task = context.read<TaskCubitOld>().getTaskById(
-                    //       taskId,
-                    //     );
-
-                    //     if (task != null) {
-                    //       await context.push(
-                    //         Routes.taskDetailsScreen,
-                    //         extra: task.id,
-                    //       );
-                    //     } else {
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //         SnackBar(
-                    //           content: Text("Task not found for ID: $taskId"),
-                    //         ),
-                    //       );
-                    //     }
-                    //   }
-                    // },
 
                     final taskId = qrResult.toString();
                     final cubit = context.read<GetTasksCubit>();
@@ -301,7 +213,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         if (index < tasks.length) {
                           final task = tasks[index];
-
                           return GestureDetector(
                             onTap: () async {
                               final updated = await context.push(
@@ -470,44 +381,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'https://todo.iraqsapp.com/images/$image'; // Add base path
   }
 
-  // Color _getStatusColor(String status) {
-  //   switch (status) {
-  //     case 'inprogress':
-  //       return AppColors.lightLavender;
-  //     case 'waiting':
-  //       return AppColors.pinkLace;
-  //     case 'finished':
-  //       return AppColors.lightBlueCustom;
-  //     default:
-  //       return AppColors.primary;
-  //   }
-  // }
-
-  // Color _getStatusTextColor(String status) {
-  //   switch (status) {
-  //     case 'inprogress':
-  //       return AppColors.primary;
-  //     case 'waiting':
-  //       return AppColors.coral;
-  //     case 'finished':
-  //       return AppColors.azureBlue;
-  //     default:
-  //       return Colors.white;
-  //   }
-  // }
-
-  // Color getPriorityColor(String priority) {
-  //   switch (priority) {
-  //     case 'high':
-  //       return AppColors.coral;
-  //     case 'medium':
-  //       return AppColors.primary;
-  //     case 'low':
-  //       return AppColors.azureBlue;
-  //     default:
-  //       return Colors.blue;
-  //   }
-  // }
   List<TasksEntity> _filterTasks(List<TasksEntity> tasks) {
     if (selectedCategory == 'all') return tasks;
 

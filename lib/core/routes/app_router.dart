@@ -45,7 +45,7 @@ class AppRouter {
           return Routes.homeScreen;
         }
 
-        return null;
+        return Routes.homeScreen;
       },
       routes: [
         GoRoute(
