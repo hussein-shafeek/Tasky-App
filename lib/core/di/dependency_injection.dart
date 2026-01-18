@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/get_token_use_case.dart';
 import 'package:tasky_app/features/home/data/data_sources/remote/tasks_remote_data_source.dart';
 import 'package:tasky_app/features/home/data/data_sources/remote/tasks_remote_data_source_impl.dart';
 import 'package:tasky_app/features/home/data/repositories/tasks_repository_impl.dart';
@@ -55,6 +56,9 @@ Future<void> setupDependencyInjection() async {
       sharedPreferences: getIt.get<SharedPreferences>(),
     ),
   );
+  getIt.registerLazySingleton<GetTokenUseCase>(
+    () => GetTokenUseCase(localDataSource: getIt.get<AuthLocalDataSource>()),
+  );
   getIt.registerLazySingleton<AuthRepo>(
     () => AuthRepoImpl(
       authRemoteDataSource: getIt.get<AuthRemoteDataSource>(),
@@ -73,6 +77,7 @@ Future<void> setupDependencyInjection() async {
 
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(
+      getTokenUseCase: getIt.get<GetTokenUseCase>(),
       loginUseCase: getIt.get<LoginUseCase>(),
       registerUseCase: getIt.get<RegisterUseCase>(),
       logoutUseCase: getIt.get<LogoutUseCase>(),

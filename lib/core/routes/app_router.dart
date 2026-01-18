@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/di/dependency_injection.dart';
@@ -28,23 +29,24 @@ class AppRouter {
 
   static GoRouter router() {
     return GoRouter(
-      initialLocation: Routes.loginScreen,
+      initialLocation: Routes.homeScreen,
 
-      // redirect: (context, state) {
-      //   final authState = context.read<AuthCubit>().state;
-      //   final isLogin = state.matchedLocation == Routes.loginScreen;
-      //   final isRegister = state.matchedLocation == Routes.registerScreen;
+      redirect: (context, state) async {
+        final token = await getIt.get<AuthLocalDataSource>().getToken();
 
-      //   if (authState is LoginError && !isLogin && !isRegister) {
-      //     return Routes.loginScreen;
-      //   }
+        final isLogin = state.matchedLocation == Routes.loginScreen;
+        final isRegister = state.matchedLocation == Routes.registerScreen;
 
-      //   if (authState is LoginSuccess && (isLogin || isRegister)) {
-      //     return Routes.homeScreen;
-      //   }
+        if (token == null && !isLogin && !isRegister) {
+          return Routes.loginScreen;
+        }
 
-      //   return null;
-      // },
+        if (token != null && (isLogin || isRegister)) {
+          return Routes.homeScreen;
+        }
+
+        return null;
+      },
       routes: [
         GoRoute(
           path: Routes.loginScreen,

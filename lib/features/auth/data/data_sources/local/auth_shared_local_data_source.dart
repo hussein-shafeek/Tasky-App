@@ -18,14 +18,14 @@ class AuthSharedLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<String?> getToken() async {
-    final SharedPreferences sharedPref = await SharedPreferences.getInstance();
-    return sharedPref.getString('accessToken') ?? '';
+    final sharedPref = await SharedPreferences.getInstance();
+    return sharedPref.getString('accessToken');
   }
 
   @override
   Future<String?> getRefreshToken() async {
     final SharedPreferences sharedPref = await SharedPreferences.getInstance();
-    return sharedPref.getString('refreshToken') ?? '';
+    return sharedPref.getString('refreshToken');
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:tasky_app/features/auth/data/models/login_request.dart';
 import 'package:tasky_app/features/auth/data/models/register_request.dart';
 import 'package:tasky_app/features/auth/domain/repositories/auth_repo.dart';
+import 'package:tasky_app/features/auth/domain/use_cases/get_token_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/register_use_case.dart';
@@ -13,12 +14,14 @@ class AuthCubit extends Cubit<AuthState> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
+  final GetTokenUseCase getTokenUseCase;
   //final AuthService authService;
 
   AuthCubit({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
+    required this.getTokenUseCase,
   }) : super(const AuthInitial());
 
   // ================= LOGIN =================
@@ -63,5 +66,15 @@ class AuthCubit extends Cubit<AuthState> {
         emit(LogoutSuccess());
       },
     );
+  }
+
+  // ================= CHECK AUTH =================
+  Future<void> checkAuth() async {
+    final token = await getTokenUseCase();
+    if (token != null && token.isNotEmpty) {
+      emit(const AuthAuthenticated());
+    } else {
+      emit(const AuthUnauthenticated());
+    }
   }
 }
