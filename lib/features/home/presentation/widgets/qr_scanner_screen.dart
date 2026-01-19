@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
           isScanned = true;
 
-          Navigator.pop(context, barcode.rawValue);
+          context.pop(barcode.rawValue);
         },
       ),
     );

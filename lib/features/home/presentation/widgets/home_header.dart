@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/category_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
+import 'package:tasky_app/core/resources/ui_extensions.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/tab_item.dart';
@@ -27,7 +29,7 @@ class _HomeHeaderState extends State<HomeHeader> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsetsDirectional.only(start: 22, bottom: 16, top: 2),
+      padding: const EdgeInsets.only(top: 2, bottom: 16, left: 22),
       decoration: const BoxDecoration(color: AppColors.backgroundWhite),
       child: SafeArea(
         bottom: false,
@@ -35,7 +37,7 @@ class _HomeHeaderState extends State<HomeHeader> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 22),
+              padding: 22.pRight,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -47,10 +49,10 @@ class _HomeHeaderState extends State<HomeHeader> {
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (_) => const Center(
+                            builder: (_) => Center(
                               child: SizedBox(
-                                width: 80,
-                                height: 80,
+                                width: 80.w,
+                                height: 80.h,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 8,
                                   color: AppColors.primary,
@@ -69,11 +71,11 @@ class _HomeHeaderState extends State<HomeHeader> {
                         },
                         child: SvgPicture.asset(
                           IconsAssets.profile,
-                          height: 26,
-                          width: 26,
+                          height: 26.h,
+                          width: 26.w,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16.w),
 
                       GestureDetector(
                         onTap: () {
@@ -98,14 +100,14 @@ class _HomeHeaderState extends State<HomeHeader> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             DefaultTabController(
               length: CategoryModel.categories.length,
               child: TabBar(
                 tabAlignment: TabAlignment.start,
                 isScrollable: true,
-                labelPadding: const EdgeInsets.only(right: 10),
+                labelPadding: 10.pRight,
                 dividerColor: Colors.transparent,
                 indicatorColor: Colors.transparent,
                 onTap: (index) {

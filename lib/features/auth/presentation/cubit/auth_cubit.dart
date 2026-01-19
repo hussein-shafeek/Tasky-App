@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:tasky_app/features/auth/data/models/login_request.dart';
 import 'package:tasky_app/features/auth/data/models/register_request.dart';
-import 'package:tasky_app/features/auth/domain/repositories/auth_repo.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/get_token_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:tasky_app/features/auth/domain/use_cases/logout_use_case.dart';

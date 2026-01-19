@@ -25,7 +25,7 @@ class GetTasksCubit extends Cubit<TaskState> {
     }
   final result = await getTasksUseCase(page: _page);
     result.fold(
-      (Failure failure) {
+      (failure) {
         emit(
           TaskError(
             message: failure.errMessage,
