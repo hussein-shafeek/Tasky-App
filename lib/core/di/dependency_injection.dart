@@ -8,7 +8,7 @@ import 'package:tasky_app/features/home/data/repositories/tasks_repository_impl.
 import 'package:tasky_app/features/home/domain/repositories/tasks_repository.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
-import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
@@ -110,11 +110,10 @@ Future<void> setupDependencyInjection() async {
     () => GetTaskByIdUseCase(getIt.get<TasksRepository>()),
   );
 
-  //Cubit
-  getIt.registerFactory<GetTasksCubit>(
-    () => GetTasksCubit(
-      getTasksUseCase: getIt<GetTasksUseCase>(),
-      getTaskByIdUseCase: getIt<GetTaskByIdUseCase>(),
+  getIt.registerFactory<TasksCubit>(
+    () => TasksCubit(
+      getTasksUseCase: getIt.get<GetTasksUseCase>(),
+      getTaskByIdUseCase: getIt.get<GetTaskByIdUseCase>(),
     ),
   );
 

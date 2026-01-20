@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/presentation/widgets/task_qr_widget.dart';
@@ -28,7 +28,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<GetTasksCubit>().fetchTaskById(widget.taskId);
+    context.read<TasksCubit>().fetchTaskById(widget.taskId);
   }
 
   @override
@@ -36,7 +36,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     final text = Theme.of(context).textTheme;
     double height = MediaQuery.of(context).size.height;
 
-    return BlocBuilder<GetTasksCubit, TaskState>(
+    return BlocBuilder<TasksCubit, TaskState>(
       builder: (context, state) {
         if (state is TaskLoading) {
           return const Scaffold(

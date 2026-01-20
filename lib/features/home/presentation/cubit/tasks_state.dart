@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
+import 'package:tasky_app/features/home/data/models/task_model.dart';
 
 sealed class TaskState extends Equatable {
-  final List<TasksEntity> tasks;
+  final List<TaskModel> tasks;
   final bool hasMore;
   const TaskState({required this.tasks, required this.hasMore});
 }

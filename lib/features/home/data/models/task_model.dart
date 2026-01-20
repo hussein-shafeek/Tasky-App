@@ -1,4 +1,3 @@
-import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
 import 'package:tasky_app/features/home/domain/enums/priority.dart';
 import 'package:tasky_app/features/home/domain/value_objects/status.dart';
 
@@ -28,8 +27,7 @@ class TaskModel {
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json["_id"],
-      image: json['image'],
-
+      image: _mapImage(json['image']),
       title: json["title"] ?? "",
       desc: json["desc"] ?? "",
       priority: Priority.fromName(json["priority"]?.toString()),
@@ -42,6 +40,7 @@ class TaskModel {
 
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "image": image,
       "title": title,
       "desc": desc,
@@ -51,5 +50,11 @@ class TaskModel {
       "createdAt": createdAt.toIso8601String(),
       "updatedAt": updatedAt.toIso8601String(),
     };
+  }
+
+  static String? _mapImage(String? image) {
+    if (image == null || image.isEmpty) return null;
+    if (image.startsWith('http')) return image;
+    return 'https://todo.iraqsapp.com/images/$image';
   }
 }

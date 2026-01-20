@@ -6,9 +6,8 @@ import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/home/domain/entities/tasks_entity.dart';
-import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_state.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/features/home/domain/enums/priority.dart';
 import 'package:tasky_app/features/home/presentation/widgets/home_header.dart';
@@ -32,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    final cubit = context.read<GetTasksCubit>();
+    final cubit = context.read<TasksCubit>();
     final state = cubit.state;
 
     if (_scrollController.position.pixels >=
@@ -44,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshTasks() async {
-    await context.read<GetTasksCubit>().fetchTasks(refresh: true);
+    await context.read<TasksCubit>().fetchTasks(refresh: true);
   }
 
   @override
@@ -110,10 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (!mounted || qrResult == null) return;
 
                     final taskId = qrResult.toString();
-                    final cubit = context.read<GetTasksCubit>();
+                    final cubit = context.read<TasksCubit>();
 
                     final task = cubit.state.tasks
-                        .cast<TasksEntity?>()
+                        .cast<TaskModel?>()
                         .firstWhere((t) => t?.id == taskId, orElse: () => null);
 
                     if (task != null) {
@@ -166,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: BlocConsumer<GetTasksCubit, TaskState>(
+        body: BlocConsumer<TasksCubit, TaskState>(
           listener: (context, state) {
             if (state is TaskError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -186,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Center(child: Text(state.message));
             }
 
-            final tasks = _filterTasks(state.tasks.cast<TasksEntity>());
+            final tasks = _filterTasks(state.tasks.cast<TaskModel>());
             // List<TaskModel> filteredTasks = tasks.where((task) {
             //   final s = selectedCategory.toLowerCase();
             //   if (s == 'all') return true;
@@ -379,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'https://todo.iraqsapp.com/images/$image'; // Add base path
   }
 
-  List<TasksEntity> _filterTasks(List<TasksEntity> tasks) {
+  List<TaskModel> _filterTasks(List<TaskModel> tasks) {
     if (selectedCategory == 'all') return tasks;
 
     return tasks

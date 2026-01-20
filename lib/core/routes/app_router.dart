@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
-import 'package:tasky_app/features/home/presentation/cubit/get_tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/di/dependency_injection.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
@@ -13,7 +13,7 @@ import 'package:tasky_app/features/auth/presentation/screens/register_screen.dar
 import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
 import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
-import 'package:tasky_app/features/task_details/presentation/screens/task_details_screen.dart';
+import 'package:tasky_app/features/home/presentation/screens/task_details_screen.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -72,8 +72,8 @@ class AppRouter {
           builder: (context, state) {
             return MultiBlocProvider(
               providers: [
-                BlocProvider<GetTasksCubit>(
-                  create: (_) => getIt<GetTasksCubit>()..fetchTasks(),
+                BlocProvider<TasksCubit>(
+                  create: (_) => getIt<TasksCubit>()..fetchTasks(),
                 ),
                 BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
               ],
@@ -96,9 +96,7 @@ class AppRouter {
             final taskId = state.pathParameters['taskId']!;
             return MultiBlocProvider(
               providers: [
-                BlocProvider<GetTasksCubit>(
-                  create: (_) => getIt<GetTasksCubit>(),
-                ),
+                BlocProvider<TasksCubit>(create: (_) => getIt<TasksCubit>()),
                 BlocProvider<TaskCubitOld>(
                   create: (_) => getIt<TaskCubitOld>(),
                 ),
