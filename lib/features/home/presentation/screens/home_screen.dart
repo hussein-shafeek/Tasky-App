@@ -10,7 +10,7 @@ import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/features/home/domain/enums/priority.dart';
-import 'package:tasky_app/features/home/presentation/widgets/home_header.dart';
+import 'package:tasky_app/features/home/presentation/widgets/home_header/home_header.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -186,12 +186,6 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             final tasks = _filterTasks(state.tasks.cast<TaskModel>());
-            // List<TaskModel> filteredTasks = tasks.where((task) {
-            //   final s = selectedCategory.toLowerCase();
-            //   if (s == 'all') return true;
-            //   return task.status.value.toLowerCase() == s;
-            // }).toList();
-
             return RefreshIndicator(
               onRefresh: _refreshTasks,
               child: Column(
