@@ -13,6 +13,7 @@ import 'package:tasky_app/features/auth/presentation/screens/register_screen.dar
 import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
 import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:tasky_app/features/task_details/presentation/screens/task_details_screen.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -45,7 +46,7 @@ class AppRouter {
           return Routes.homeScreen;
         }
 
-        return Routes.homeScreen;
+        return null;
       },
       routes: [
         GoRoute(
@@ -86,6 +87,23 @@ class AppRouter {
             return BlocProvider<ProfileCubit>(
               create: (context) => getIt<ProfileCubit>()..getProfile(),
               child: ProfileScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/detailsScreen/:taskId',
+          builder: (context, state) {
+            final taskId = state.pathParameters['taskId']!;
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<GetTasksCubit>(
+                  create: (_) => getIt<GetTasksCubit>(),
+                ),
+                BlocProvider<TaskCubitOld>(
+                  create: (_) => getIt<TaskCubitOld>(),
+                ),
+              ],
+              child: TaskDetailsScreen(taskId: taskId),
             );
           },
         ),
