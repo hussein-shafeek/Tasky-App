@@ -9,7 +9,7 @@ class TasksRepositoryImpl implements TasksRepository {
   final TasksRemoteDataSource remoteDataSource;
 
   TasksRepositoryImpl({required this.remoteDataSource});
-
+// -------------------get tasks-------------------
   @override
   Future<Either<Failure, List<TaskModel>>> getTasks({int page = 1}) async {
     try {
@@ -22,12 +22,25 @@ class TasksRepositoryImpl implements TasksRepository {
       return Left(ServerFailure(errMessage: e.toString()));
     }
   }
-
+// -------------------get task by id-------------------
   @override
   Future<Either<Failure, TaskModel>> getTaskById(String id) async {
     try {
       final task = await remoteDataSource.getTaskById(id);
       return Right(task);
+    } catch (e) {
+      if (e is DioException) {
+        return Left(ServerFailure.fromDioException(dioException: e));
+      }
+      return Left(ServerFailure(errMessage: e.toString()));
+    }
+  }
+// -------------------delete task-------------------
+  @override
+  Future<Either<Failure, Unit>> deleteTask(String id) async {
+    try {
+      await remoteDataSource.deleteTask(id);
+      return Right(unit);
     } catch (e) {
       if (e is DioException) {
         return Left(ServerFailure.fromDioException(dioException: e));

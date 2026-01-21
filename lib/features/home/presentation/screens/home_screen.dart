@@ -117,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (task != null) {
                       context.push(Routes.taskDetails(task.id));
-
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Task not found')),
@@ -209,7 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           final task = tasks[index];
                           return GestureDetector(
                             onTap: () async {
-                              final updated = await context.push(Routes.taskDetails(task.id));
+                              final updated = await context.push(
+                                Routes.taskDetails(task.id),
+                              );
+                              if (updated == true && mounted) {
+                                _refreshTasks();
+                              }
                             },
                             child: Container(
                               decoration: BoxDecoration(

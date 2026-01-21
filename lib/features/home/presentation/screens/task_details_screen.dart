@@ -9,7 +9,6 @@ import 'package:tasky_app/features/home/presentation/widgets/task_details/custom
 import 'package:tasky_app/features/home/presentation/widgets/task_qr_widget.dart';
 import 'package:tasky_app/core/utils/date_utils.dart' as myDateUtils;
 
-
 class TaskDetailsScreen extends StatefulWidget {
   final String taskId;
   const TaskDetailsScreen({super.key, required this.taskId});
@@ -33,152 +32,174 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     final text = Theme.of(context).textTheme;
     double height = MediaQuery.of(context).size.height;
 
-    return BlocBuilder<TasksCubit, TaskState>(
-      builder: (context, state) {
-        if (state is TaskLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+    return BlocListener<TasksCubit, TaskState>(
+      listener: (context, state) {
+        if (state is DeleteTaskSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Task deleted successfully")),
           );
-        } else if (state is TaskError) {
-          return Center(child: Text(state.message));
+          Navigator.pop(context, true);
         }
 
-        final task = state.tasks.isNotEmpty ? state.tasks.first : null;
-
-        if (task == null) {
-          return const Scaffold(body: Center(child: Text("Task not found")));
+        if (state is DeleteTaskError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
-
-        return Scaffold(
-          backgroundColor: AppColors.backgroundWhite,
-          appBar: CustomTaskAppBar(taskId: task.id),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Same UI code...
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: (task.image != null && task.image!.isNotEmpty)
-                        ? Image.network(
-                            task.image!.startsWith("http")
-                                ? task.image!
-                                : "https://todo.iraqsapp.com/images/${task.image!}",
-                            width: double.infinity,
-                            height: height * 0.277,
-                            fit: BoxFit.scaleDown,
-                            errorBuilder: (context, error, stackTrace) {
-                              print("URL: ${task.image}");
-                              print("Error: $error");
-                              print("StackTrace: $stackTrace");
-                              return Image.asset(
-                                ImageAssets.grocery,
-                                width: double.infinity,
-                                height: height * 0.277,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            ImageAssets.grocery,
-                            width: double.infinity,
-                            height: height * 0.277,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                ),
-
-                SizedBox(height: height * 0.0197),
-                Text(
-                  task.title,
-                  style: text.headlineSmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: height * 0.00985),
-                Text(
-                  task.desc,
-                  style: text.titleSmall!.copyWith(
-                    color: AppColors.black.withValues(alpha: 0.6),
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: height * 0.02955),
-                IgnorePointer(
-                  ignoring: true,
-                  child: CustomDropdownFlexible(
-                    value: myDateUtils.DateUtils.formatDate(task.createdAt),
-                    items: [myDateUtils.DateUtils.formatDate(task.createdAt)],
-                    textColor: AppColors.black,
-                    labelInside: "End Date",
-                    svgTrailingAsset: IconsAssets.calendar,
-                    onChanged: (v) {},
-                  ),
-                ),
-                SizedBox(height: height * 0.00985),
-                IgnorePointer(
-                  ignoring: true,
-                  child: CustomDropdownFlexible(
-                    value: task.status.value,
-                    items: const ["waiting", "inprogress", "finished"],
-
-                    textColor: AppColors.primary,
-                    trailingWidget: Icon(
-                      isStatusFavourite
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
-                    onTrailingTap: () =>
-                        setState(() => isStatusFavourite = !isStatusFavourite),
-                    onChanged: (value) {},
-                  ),
-                ),
-                SizedBox(height: height * 0.00985),
-                IgnorePointer(
-                  ignoring: true,
-                  child: CustomDropdownFlexible(
-                    value: task.priority.label.toLowerCase(),
-                    items: const ["low", "medium", "high"],
-                    textColor: AppColors.primary,
-                    prefixWidget: const Icon(
-                      Icons.flag_outlined,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
-                    suffixText: "Priority",
-                    trailingWidget: Icon(
-                      isPriorityFavourite
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
-                    onTrailingTap: () => setState(
-                      () => isPriorityFavourite = !isPriorityFavourite,
-                    ),
-                    onChanged: (value) {},
-                  ),
-                ),
-                SizedBox(height: height * 0.0197),
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: (task.id.isNotEmpty)
-                        ? TaskQrWidget(taskId: task.id)
-                        : const Text("No QR Image"),
-                  ),
-                ),
-                SizedBox(height: height * 0.036),
-              ],
-            ),
-          ),
-        );
       },
+      child: BlocBuilder<TasksCubit, TaskState>(
+        builder: (context, state) {
+          if (state is TaskLoading || state is DeleteTaskLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          } else if (state is TaskError) {
+            return Center(child: Text(state.message));
+          }
+
+          final task = state.tasks.isNotEmpty ? state.tasks.first : null;
+
+          if (task == null) {
+            return const Scaffold(body: Center(child: Text("Task not found")));
+          }
+
+          return Scaffold(
+            backgroundColor: AppColors.backgroundWhite,
+            appBar: CustomTaskAppBar(
+              taskId: task.id,
+              onDelete: () {
+                context.read<TasksCubit>().deleteTask(task.id);
+              },
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Same UI code...
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: (task.image != null && task.image!.isNotEmpty)
+                          ? Image.network(
+                              task.image!.startsWith("http")
+                                  ? task.image!
+                                  : "https://todo.iraqsapp.com/images/${task.image!}",
+                              width: double.infinity,
+                              height: height * 0.277,
+                              fit: BoxFit.scaleDown,
+                              errorBuilder: (context, error, stackTrace) {
+                                print("URL: ${task.image}");
+                                print("Error: $error");
+                                print("StackTrace: $stackTrace");
+                                return Image.asset(
+                                  ImageAssets.grocery,
+                                  width: double.infinity,
+                                  height: height * 0.277,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              ImageAssets.grocery,
+                              width: double.infinity,
+                              height: height * 0.277,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+
+                  SizedBox(height: height * 0.0197),
+                  Text(
+                    task.title,
+                    style: text.headlineSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: height * 0.00985),
+                  Text(
+                    task.desc,
+                    style: text.titleSmall!.copyWith(
+                      color: AppColors.black.withValues(alpha: 0.6),
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: height * 0.02955),
+                  IgnorePointer(
+                    ignoring: true,
+                    child: CustomDropdownFlexible(
+                      value: myDateUtils.DateUtils.formatDate(task.createdAt),
+                      items: [myDateUtils.DateUtils.formatDate(task.createdAt)],
+                      textColor: AppColors.black,
+                      labelInside: "End Date",
+                      svgTrailingAsset: IconsAssets.calendar,
+                      onChanged: (v) {},
+                    ),
+                  ),
+                  SizedBox(height: height * 0.00985),
+                  IgnorePointer(
+                    ignoring: true,
+                    child: CustomDropdownFlexible(
+                      value: task.status.value,
+                      items: const ["waiting", "inprogress", "finished"],
+
+                      textColor: AppColors.primary,
+                      trailingWidget: Icon(
+                        isStatusFavourite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                      onTrailingTap: () => setState(
+                        () => isStatusFavourite = !isStatusFavourite,
+                      ),
+                      onChanged: (value) {},
+                    ),
+                  ),
+                  SizedBox(height: height * 0.00985),
+                  IgnorePointer(
+                    ignoring: true,
+                    child: CustomDropdownFlexible(
+                      value: task.priority.label.toLowerCase(),
+                      items: const ["low", "medium", "high"],
+                      textColor: AppColors.primary,
+                      prefixWidget: const Icon(
+                        Icons.flag_outlined,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                      suffixText: "Priority",
+                      trailingWidget: Icon(
+                        isPriorityFavourite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                      onTrailingTap: () => setState(
+                        () => isPriorityFavourite = !isPriorityFavourite,
+                      ),
+                      onChanged: (value) {},
+                    ),
+                  ),
+                  SizedBox(height: height * 0.0197),
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: (task.id.isNotEmpty)
+                          ? TaskQrWidget(taskId: task.id)
+                          : const Text("No QR Image"),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.036),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

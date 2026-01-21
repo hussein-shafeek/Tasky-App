@@ -39,3 +39,36 @@ final class TaskError extends TaskState {
   @override
   List<Object?> get props => [message];
 }
+//------------delete task state------------
+final class DeleteTaskLoading extends TaskState {
+  const DeleteTaskLoading({
+    required super.tasks,
+    required super.hasMore,
+  });
+
+  @override
+  List<Object?> get props => [tasks, hasMore];
+}
+
+
+final class DeleteTaskSuccess extends TaskState {
+  const DeleteTaskSuccess({
+    required super.tasks,
+    required super.hasMore,
+  });
+
+  @override
+  List<Object?> get props => [tasks, hasMore];
+}
+final class DeleteTaskError extends TaskState {
+  final String message;
+
+  const DeleteTaskError({
+    required this.message,
+    required super.tasks,
+    required super.hasMore,
+  });
+
+  @override
+  List<Object?> get props => [message];
+}

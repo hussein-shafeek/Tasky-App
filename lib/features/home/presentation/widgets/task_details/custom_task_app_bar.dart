@@ -9,10 +9,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomTaskAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String taskId;
+  final VoidCallback onDelete;
 
   const CustomTaskAppBar({
     super.key,
     required this.taskId,
+    required this.onDelete,
   });
 
   @override
@@ -30,7 +32,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
     final topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
+      builder: (overlayContext) => Positioned(
         top: topPadding + 8,
         right: 12,
         child: Material(
@@ -49,10 +51,8 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                   InkWell(
                     onTap: () {
                       _hideMenu();
-                      context.push(
-                        Routes.editTaskScreen,
-                        extra: widget.taskId,
-                      );
+                      if (!mounted) return;
+                      context.push(Routes.editTaskScreen, extra: widget.taskId);
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -73,8 +73,8 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                   InkWell(
                     onTap: () async {
                       _hideMenu();
-                      final cubit = context.read<TaskCubitOld>();
-                      final messenger = ScaffoldMessenger.of(context);
+                      // final cubit = context.read<TaskCubitOld>();
+                      // final messenger = ScaffoldMessenger.of(context);
 
                       final bool? confirm = await showDialog<bool>(
                         context: context,
@@ -85,11 +85,13 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => context.pop(false),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
                               child: const Text("Cancel"),
                             ),
                             TextButton(
-                              onPressed: () => context.pop(true),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
                               child: const Text(
                                 "Delete",
                                 style: TextStyle(color: Colors.red),
@@ -99,20 +101,22 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                         ),
                       );
 
-                      if (confirm != true) return;
+                      if (!mounted || confirm != true) return;
 
-                      final success =
-                          await cubit.deleteTask(widget.taskId);
+                      widget.onDelete();
 
-                      if (success) {
-                        context.pop(true);
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text("Failed to delete task"),
-                          ),
-                        );
-                      }
+                      // final success =
+                      //     await cubit.deleteTask(widget.taskId);
+
+                      // if (success) {
+                      //   context.pop(true);
+                      // } else {
+                      //   messenger.showSnackBar(
+                      //     const SnackBar(
+                      //       content: Text("Failed to delete task"),
+                      //     ),
+                      //   );
+                      // }
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -140,6 +144,12 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
     overlay.insert(_overlayEntry!);
   }
 
+  @override
+  void dispose() {
+    _hideMenu();
+    super.dispose();
+  }
+
   void _hideMenu() {
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -153,26 +163,19 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
       backgroundColor: AppColors.backgroundWhite,
       elevation: 0,
       leading: IconButton(
-        icon: SvgPicture.asset(
-          IconsAssets.arrowLeft,
-          width: 24,
-          height: 24,
-        ),
+        icon: SvgPicture.asset(IconsAssets.arrowLeft, width: 24, height: 24),
         onPressed: () => context.pop(),
       ),
       title: Text(
         'Task Details',
-        style: text.titleMedium!.copyWith(
-          color: AppColors.black,
-        ),
+        style: text.titleMedium!.copyWith(color: AppColors.black),
       ),
       centerTitle: false,
       titleSpacing: 0,
       actions: [
         IconButton(
           icon: const Icon(Icons.more_vert, color: AppColors.black),
-          onPressed: () =>
-              _overlayEntry == null ? _showMenu() : _hideMenu(),
+          onPressed: () => _overlayEntry == null ? _showMenu() : _hideMenu(),
         ),
       ],
     );

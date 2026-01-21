@@ -7,4 +7,5 @@ abstract class EndPoints {
   static const String refreshToken = '/auth/refresh-token';
   static const String getTasks = '/todos';
   static String getTaskById(String id) => '/todos/$id';
+  static String deleteTask(String id) => '/todos/$id';
 }

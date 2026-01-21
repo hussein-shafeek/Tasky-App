@@ -11,6 +11,7 @@ import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:tasky_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
+import 'package:tasky_app/features/home/presentation/screens/qr_scanner_screen.dart';
 import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/task_details_screen.dart';
@@ -103,6 +104,12 @@ class AppRouter {
               ],
               child: TaskDetailsScreen(taskId: taskId),
             );
+          },
+        ),
+        GoRoute(
+          path: Routes.qrScanner,
+          builder: (context, state) {
+            return const QRScannerScreen();
           },
         ),
       ],

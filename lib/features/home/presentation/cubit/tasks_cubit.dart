@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tasky_app/core/error/failures.dart';
+import 'package:tasky_app/features/home/domain/use_cases/delete_task_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
@@ -7,8 +8,9 @@ import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 class TasksCubit extends Cubit<TaskState> {
   final GetTasksUseCase getTasksUseCase;
   final GetTaskByIdUseCase getTaskByIdUseCase;
+  final DeleteTaskUseCase deleteTaskUseCase;
   
-  TasksCubit({required this.getTasksUseCase, required this.getTaskByIdUseCase}) : super(const TaskInitial());
+  TasksCubit({required this.getTasksUseCase, required this.getTaskByIdUseCase , required this.deleteTaskUseCase}) : super(const TaskInitial());
   int _page = 1;
   static const int pageSize = 10;
 
@@ -66,4 +68,45 @@ class TasksCubit extends Cubit<TaskState> {
       },
     );
   }
+
+
+
+//delete task
+
+Future<void> deleteTask(String id) async {
+  emit(
+    DeleteTaskLoading(
+      tasks: state.tasks,
+      hasMore: state.hasMore,
+    ),
+  );
+
+  final result = await deleteTaskUseCase(id);
+
+  result.fold(
+    (failure) {
+      emit(
+        DeleteTaskError(
+          message: failure.errMessage,
+          tasks: state.tasks,
+          hasMore: state.hasMore,
+        ),
+      );
+    },
+    (_) {
+      final updatedTasks = state.tasks.where((t) => t.id != id).toList();
+      emit(
+        DeleteTaskSuccess(
+          tasks: updatedTasks,
+          hasMore: state.hasMore,
+        ),
+      );
+    },
+  );
+}
+
+
+
+
+
 }
