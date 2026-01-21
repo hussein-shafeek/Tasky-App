@@ -52,7 +52,7 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                     onTap: () {
                       _hideMenu();
                       if (!mounted) return;
-                      context.push(Routes.editTaskScreen, extra: widget.taskId);
+                      context.pushNamed(Routes.editTaskScreen, pathParameters: {"taskId": widget.taskId});
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(

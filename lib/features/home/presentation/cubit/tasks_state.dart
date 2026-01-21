@@ -3,8 +3,8 @@ import 'package:tasky_app/features/home/data/models/task_model.dart';
 
 sealed class TaskState extends Equatable {
   final List<TaskModel> tasks;
-  final bool hasMore;
-  const TaskState({required this.tasks, required this.hasMore});
+  final bool? hasMore;
+  const TaskState({required this.tasks, this.hasMore});
 }
 
 //initial state
@@ -72,3 +72,36 @@ final class DeleteTaskError extends TaskState {
   @override
   List<Object?> get props => [message];
 }
+//------------update task state------------
+final class UpdateTaskLoading extends TaskState {
+  const UpdateTaskLoading({
+    required super.tasks,
+  
+  });
+
+  @override
+  List<Object?> get props => [tasks];
+}
+
+final class UpdateTaskSuccess extends TaskState {
+  const UpdateTaskSuccess({
+    required super.tasks,
+
+  });
+
+  @override
+  List<Object?> get props => [tasks];
+}
+final class UpdateTaskError extends TaskState {
+  final String message;
+
+  const UpdateTaskError({
+    required this.message,
+    required super.tasks,
+    
+  });
+
+  @override
+  List<Object?> get props => [message];
+}
+

@@ -48,4 +48,17 @@ class TasksRepositoryImpl implements TasksRepository {
       return Left(ServerFailure(errMessage: e.toString()));
     }
   }
+  // -------------------update task-------------------
+  @override
+  Future<Either<Failure, Unit>> updateTask(String id, TaskModel task) async {
+    try {
+      await remoteDataSource.updateTask(id, task);
+      return Right(unit);
+    } catch (e) {
+      if (e is DioException) {
+        return Left(ServerFailure.fromDioException(dioException: e));
+      }
+      return Left(ServerFailure(errMessage: e.toString()));
+    }
+  }
 }

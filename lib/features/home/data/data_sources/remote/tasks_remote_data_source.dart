@@ -7,4 +7,7 @@ abstract class TasksRemoteDataSource {
   Future<TaskModel> getTaskById(String id);
   // -------------------delete task-------------------
   Future<void> deleteTask(String id);
+  // -------------------update task-------------------
+  Future<void> updateTask(String id, TaskModel task);
 }
+

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ import 'package:tasky_app/features/home/presentation/screens/qr_scanner_screen.d
 import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/task_details_screen.dart';
+import 'package:tasky_app/features/home/presentation/screens/edit_task.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -110,6 +112,23 @@ class AppRouter {
           path: Routes.qrScanner,
           builder: (context, state) {
             return const QRScannerScreen();
+          },
+        ),
+        GoRoute(
+          path: "${Routes.editTaskScreen}/:taskId",
+          name: Routes.editTaskScreen,
+          builder: (context, state) {
+            final taskId = state.pathParameters['taskId'];
+            if (taskId == null) {
+              return const Scaffold(
+                body: Center(child: Text("Task ID is missing")),
+              );
+            }
+
+            return BlocProvider<TasksCubit>(
+              create: (context) => getIt<TasksCubit>(),
+              child: EditTaskScreen(taskId: taskId),
+            );
           },
         ),
       ],

@@ -1,23 +1,26 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tasky_app/core/error/failures.dart';
+import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/features/home/domain/use_cases/delete_task_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
+import 'package:tasky_app/features/home/domain/use_cases/update_task_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 
 class TasksCubit extends Cubit<TaskState> {
   final GetTasksUseCase getTasksUseCase;
   final GetTaskByIdUseCase getTaskByIdUseCase;
   final DeleteTaskUseCase deleteTaskUseCase;
+  final UpdateTaskUseCase updateTaskUseCase;
   
-  TasksCubit({required this.getTasksUseCase, required this.getTaskByIdUseCase , required this.deleteTaskUseCase}) : super(const TaskInitial());
+  TasksCubit({required this.getTasksUseCase, required this.getTaskByIdUseCase , required this.deleteTaskUseCase, required this.updateTaskUseCase}) : super(const TaskInitial());
   int _page = 1;
   static const int pageSize = 10;
 
   //fetch tasks
   Future<void> fetchTasks({bool refresh = false}) async {
     if (state is TaskLoading) return;
-    if (!state.hasMore && !refresh) return;
+    if (!(state.hasMore??true) && !refresh) return;
 
     if (refresh) {
       _page = 1;
@@ -104,6 +107,39 @@ Future<void> deleteTask(String id) async {
     },
   );
 }
+
+//update task
+Future<void> updateTask(String id, TaskModel task) async {
+  emit(
+    UpdateTaskLoading(
+      tasks: state.tasks,
+      
+    ),
+  );
+
+  final result = await updateTaskUseCase(id, task);
+
+  result.fold(
+    (failure) {
+      emit(
+        UpdateTaskError(
+          message: failure.errMessage,
+          tasks: state.tasks,
+          
+        ),
+      );
+    },
+    (_) {
+      final updatedTasks = state.tasks.map((t) => t.id == id ? task : t).toList();
+      emit(
+        UpdateTaskSuccess(
+          tasks: updatedTasks,
+        ),
+      );
+    },
+  );
+}
+
 
 
 

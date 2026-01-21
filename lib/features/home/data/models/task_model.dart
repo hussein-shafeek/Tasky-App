@@ -51,7 +51,27 @@ class TaskModel {
       "updatedAt": updatedAt.toIso8601String(),
     };
   }
-
+  // update task (edit task)
+  Map<String, dynamic> toUpdateBody() {
+    return {
+      "image": image,
+      "title": title,
+      "desc": desc,
+      "priority": priority.name,
+      "status": status.value,
+      "user": user,
+    };
+  }
+  // add task 
+  Map<String, dynamic> addTask() {
+    return {
+      "image": image,
+      "title": title,
+      "desc": desc,
+      "priority": priority.name,
+      "dueDate": createdAt.toIso8601String(),
+    };
+  }
   static String? _mapImage(String? image) {
     if (image == null || image.isEmpty) return null;
     if (image.startsWith('http')) return image;

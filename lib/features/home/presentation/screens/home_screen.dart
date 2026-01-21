@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 120 &&
         state is TaskSuccess &&
-        state.hasMore) {
+        (state.hasMore??true)) {
       cubit.fetchTasks();
     }
   }
@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 22),
-                      itemCount: tasks.length + (state.hasMore ? 1 : 0),
+                      itemCount: tasks.length + ((state.hasMore??true) ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index < tasks.length) {
                           final task = tasks[index];

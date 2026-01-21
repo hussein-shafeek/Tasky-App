@@ -30,4 +30,14 @@ class TasksRemoteDataSourceImpl implements TasksRemoteDataSource {
   Future<void> deleteTask(String id) async {
     await apiConsumer.delete(path: EndPoints.deleteTask(id));
   }
+  // -------------------update task-------------------
+  @override
+  Future<void> updateTask(String id, TaskModel task) async {
+    await apiConsumer.put(path: EndPoints.updateTask(id), body: task.toUpdateBody());
+  }
+  // -------------------add task-------------------
+  @override
+  Future<void> addTask(TaskModel task) async {
+    await apiConsumer.post(path: EndPoints.addTask, body: task.addTask());
+  }
 }

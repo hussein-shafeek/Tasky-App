@@ -9,6 +9,7 @@ import 'package:tasky_app/features/home/domain/repositories/tasks_repository.dar
 import 'package:tasky_app/features/home/domain/use_cases/delete_task_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
+import 'package:tasky_app/features/home/domain/use_cases/update_task_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
@@ -115,6 +116,10 @@ Future<void> setupDependencyInjection() async {
   getIt.registerLazySingleton<DeleteTaskUseCase>(
     () => DeleteTaskUseCase(getIt.get<TasksRepository>()),
   );
+  //UpdateTaskUseCase UseCase
+  getIt.registerLazySingleton<UpdateTaskUseCase>(
+    () => UpdateTaskUseCase(getIt.get<TasksRepository>()),
+  );
 
 
   getIt.registerFactory<TasksCubit>(
@@ -122,8 +127,13 @@ Future<void> setupDependencyInjection() async {
       getTasksUseCase: getIt.get<GetTasksUseCase>(),
       getTaskByIdUseCase: getIt.get<GetTaskByIdUseCase>(),
       deleteTaskUseCase: getIt.get<DeleteTaskUseCase>(),
+      updateTaskUseCase: getIt.get<UpdateTaskUseCase>(),
     ),
   );
+
+
+
+  
 
   //Profile
   getIt.registerLazySingleton<ProfileRemoteDataSource>(

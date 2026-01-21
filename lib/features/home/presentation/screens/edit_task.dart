@@ -6,13 +6,16 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/update_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/services/upload_service.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_text_form_field.dart';
 import 'package:tasky_app/core/widgets/default_elevated_button.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tasky_app/features/home/data/models/task_model.dart';
+import 'package:tasky_app/features/home/domain/enums/priority.dart';
+import 'package:tasky_app/features/home/domain/value_objects/status.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
+import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -40,7 +43,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.initState();
 
     Future.microtask(() {
-      final cubit = context.read<TaskCubitOld>();
+      final cubit = context.read<TasksCubit>();
       if (cubit.state.tasks.isEmpty) {
         cubit.fetchTasks();
       }
@@ -78,42 +81,33 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TaskCubitOld, TaskStateOld>(
-      listenWhen: (prev, next) => !_initialized && next.tasks.isNotEmpty,
+    return BlocConsumer<TasksCubit, TaskState>(
       listener: (context, state) {
-        final task = state.tasks.where((t) => t.id == widget.taskId).isNotEmpty
-            ? state.tasks.firstWhere((t) => t.id == widget.taskId)
-            : null;
+        if (state is UpdateTaskSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Task updated successfully")),
+          );
+          context.pop(true); // نرجع true عشان الـ HomeScreen يعمل refresh
+        }
 
-        if (task != null) {
-          setState(() {
-            _initFromTaskOnce(task);
-          });
+        if (state is UpdateTaskError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
-        if (state is TaskLoading && state.tasks.isEmpty) {
+        final filtered = state.tasks.where((t) => t.id == widget.taskId);
+        final task = filtered.isNotEmpty ? filtered.first : null;
+
+        if (task == null || state is TaskLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final task = state.tasks.where((t) => t.id == widget.taskId).isNotEmpty
-            ? state.tasks.firstWhere((t) => t.id == widget.taskId)
-            : null;
-
-        if (task == null) {
-          if (state is! TaskLoading) {
-            Future.microtask(() => context.read<TaskCubitOld>().fetchTasks());
-          }
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (!_initialized) {
-          _initFromTaskOnce(task);
-        }
+        // init once
+        _initFromTaskOnce(task);
 
         final text = Theme.of(context).textTheme;
         final height = MediaQuery.of(context).size.height;
@@ -287,7 +281,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   label: "Update Task",
                   textStyle: text.bodyLarge!.copyWith(color: AppColors.white),
                   onPressed: () async {
-                    final cubit = context.read<TaskCubitOld>();
+                    final cubit = context.read<TasksCubit>();
 
                     String? imageUrl = task.image;
                     if (selectedImage != null) {
@@ -297,19 +291,21 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       if (uploaded != null) imageUrl = uploaded;
                     }
 
-                    final updateModel = UpdateTodoModel(
-                      image: imageUrl!,
+                    final updatedTask = TaskModel(
+                      id: task.id,
                       title: titleController.text.trim(),
                       desc: descController.text.trim(),
-                      status: status,
-                      priority: priority,
+                      priority: Priority.fromName(priority),
+                      status: Status.fromName(status),
                       user: task.user,
+                      image: imageUrl,
+                      createdAt: task.createdAt,
+                      updatedAt: DateTime.now(),
                     );
 
                     try {
-                      await cubit.updateTask(task.id, updateModel);
-                      await cubit.refreshTasks();
-                      if (mounted) context.pop();
+                      await cubit.updateTask(task.id, updatedTask);
+                      if (mounted) context.pop(true);
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Failed to update task")),
