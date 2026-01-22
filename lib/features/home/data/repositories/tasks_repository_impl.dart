@@ -67,6 +67,20 @@ class TasksRepositoryImpl implements TasksRepository {
     }
   }
 
+  // -------------------add task-------------------
+  @override
+  Future<Either<Failure, TaskModel>> addTask(TaskModel task) async {
+    try {
+      final addedTask = await remoteDataSource.addTask(task);
+      return Right(addedTask);
+    } catch (e) {
+      if (e is DioException) {
+        return Left(ServerFailure.fromDioException(dioException: e));
+      }
+      return Left(ServerFailure(errMessage: e.toString()));
+    }
+  }
+
   // -------------------upload image-------------------
   @override
   Future<Either<Failure, String>> uploadImage(File image) async {

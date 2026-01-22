@@ -11,6 +11,8 @@ abstract class TasksRemoteDataSource {
   Future<void> deleteTask(String id);
   // -------------------update task-------------------
   Future<void> updateTask(String id, TaskModel task);
+  // -------------------add task-------------------
+  Future<TaskModel> addTask(TaskModel task);
 
   Future<String> uploadImage(File image);
 

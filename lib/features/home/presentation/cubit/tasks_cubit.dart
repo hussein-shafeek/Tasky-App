@@ -7,6 +7,7 @@ import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/update_task_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/upload_image_usecase.dart';
+import 'package:tasky_app/features/home/domain/use_cases/add_task_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 
 class TasksCubit extends Cubit<TaskState> {
@@ -15,6 +16,7 @@ class TasksCubit extends Cubit<TaskState> {
   final DeleteTaskUseCase deleteTaskUseCase;
   final UpdateTaskUseCase updateTaskUseCase;
   final UploadImageUseCase uploadImageUseCase;
+  final AddTaskUseCase addTaskUseCase;
 
   TasksCubit({
     required this.getTasksUseCase,
@@ -22,6 +24,7 @@ class TasksCubit extends Cubit<TaskState> {
     required this.deleteTaskUseCase,
     required this.updateTaskUseCase,
     required this.uploadImageUseCase,
+    required this.addTaskUseCase,
   }) : super(const TaskInitial());
 
   int _page = 1;
@@ -156,6 +159,54 @@ class TasksCubit extends Cubit<TaskState> {
             .map((t) => t.id == id ? updatedTaskWithImage : t)
             .toList();
         emit(UpdateTaskSuccess(tasks: updatedTasks, hasMore: state.hasMore));
+      },
+    );
+  }
+
+  //add task
+  Future<void> addTask(TaskModel task, {File? image}) async {
+    emit(AddTaskLoading(tasks: state.tasks, hasMore: state.hasMore));
+
+    String? imageUrl = task.image;
+
+    if (image != null) {
+      final uploadResult = await uploadImageUseCase(image);
+      bool uploadFailed = false;
+      uploadResult.fold(
+        (failure) {
+          uploadFailed = true;
+          emit(
+            AddTaskError(
+              message: failure.errMessage,
+              tasks: state.tasks,
+              hasMore: state.hasMore,
+            ),
+          );
+        },
+        (newImageUrl) {
+          imageUrl = newImageUrl;
+        },
+      );
+      if (uploadFailed) return;
+    }
+
+    final newTaskWithImage = task.copyWith(image: imageUrl);
+
+    final result = await addTaskUseCase(newTaskWithImage);
+
+    result.fold(
+      (failure) {
+        emit(
+          AddTaskError(
+            message: failure.errMessage,
+            tasks: state.tasks,
+            hasMore: state.hasMore,
+          ),
+        );
+      },
+      (addedTask) {
+        final updatedTasks = [addedTask, ...state.tasks];
+        emit(AddTaskSuccess(tasks: updatedTasks, hasMore: state.hasMore));
       },
     );
   }

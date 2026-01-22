@@ -43,12 +43,22 @@ class TasksRemoteDataSourceImpl implements TasksRemoteDataSource {
     );
   }
 
+  // -------------------add task-------------------
+  @override
+  Future<TaskModel> addTask(TaskModel task) async {
+    final response = await apiConsumer.post(
+      path: EndPoints.addTask,
+      body: task.toAddBody(),
+    );
+    return TaskModel.fromJson(response);
+  }
+
   @override
   Future<String> uploadImage(File image) async {
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(
         image.path,
-        filename: image.path.split('/').last,
+        filename: image.path.split(RegExp(r'[/\\]')).last,
       ),
     });
 

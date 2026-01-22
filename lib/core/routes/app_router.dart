@@ -16,6 +16,7 @@ import 'package:tasky_app/features/profile/presentation/cubit/profile_cubit.dart
 import 'package:tasky_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/task_details_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/edit_task.dart';
+import 'package:tasky_app/features/home/presentation/screens/add_new_task_screen.dart';
 
 class AppRouter {
   // static Widget withProviders(Widget child) {
@@ -109,6 +110,24 @@ class AppRouter {
           path: Routes.qrScanner,
           builder: (context, state) {
             return const QRScannerScreen();
+          },
+        ),
+        GoRoute(
+          path: Routes.addTask,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: getIt<TasksCubit>(),
+              child: const AddNewTaskScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: Routes.addTask,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: getIt<TasksCubit>(),
+              child: const AddNewTaskScreen(),
+            );
           },
         ),
         GoRoute(

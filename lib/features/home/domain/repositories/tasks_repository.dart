@@ -13,6 +13,8 @@ abstract class TasksRepository {
   Future<Either<Failure, Unit>> deleteTask(String id);
   // -------------------update task-------------------
   Future<Either<Failure, Unit>> updateTask(String id, TaskModel task);
+  // -------------------add task-------------------
+  Future<Either<Failure, TaskModel>> addTask(TaskModel task);
 
   // -------------------upload image-------------------
   Future<Either<Failure, String>> uploadImage(File image);

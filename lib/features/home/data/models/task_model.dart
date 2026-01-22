@@ -89,19 +89,25 @@ class TaskModel {
   }
 
   // add task
-  Map<String, dynamic> addTask() {
+  Map<String, dynamic> toAddBody() {
     return {
       "image": _getRawImageName(image),
       "title": title,
       "desc": desc,
       "priority": priority.name,
-      "dueDate": createdAt.toIso8601String(),
+      "dueDate": createdAt.toIso8601String().split('T').first,
     };
   }
 
   String? get fullImageUrl {
     if (image == null || image!.isEmpty) return null;
     if (image!.startsWith('http')) return image;
+
+    // If the image already contains the 'images/' prefix, don't add it again
+    if (image!.startsWith('images/')) {
+      return 'https://todo.iraqsapp.com/$image';
+    }
+
     return 'https://todo.iraqsapp.com/images/$image';
   }
 

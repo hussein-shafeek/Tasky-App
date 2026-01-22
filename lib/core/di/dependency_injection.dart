@@ -11,6 +11,7 @@ import 'package:tasky_app/features/home/domain/use_cases/get_task_by_id_usecase.
 import 'package:tasky_app/features/home/domain/use_cases/get_tasks_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/update_task_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/upload_image_usecase.dart';
+import 'package:tasky_app/features/home/domain/use_cases/add_task_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/services/todo_service.dart';
@@ -125,6 +126,10 @@ Future<void> setupDependencyInjection() async {
   getIt.registerLazySingleton<UploadImageUseCase>(
     () => UploadImageUseCase(getIt.get<TasksRepository>()),
   );
+  //AddTaskUseCase UseCase
+  getIt.registerLazySingleton<AddTaskUseCase>(
+    () => AddTaskUseCase(getIt.get<TasksRepository>()),
+  );
 
   getIt.registerLazySingleton<TasksCubit>(
     () => TasksCubit(
@@ -133,6 +138,7 @@ Future<void> setupDependencyInjection() async {
       deleteTaskUseCase: getIt.get<DeleteTaskUseCase>(),
       updateTaskUseCase: getIt.get<UpdateTaskUseCase>(),
       uploadImageUseCase: getIt.get<UploadImageUseCase>(),
+      addTaskUseCase: getIt.get<AddTaskUseCase>(),
     ),
   );
 

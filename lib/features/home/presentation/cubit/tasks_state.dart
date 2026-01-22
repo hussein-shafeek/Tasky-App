@@ -80,3 +80,25 @@ final class UpdateTaskError extends TaskState {
   @override
   List<Object?> get props => [message, tasks, hasMore];
 }
+
+//------------add task state------------
+final class AddTaskLoading extends TaskState {
+  const AddTaskLoading({required super.tasks, required super.hasMore});
+}
+
+final class AddTaskSuccess extends TaskState {
+  const AddTaskSuccess({required super.tasks, required super.hasMore});
+}
+
+final class AddTaskError extends TaskState {
+  final String message;
+
+  const AddTaskError({
+    required this.message,
+    required super.tasks,
+    required super.hasMore,
+  });
+
+  @override
+  List<Object?> get props => [message, tasks, hasMore];
+}
