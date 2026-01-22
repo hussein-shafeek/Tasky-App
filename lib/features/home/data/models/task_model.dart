@@ -23,11 +23,35 @@ class TaskModel {
     required this.createdAt,
     required this.updatedAt,
   });
+  // --------- copyWith method ----------
+  TaskModel copyWith({
+    String? id,
+    String? image,
+    String? title,
+    String? desc,
+    Priority? priority,
+    Status? status,
+    String? user,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      image: image ?? this.image,
+      title: title ?? this.title,
+      desc: desc ?? this.desc,
+      priority: priority ?? this.priority,
+      status: status ?? this.status,
+      user: user ?? this.user,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json["_id"],
-      image: _mapImage(json['image']),
+      image: json['image'],
       title: json["title"] ?? "",
       desc: json["desc"] ?? "",
       priority: Priority.fromName(json["priority"]?.toString()),
@@ -51,10 +75,11 @@ class TaskModel {
       "updatedAt": updatedAt.toIso8601String(),
     };
   }
+
   // update task (edit task)
   Map<String, dynamic> toUpdateBody() {
     return {
-      "image": image,
+      "image": _getRawImageName(image),
       "title": title,
       "desc": desc,
       "priority": priority.name,
@@ -62,19 +87,29 @@ class TaskModel {
       "user": user,
     };
   }
-  // add task 
+
+  // add task
   Map<String, dynamic> addTask() {
     return {
-      "image": image,
+      "image": _getRawImageName(image),
       "title": title,
       "desc": desc,
       "priority": priority.name,
       "dueDate": createdAt.toIso8601String(),
     };
   }
-  static String? _mapImage(String? image) {
-    if (image == null || image.isEmpty) return null;
-    if (image.startsWith('http')) return image;
+
+  String? get fullImageUrl {
+    if (image == null || image!.isEmpty) return null;
+    if (image!.startsWith('http')) return image;
     return 'https://todo.iraqsapp.com/images/$image';
+  }
+
+  static String? _getRawImageName(String? img) {
+    if (img == null) return null;
+    if (img.contains('/')) {
+      return img.split('/').last;
+    }
+    return img;
   }
 }

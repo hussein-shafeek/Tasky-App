@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:tasky_app/core/utils/image_utils.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_state_old.dart';
@@ -13,7 +13,6 @@ import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_elevated_button.dart';
 import 'package:tasky_app/core/widgets/default_text_form_field.dart';
-import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class AddNewTaskScreen extends StatefulWidget {
   const AddNewTaskScreen({super.key});
@@ -47,7 +46,10 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     isPicking = true;
 
     try {
-      final picked = await picker.pickImage(source: ImageSource.gallery);
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+      );
       if (picked != null) {
         if (!isValidImage(picked.path)) {
           print(" Only JPG/PNG images allowed");

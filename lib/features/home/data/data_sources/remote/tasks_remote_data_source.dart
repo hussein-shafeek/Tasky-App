@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:tasky_app/features/home/data/models/task_model.dart';
 
 abstract class TasksRemoteDataSource {
@@ -9,5 +11,11 @@ abstract class TasksRemoteDataSource {
   Future<void> deleteTask(String id);
   // -------------------update task-------------------
   Future<void> updateTask(String id, TaskModel task);
-}
 
+  Future<String> uploadImage(File image);
+
+  // Future<TaskModel> updateTask({
+  //   required String id,
+  //   required Map<String, dynamic> body,
+  // });
+}

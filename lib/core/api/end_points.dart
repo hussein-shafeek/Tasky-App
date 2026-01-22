@@ -10,5 +10,6 @@ abstract class EndPoints {
   static String getTaskById(String id) => '/todos/$id';
   static String deleteTask(String id) => '/todos/$id';
   static String updateTask(String id) => '/todos/$id';
+  static const String uploadImage = '/upload/image';
 
 }

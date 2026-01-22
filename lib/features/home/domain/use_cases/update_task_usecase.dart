@@ -12,3 +12,4 @@ class UpdateTaskUseCase {
     return await tasksRepo.updateTask(id, task);
   }
 }
+

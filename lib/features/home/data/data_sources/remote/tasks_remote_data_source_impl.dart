@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:tasky_app/core/api/api_consumer.dart';
 import 'package:tasky_app/core/api/end_points.dart';
 import 'package:tasky_app/features/home/data/data_sources/remote/tasks_remote_data_source.dart';
@@ -30,14 +33,43 @@ class TasksRemoteDataSourceImpl implements TasksRemoteDataSource {
   Future<void> deleteTask(String id) async {
     await apiConsumer.delete(path: EndPoints.deleteTask(id));
   }
+
   // -------------------update task-------------------
   @override
   Future<void> updateTask(String id, TaskModel task) async {
-    await apiConsumer.put(path: EndPoints.updateTask(id), body: task.toUpdateBody());
+    await apiConsumer.put(
+      path: EndPoints.updateTask(id),
+      body: task.toUpdateBody(),
+    );
   }
-  // -------------------add task-------------------
+
   @override
-  Future<void> addTask(TaskModel task) async {
-    await apiConsumer.post(path: EndPoints.addTask, body: task.addTask());
+  Future<String> uploadImage(File image) async {
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(
+        image.path,
+        filename: image.path.split('/').last,
+      ),
+    });
+
+    final response = await apiConsumer.post(
+      path: EndPoints.uploadImage,
+      body: formData,
+    );
+
+    return response['image'];
   }
+
+  //   @override
+  //   Future<TaskModel> updateTask({
+  //     required String id,
+  //     required Map<String, dynamic> body,
+  //   }) async {
+  //     final response = await apiConsumer.put(
+  //       path: EndPoints.updateTask(id),
+  //       body: body,
+  //     );
+
+  //     return TaskModel.fromJson(response);
+  //   }
 }

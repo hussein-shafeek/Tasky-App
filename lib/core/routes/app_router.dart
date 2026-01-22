@@ -5,10 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:tasky_app/core/di/dependency_injection.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:tasky_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:tasky_app/features/home/presentation/screens/home_screen.dart';
@@ -55,8 +54,8 @@ class AppRouter {
         GoRoute(
           path: Routes.loginScreen,
           builder: (context, state) {
-            return BlocProvider<AuthCubit>(
-              create: (context) => getIt.get<AuthCubit>(),
+            return BlocProvider.value(
+              value: getIt<AuthCubit>(),
               child: const LoginScreen(),
             );
           },
@@ -64,8 +63,8 @@ class AppRouter {
         GoRoute(
           path: Routes.registerScreen,
           builder: (context, state) {
-            return BlocProvider<AuthCubit>(
-              create: (context) => getIt.get<AuthCubit>(),
+            return BlocProvider.value(
+              value: getIt<AuthCubit>(),
               child: const RegisterScreen(),
             );
           },
@@ -75,10 +74,8 @@ class AppRouter {
           builder: (context, state) {
             return MultiBlocProvider(
               providers: [
-                BlocProvider<TasksCubit>(
-                  create: (_) => getIt<TasksCubit>()..fetchTasks(),
-                ),
-                BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
+                BlocProvider.value(value: getIt<TasksCubit>()),
+                BlocProvider.value(value: getIt<AuthCubit>()),
               ],
               child: const HomeScreen(),
             );
@@ -89,7 +86,7 @@ class AppRouter {
           builder: (context, state) {
             return BlocProvider<ProfileCubit>(
               create: (context) => getIt<ProfileCubit>()..getProfile(),
-              child: ProfileScreen(),
+              child: const ProfileScreen(),
             );
           },
         ),
@@ -99,7 +96,7 @@ class AppRouter {
             final taskId = state.pathParameters['taskId']!;
             return MultiBlocProvider(
               providers: [
-                BlocProvider<TasksCubit>(create: (_) => getIt<TasksCubit>()),
+                BlocProvider.value(value: getIt<TasksCubit>()),
                 BlocProvider<TaskCubitOld>(
                   create: (_) => getIt<TaskCubitOld>(),
                 ),
@@ -125,8 +122,8 @@ class AppRouter {
               );
             }
 
-            return BlocProvider<TasksCubit>(
-              create: (context) => getIt<TasksCubit>(),
+            return BlocProvider.value(
+              value: getIt<TasksCubit>(),
               child: EditTaskScreen(taskId: taskId),
             );
           },

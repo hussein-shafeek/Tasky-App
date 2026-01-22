@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
+import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/features/home/presentation/widgets/task_details/custom_task_app_bar.dart';
@@ -57,7 +58,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             return Center(child: Text(state.message));
           }
 
-          final task = state.tasks.isNotEmpty ? state.tasks.first : null;
+          final task = state.tasks.cast<TaskModel?>().firstWhere(
+            (t) => t?.id == widget.taskId,
+            orElse: () => null,
+          );
 
           if (task == null) {
             return const Scaffold(body: Center(child: Text("Task not found")));
@@ -82,14 +86,12 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       child: (task.image != null && task.image!.isNotEmpty)
                           ? Image.network(
-                              task.image!.startsWith("http")
-                                  ? task.image!
-                                  : "https://todo.iraqsapp.com/images/${task.image!}",
+                              task.fullImageUrl!,
                               width: double.infinity,
                               height: height * 0.277,
                               fit: BoxFit.scaleDown,
                               errorBuilder: (context, error, stackTrace) {
-                                print("URL: ${task.image}");
+                                print("URL: ${task.fullImageUrl}");
                                 print("Error: $error");
                                 print("StackTrace: $stackTrace");
                                 return Image.asset(

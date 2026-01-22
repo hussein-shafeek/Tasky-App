@@ -28,6 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TasksCubit>().fetchTasks();
+    });
   }
 
   void _onScroll() {
@@ -37,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 120 &&
         state is TaskSuccess &&
-        (state.hasMore??true)) {
+        state.hasMore) {
       cubit.fetchTasks();
     }
   }
@@ -74,8 +77,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (state is LogoutSuccess) {
-          if (Navigator.canPop(context))
+          if (Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
+          }
+          context.read<TasksCubit>().clearTasks();
           context.go(Routes.loginScreen);
         }
 
@@ -202,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 22),
-                      itemCount: tasks.length + ((state.hasMore??true) ? 1 : 0),
+                      itemCount: tasks.length + (state.hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index < tasks.length) {
                           final task = tasks[index];
@@ -227,13 +232,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       (task.image != null &&
                                           task.image!.isNotEmpty)
                                       ? Image.network(
-                                          task.image!,
+                                          task.fullImageUrl!,
                                           width: 64,
                                           height: 64,
                                           fit: BoxFit.cover,
                                           errorBuilder:
                                               (context, error, stackTrace) {
-                                                print("URL: ${task.image}");
+                                                print(
+                                                  "URL: ${task.fullImageUrl}",
+                                                );
                                                 print("Error: $error");
                                                 print(
                                                   "StackTrace: $stackTrace",

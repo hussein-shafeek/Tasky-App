@@ -54,6 +54,10 @@ class ServerFailure extends Failure {
       throw ServerFailure(
         errMessage: 'Your session has expired, please login again!',
       );
+    } else if (statusCode == 413) {
+      return ServerFailure(
+        errMessage: 'Image is too large, please choose a smaller one.',
+      );
     } else {
       return ServerFailure(
         errMessage: 'Oops there was an error, please try later!',

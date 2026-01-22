@@ -5,8 +5,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/models/update_model.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
-import 'package:tasky_app/core/services/upload_service.dart';
+
 import 'package:tasky_app/core/resources/color_manager.dart';
+import 'package:tasky_app/core/utils/image_utils.dart';
 import 'package:tasky_app/core/widgets/CustomDropdownFlexible.dart';
 import 'package:tasky_app/core/widgets/default_text_form_field.dart';
 import 'package:tasky_app/core/widgets/default_elevated_button.dart';
@@ -16,7 +17,6 @@ import 'package:tasky_app/features/home/domain/enums/priority.dart';
 import 'package:tasky_app/features/home/domain/value_objects/status.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
-import 'package:tasky_app/features/tasks/logic/image_utils.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final String taskId;
@@ -56,7 +56,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
     final picker = ImagePicker();
     try {
-      final picked = await picker.pickImage(source: ImageSource.gallery);
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+      );
       if (picked != null) {
         setState(() {
           selectedImage = File(picked.path);
@@ -145,9 +148,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         ? ImageUtils.getLocalImageSize(selectedImage!)
                         : (task.image != null
                               ? ImageUtils.getNetworkImageSize(
-                                  task.image!.startsWith("http")
-                                      ? task.image!
-                                      : "https://todo.iraqsapp.com/images/${task.image!}",
+                                  task.fullImageUrl!,
                                 )
                               : null),
                     builder: (context, snapshot) {
@@ -177,12 +178,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                       final imageProvider = selectedImage != null
                           ? FileImage(selectedImage!)
-                          : NetworkImage(
-                                  task.image!.startsWith("http")
-                                      ? task.image!
-                                      : "https://todo.iraqsapp.com/images/${task.image!}",
-                                )
-                                as ImageProvider;
+                          : NetworkImage(task.fullImageUrl!) as ImageProvider;
 
                       return Container(
                         height: containerHeight,
@@ -283,14 +279,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   onPressed: () async {
                     final cubit = context.read<TasksCubit>();
 
-                    String? imageUrl = task.image;
-                    if (selectedImage != null) {
-                      final uploaded = await UploadService().uploadImage(
-                        selectedImage!,
-                      );
-                      if (uploaded != null) imageUrl = uploaded;
-                    }
-
                     final updatedTask = TaskModel(
                       id: task.id,
                       title: titleController.text.trim(),
@@ -298,19 +286,16 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       priority: Priority.fromName(priority),
                       status: Status.fromName(status),
                       user: task.user,
-                      image: imageUrl,
+                      image: task.image,
                       createdAt: task.createdAt,
                       updatedAt: DateTime.now(),
                     );
 
-                    try {
-                      await cubit.updateTask(task.id, updatedTask);
-                      if (mounted) context.pop(true);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Failed to update task")),
-                      );
-                    }
+                    await cubit.updateTask(
+                      task.id,
+                      updatedTask,
+                      image: selectedImage,
+                    );
                   },
                 ),
                 SizedBox(height: height * 0.0197),
