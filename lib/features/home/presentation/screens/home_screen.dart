@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:tasky_app/features/home/data/models/task_model.dart';
-import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
-import 'package:tasky_app/features/home/domain/enums/priority.dart';
 import 'package:tasky_app/features/home/presentation/widgets/home_header/home_header.dart';
+import 'package:tasky_app/features/home/presentation/widgets/home_fab.dart';
+import 'package:tasky_app/features/home/presentation/widgets/task_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -59,8 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme text = Theme.of(context).textTheme;
-
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is LogoutLoading) {
@@ -85,8 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (state is LogoutError) {
-          if (Navigator.canPop(context))
+          if (Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -97,78 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         backgroundColor: AppColors.backgroundWhite,
-        floatingActionButton: SizedBox(
-          width: 70,
-          height: 140,
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Positioned(
-                bottom: 80,
-                right: 7,
-                child: RawMaterialButton(
-                  onPressed: () async {
-                    final qrResult = await context.push(Routes.qrScanner);
-
-                    //if (!mounted) return;
-                    if (!mounted || qrResult == null) return;
-
-                    final taskId = qrResult.toString();
-                    final cubit = context.read<TasksCubit>();
-
-                    final task = cubit.state.tasks
-                        .cast<TaskModel?>()
-                        .firstWhere((t) => t?.id == taskId, orElse: () => null);
-
-                    if (task != null) {
-                      context.push(Routes.taskDetails(task.id));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Task not found')),
-                      );
-                    }
-                  },
-                  fillColor: AppColors.lightPurple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 50,
-                    minHeight: 50,
-                    maxWidth: 50,
-                    maxHeight: 50,
-                  ),
-                  padding: const EdgeInsets.all(13),
-                  child: Icon(
-                    Icons.qr_code,
-                    size: 24,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-              RawMaterialButton(
-                onPressed: () async {
-                  final result = await context.push(Routes.addTask);
-                  if (result == true && mounted) {
-                    _refreshTasks();
-                  }
-                },
-                fillColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 64,
-                  minHeight: 64,
-                  maxWidth: 64,
-                  maxHeight: 64,
-                ),
-                padding: const EdgeInsets.all(16),
-                child: const Icon(Icons.add, size: 32, color: AppColors.white),
-              ),
-            ],
-          ),
-        ),
+        floatingActionButton: HomeFab(onRefresh: _refreshTasks),
         body: BlocConsumer<TasksCubit, TaskState>(
           listener: (context, state) {
             if (state is TaskError) {
@@ -210,141 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: tasks.length + (state.hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index < tasks.length) {
-                          final task = tasks[index];
-                          return GestureDetector(
-                            onTap: () async {
-                              final updated = await context.push(
-                                Routes.taskDetails(task.id),
-                              );
-                              if (updated == true && mounted) {
-                                _refreshTasks();
-                              }
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.backgroundWhite,
-                              ),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child:
-                                      (task.image != null &&
-                                          task.image!.isNotEmpty)
-                                      ? Image.network(
-                                          task.fullImageUrl!,
-                                          width: 64,
-                                          height: 64,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                print(
-                                                  "URL: ${task.fullImageUrl}",
-                                                );
-                                                print("Error: $error");
-                                                print(
-                                                  "StackTrace: $stackTrace",
-                                                );
-
-                                                return Image.asset(
-                                                  ImageAssets.grocery,
-                                                  width: 64,
-                                                  height: 64,
-                                                  fit: BoxFit.cover,
-                                                );
-                                              },
-                                        )
-                                      : Image.asset(
-                                          ImageAssets.grocery,
-                                          width: 64,
-                                          height: 64,
-                                          fit: BoxFit.cover,
-                                        ),
-                                ),
-
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            task.title,
-                                            style: text.titleMedium!.copyWith(
-                                              color: AppColors.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: task.status.color,
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            task.status.label,
-                                            style: text.labelSmall!.copyWith(
-                                              color: task.status.textColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      task.desc,
-                                      style: text.bodySmall!.copyWith(
-                                        color: AppColors.black.withValues(
-                                          alpha: 0.6,
-                                        ),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.flag_outlined,
-                                          size: 16,
-                                          color: getPriorityColorFromEnum(
-                                            task.priority,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          task.priority.label,
-                                          style: text.bodySmall!.copyWith(
-                                            color: getPriorityColorFromEnum(
-                                              task.priority,
-                                            ),
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          task.createdAt
-                                              .toLocal()
-                                              .toString()
-                                              .split(' ')[0],
-                                          style: text.bodySmall!.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          return TaskItem(
+                            task: tasks[index],
+                            onRefresh: _refreshTasks,
                           );
                         } else {
                           // Spinner for Pagination
@@ -363,24 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  Color getPriorityColorFromEnum(Priority p) {
-    switch (p) {
-      case Priority.high:
-        return AppColors.coral;
-      case Priority.medium:
-        return AppColors.primary;
-      case Priority.low:
-      default:
-        return AppColors.azureBlue;
-    }
-  }
-
-  String getFullImageUrl(String? image) {
-    if (image == null || image.isEmpty) return '';
-    if (image.startsWith('http')) return image; // Already full URL
-    return 'https://todo.iraqsapp.com/images/$image'; // Add base path
   }
 
   List<TaskModel> _filterTasks(List<TaskModel> tasks) {
