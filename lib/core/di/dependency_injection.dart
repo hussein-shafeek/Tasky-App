@@ -13,8 +13,8 @@ import 'package:tasky_app/features/home/domain/use_cases/update_task_usecase.dar
 import 'package:tasky_app/features/home/domain/use_cases/upload_image_usecase.dart';
 import 'package:tasky_app/features/home/domain/use_cases/add_task_usecase.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
-import 'package:tasky_app/core/services/todo_service.dart';
+// import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+// import 'package:tasky_app/core/services/todo_service.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_shared_local_data_source.dart';
 import 'package:tasky_app/features/auth/data/data_sources/remote/auth_remote_data_source.dart';
@@ -86,13 +86,6 @@ Future<void> setupDependencyInjection() async {
       registerUseCase: getIt.get<RegisterUseCase>(),
       logoutUseCase: getIt.get<LogoutUseCase>(),
     ),
-  );
-
-  ///?
-  getIt.registerLazySingleton<TodoService>(() => TodoService());
-
-  getIt.registerFactory<TaskCubitOld>(
-    () => TaskCubitOld(getIt.get<TodoService>()),
   );
   //Remote Data Source
   getIt.registerLazySingleton<TasksRemoteDataSource>(

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tasky_app/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
+//import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
 import 'package:tasky_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:tasky_app/core/di/dependency_injection.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
@@ -95,13 +95,15 @@ class AppRouter {
           path: '/detailsScreen/:taskId',
           builder: (context, state) {
             final taskId = state.pathParameters['taskId']!;
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider.value(value: getIt<TasksCubit>()),
-                BlocProvider<TaskCubitOld>(
-                  create: (_) => getIt<TaskCubitOld>(),
-                ),
-              ],
+            // return MultiBlocProvider(
+            // providers: [
+            //   BlocProvider.value(value: getIt<TasksCubit>()),
+            //   BlocProvider<TaskCubitOld>(
+            //     create: (_) => getIt<TaskCubitOld>(),
+            //   ),
+            // ],
+            return BlocProvider.value(
+              value: getIt<TasksCubit>(),
               child: TaskDetailsScreen(taskId: taskId),
             );
           },

@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +6,6 @@ import 'package:tasky_app/core/routes/app_router.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
 import '../../core/di/dependency_injection.dart';
 import '../api/status_code.dart';
-
 import 'end_points.dart';
 
 class AppInterceptors extends Interceptor {
@@ -43,7 +41,7 @@ class AppInterceptors extends Interceptor {
     }
     if (err.response?.statusCode == StatusCode.unauthorized) {
       // Handle 401 Unauthorized
-      String? accessToken = prefs.getString("token");
+      String? accessToken = prefs.getString("accessToken");
       String? refreshToken = prefs.getString("refreshToken");
       log(accessToken.toString());
       log(refreshToken.toString());
@@ -69,7 +67,8 @@ class AppInterceptors extends Interceptor {
           if (response.statusCode == StatusCode.ok) {
             String newAccessToken = response.data["token"];
             prefs.setString("accessToken", newAccessToken);
-            err.requestOptions.headers['Authorization'] = 'Bearer $accessToken';
+            err.requestOptions.headers['Authorization'] =
+                'Bearer $newAccessToken';
             return handler.resolve(await dio.fetch(err.requestOptions));
           } else {
             log("Token refresh failed with status: ${response.statusCode}");

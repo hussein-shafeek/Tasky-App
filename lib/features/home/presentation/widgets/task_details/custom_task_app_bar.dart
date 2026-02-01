@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
 import 'package:tasky_app/core/routes/routes_name.dart';
-import 'package:tasky_app/features/home/presentation/cubit/task_cubit_old.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomTaskAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String taskId;
@@ -52,7 +50,10 @@ class _CustomTaskAppBarState extends State<CustomTaskAppBar> {
                     onTap: () {
                       _hideMenu();
                       if (!mounted) return;
-                      context.pushNamed(Routes.editTaskScreen, pathParameters: {"taskId": widget.taskId});
+                      context.pushNamed(
+                        Routes.editTaskScreen,
+                        pathParameters: {"taskId": widget.taskId},
+                      );
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
