@@ -9,8 +9,7 @@ import 'package:tasky_app/core/utils/image_utils.dart';
 import 'package:tasky_app/features/home/data/models/task_model.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_cubit.dart';
 import 'package:tasky_app/features/home/presentation/cubit/tasks_state.dart';
-import 'package:tasky_app/features/home/domain/enums/priority.dart'
-    as task_priority;
+import 'package:tasky_app/features/home/domain/enums/priority.dart'as task_priority;
 import 'package:tasky_app/features/home/domain/value_objects/status.dart';
 import 'package:tasky_app/core/resources/assets_manager.dart';
 import 'package:tasky_app/core/resources/color_manager.dart';
